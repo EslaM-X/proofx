@@ -14,17 +14,17 @@ import (
 
 // Check is one line of a verification report.
 type Check struct {
-	Name    string `json:"name"`
-	Status  string `json:"status"` // ok | fail | skipped
-	Detail  string `json:"detail,omitempty"`
+	Name   string `json:"name"`
+	Status string `json:"status"` // ok | fail | skipped
+	Detail string `json:"detail,omitempty"`
 }
 
 // VerifyResult is the machine-readable outcome of `proofx verify`.
 type VerifyResult struct {
-	ProofID     string  `json:"proofId"`
-	Verified    bool    `json:"verified"`
-	Checks      []Check `json:"checks"`
-	Coverage    model.Coverage `json:"coverage"`
+	ProofID  string         `json:"proofId"`
+	Verified bool           `json:"verified"`
+	Checks   []Check        `json:"checks"`
+	Coverage model.Coverage `json:"coverage"`
 }
 
 // cmdVerify re-verifies a proof document against the current repository.

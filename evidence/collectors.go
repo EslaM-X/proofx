@@ -125,9 +125,9 @@ func TestsCollector(dir, summaryFile string) func() (any, error) {
 			return nil, err
 		}
 		payload := map[string]any{
-			"file":     summaryFile,
-			"digest":   HashBytes(b),
-			"content":  string(b),
+			"file":    summaryFile,
+			"digest":  HashBytes(b),
+			"content": string(b),
 		}
 		return payload, nil
 	}
@@ -137,10 +137,10 @@ func TestsCollector(dir, summaryFile string) func() (any, error) {
 func EnvCollector(dir string) func() (any, error) {
 	return func() (any, error) {
 		payload := map[string]any{
-			"go_version":  execVersion("go", "version"),
+			"go_version":   execVersion("go", "version"),
 			"node_version": execVersion("node", "--version"),
-			"os":          osName(),
-			"working_dir": dir,
+			"os":           osName(),
+			"working_dir":  dir,
 		}
 		return payload, nil
 	}

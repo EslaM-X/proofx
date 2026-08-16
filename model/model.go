@@ -14,17 +14,17 @@ const BuilderName = "proofx"
 
 // Evidence types (the Evidence Graph node kinds).
 const (
-	TypeGit         = "git"         // repository/commit/branch identity
-	TypeArtifact    = "artifact"    // sha256 of released/built artifacts
-	TypeDependency  = "dependencies"// lockfile digest + manifest snapshot
-	TypeTests       = "tests"       // test result summary (pass/fail counts)
-	TypeEnvironment = "environment" // toolchain + OS the proof was made in
+	TypeGit         = "git"          // repository/commit/branch identity
+	TypeArtifact    = "artifact"     // sha256 of released/built artifacts
+	TypeDependency  = "dependencies" // lockfile digest + manifest snapshot
+	TypeTests       = "tests"        // test result summary (pass/fail counts)
+	TypeEnvironment = "environment"  // toolchain + OS the proof was made in
 )
 
 // Proof is the top-level verifiable document emitted by `proofx prove`.
 type Proof struct {
 	ProofVersion string     `json:"proofVersion"`
-	ID           string     `json:"id"`       // PX-<prefix of binding root>
+	ID           string     `json:"id"` // PX-<prefix of binding root>
 	Project      Project    `json:"project"`
 	Subject      Subject    `json:"subject"`  // what the proof is about
 	Claims       []Claim    `json:"claims"`   // claims being evidenced

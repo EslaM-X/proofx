@@ -12,12 +12,12 @@ import (
 // Config is the on-disk proofx configuration. `proofx init` writes a
 // default Config and `proofx collect` consumes it.
 type Config struct {
-	Version  string   `yaml:"version" json:"version"`
-	Project  string   `yaml:"project" json:"project"`
+	Version   string   `yaml:"version" json:"version"`
+	Project   string   `yaml:"project" json:"project"`
 	Artifacts []string `yaml:"artifacts" json:"artifacts"`
 	Lockfiles []string `yaml:"lockfiles" json:"lockfiles"`
-	Claims   []string `yaml:"claims" json:"claims"`
-	Signing  Signing  `yaml:"signing" json:"signing"`
+	Claims    []string `yaml:"claims" json:"claims"`
+	Signing   Signing  `yaml:"signing" json:"signing"`
 }
 
 // Signing controls local key management.
