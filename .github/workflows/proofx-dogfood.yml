@@ -1,0 +1,43 @@
+name: proofx-dogfood
+
+on:
+  push:
+    branches: [main]
+    paths: ['**/*.go', '**/*.yaml', 'action.yml', 'schema/**', 'proofx.yaml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prove:
+    name: proofx verifies proofx
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+      - name: go test (test evidence source)
+        run: go test ./... 2>&1 | tee .proofx/test-summary.json || true
+      - name: build binary
+        run: go build -o .proofx/proofx ./cmd/proofx
+      - name: init
+        run: .proofx/proofx init
+      - name: keygen
+        run: .proofx/proofx keygen
+      - name: collect evidence
+        run: .proofx/proofx collect
+      - name: prove (bind + sign)
+        run: .proofx/proofx prove
+      - name: inspect
+        run: .proofx/proofx inspect proof.json
+      - name: verify (self-check)
+        run: .proofx/proofx verify proof.json
+      - name: upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: proofx-proof
+          path: proof.json
+          if-no-files-found: error

@@ -1,0 +1,11 @@
+# build artifacts
+/proofx
+/proofx.exe
+/bin/
+*.test
+
+# proofx runtime state (keys are never committed)
+.proofx/key.pem
+.proofx/evidence.json
+.proofx/test-summary.json
+proof.json

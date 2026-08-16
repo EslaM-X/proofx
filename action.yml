@@ -1,0 +1,110 @@
+name: 'ProofX — verifiable evidence'
+description: 'Collect evidence, bind it into a cryptographically verifiable proof, and optionally enforce a policy. Turns "trust me" into "verify it yourself."'
+author: 'EslaM-X'
+branding:
+  icon: 'shield'
+  color: 'yellow'
+
+inputs:
+  version:
+    description: 'ProofX CLI version to run (release tag).'
+    required: false
+    default: 'v0.1.0'
+  command:
+    description: 'proofx subcommand to run (prove | collect | verify | keygen).'
+    required: false
+    default: 'prove'
+  config:
+    description: 'Path to proofx.yaml (relative to repository root).'
+    required: false
+    default: 'proofx.yaml'
+  artifacts:
+    description: 'Comma-separated artifacts to hash, overriding proofx.yaml.'
+    required: false
+    default: ''
+  public-key:
+    description: 'Base64 ed25519 public key to verify against (mutually exclusive with keygen).'
+    required: false
+    default: ''
+  policy:
+    description: 'Minimum required verification coverage (0-100). Fails the job below this.'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Resolve ProofX binary'
+      shell: bash
+      run: |
+        set -euo pipefail
+        VERSION="${{ inputs.version }}"
+        VERSION="${VERSION#v}"
+        OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+        ARCH="$(uname -m)"
+        case "$OS" in
+          darwin) OS=darwin ;;
+          linux) OS=linux ;;
+          windows) OS=windows ;;
+          *) echo "::error::unsupported OS $OS"; exit 1 ;;
+        esac
+        case "$ARCH" in
+          x86_64|amd64) ARCH=amd64 ;;
+          aarch64|arm64) ARCH=arm64 ;;
+          *) echo "::error::unsupported arch $ARCH"; exit 1 ;;
+        esac
+        if [ "$OS" = "windows" ]; then EXT=".exe"; else EXT=""; fi
+        URL="https://github.com/EslaM-X/proofx/releases/download/v${VERSION}/proofx-${OS}-${ARCH}${EXT}"
+        BIN="$RUNNER_TEMP/proofx${EXT}"
+        curl -fsSL "$URL" -o "$BIN"
+        if [ "$OS" != "windows" ]; then chmod +x "$BIN"; fi
+        echo "proofx $VERSION ($OS/$ARCH) downloaded"
+        echo "PROOFX_BIN=$BIN" >> "$GITHUB_ENV"
+
+    - name: 'Run ProofX'
+      shell: bash
+      env:
+        PROOFX_PUBLIC_KEY: ${{ inputs.public-key }}
+      run: |
+        set -euo pipefail
+        BIN="$PROOFX_BIN"
+        case "${{ inputs.command }}" in
+          prove)
+            "$BIN" collect
+            "$BIN" prove
+            ;;
+          verify)
+            "$BIN" verify "${{ inputs.config }}"
+            ;;
+          collect)
+            "$BIN" collect
+            ;;
+          keygen)
+            "$BIN" keygen
+            ;;
+          *)
+            echo "::error::unknown command ${{ inputs.command }}"
+            exit 1
+            ;;
+        esac
+
+    - name: 'Upload proof artifact'
+      if: ${{ inputs.command == 'prove' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: proofx-proof
+        path: proof.json
+        if-no-files-found: error
+
+    - name: 'Enforce verification coverage policy'
+      if: ${{ inputs.policy != '' && inputs.command == 'prove' }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        "$PROOFX_BIN" verify proof.json >/dev/null
+        COVERAGE="$(jq -r '.coverage.score' proof.json)"
+        echo "ProofX verification coverage: $COVERAGE"
+        if [ "$COVERAGE" -lt "${{ inputs.policy }}" ]; then
+          echo "::error::ProofX coverage $COVERAGE is below required ${{ inputs.policy }}"
+          exit 1
+        fi

@@ -1,0 +1,12 @@
+version: "1.0"
+project: "EslaM-X/proofx"
+artifacts:
+  - README.md
+  - LICENSE
+  - schema/proof.schema.json
+lockfiles:
+  - go.sum
+claims:
+  - "Built from the recorded git commit"
+  - "Artifacts have known sha256 digests"
+  - "Dependency lockfile is committed"

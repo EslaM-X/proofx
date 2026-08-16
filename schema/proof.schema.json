@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/EslaM-X/proofx/main/schema/proof.schema.json",
+  "title": "ProofX Proof",
+  "description": "A ProofX proof document: claims bound to independent evidence via a cryptographic Merkle root and an ed25519 signature.",
+  "type": "object",
+  "required": ["proofVersion", "id", "project", "subject", "binding", "signature", "coverage", "createdAt", "builder"],
+  "properties": {
+    "proofVersion": { "type": "string", "const": "1.0" },
+    "id": { "type": "string", "pattern": "^PX-[0-9a-f]{8}$" },
+    "project": {
+      "type": "object",
+      "required": ["name", "repository"],
+      "properties": {
+        "name": { "type": "string" },
+        "repository": { "type": "string" }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "required": ["commit"],
+      "properties": {
+        "commit": { "type": "string", "minLength": 40, "maxLength": 40 },
+        "branch": { "type": "string" },
+        "repository": { "type": "string" }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "text", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "text": { "type": "string" },
+          "status": { "type": "string", "enum": ["pending", "evidenced", "verified"] }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "source", "timestamp", "payload", "digest"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string", "enum": ["git", "artifact", "dependencies", "tests", "environment"] },
+          "source": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "payload": { "type": "string" },
+          "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "required": ["algorithm", "root", "entries"],
+      "properties": {
+        "algorithm": { "type": "string", "const": "sha256" },
+        "root": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "digest"],
+            "properties": {
+              "id": { "type": "string" },
+              "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+            }
+          }
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "required": ["algorithm", "publicKey", "value"],
+      "properties": {
+        "algorithm": { "type": "string", "const": "ed25519" },
+        "publicKey": { "type": "string" },
+        "value": { "type": "string" }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["total", "verified", "score"],
+      "properties": {
+        "total": { "type": "integer" },
+        "verified": { "type": "integer" },
+        "score": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "builder": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "host": { "type": "string" }
+      }
+    }
+  }
+}
