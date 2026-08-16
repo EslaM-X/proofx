@@ -48,15 +48,3 @@ func gitCmd(dir string, args ...string) (string, error) {
 	}
 	return strings.TrimSpace(string(out)), nil
 }
-
-// mustGitDir ensures dir is inside a git working tree.
-func mustGitDir(dir string) error {
-	out, err := exec.Command("git", "-C", dir, "rev-parse", "--is-inside-work-tree").Output()
-	if err != nil {
-		return fmt.Errorf("not a git repository: %w", err)
-	}
-	if strings.TrimSpace(string(out)) != "true" {
-		return fmt.Errorf("not a git working tree")
-	}
-	return nil
-}
