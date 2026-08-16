@@ -41,6 +41,20 @@ Claim              Evidence               Proof               Verification
                    timestamp
 ```
 
+## Dogfooding — ProofX verifies ProofX
+
+ProofX is used in production on the repositories below. Every push runs the
+`proofx-dogfood` workflow: collect evidence → bind → sign → verify.
+
+| Repository | Badge | Proof |
+|------------|-------|-------|
+| [proofx](https://github.com/EslaM-X/proofx) | [![ProofX Verified](https://img.shields.io/badge/ProofX-Verified-FFB627?logo=shield&logoColor=white)](https://github.com/EslaM-X/proofx) | self-verifying |
+| [ai-agent-automation-platform](https://github.com/EslaM-X/ai-agent-automation-platform) | [![ProofX Verified](https://img.shields.io/badge/ProofX-Verified-FFB627?logo=shield&logoColor=white)](https://github.com/EslaM-X/proofx) | GitHub Actions artifacts |
+| [production-systems-lab](https://github.com/EslaM-X/production-systems-lab) | [![ProofX Verified](https://img.shields.io/badge/ProofX-Verified-FFB627?logo=shield&logoColor=white)](https://github.com/EslaM-X/proofx) | GitHub Actions artifacts |
+| [robot-sim-policy-lab](https://github.com/EslaM-X/robot-sim-policy-lab) | [![ProofX Verified](https://img.shields.io/badge/ProofX-Verified-FFB627?logo=shield&logoColor=white)](https://github.com/EslaM-X/proofx) | GitHub Actions artifacts |
+
+Want your repo here? Open a PR that adds `proofx init && proofx collect && proofx prove && proofx verify proof.json` to your CI.
+
 ## Quickstart — 5 minutes from clone to proof
 
 ```bash
