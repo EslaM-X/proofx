@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 EslaM-X <eslam.kora60@gmail.com>
 // Package proof builds, signs and verifies ProofX proof documents.
 //
 // The cryptographic design reuses standard primitives only:
@@ -29,6 +31,15 @@ const BindingAlgorithm = "sha256"
 // SigningAlgorithm is the single supported signature scheme.
 const SigningAlgorithm = "ed25519"
 
+// Domain-separation labels (see docs/CRYPTOGRAPHY.md). Every hash step in
+// the protocol commits a fixed prefix so no hash output can be confused
+// with a hash of different data (domain separation).
+const (
+	DomainLeaf = "proofx/leaf/v1\x00"
+	DomainNode = "proofx/node/v1\x00"
+	DomainSign = "proofx/sign/v1\x00"
+)
+
 // ErrSignatureInvalid is returned when a proof signature does not verify.
 var ErrSignatureInvalid = errors.New("proofx: signature invalid")
 
@@ -42,23 +53,26 @@ func BindingEntries(evs []model.Evidence) []model.BindingEntry {
 	return entries
 }
 
-// Root computes the Merkle-style root over the evidence digests. Each leaf
-// is "id:digest"; adjacent pairs are hashed together upward until one root
-// remains. A single leaf roots to its own digest.
+// Root computes the Merkle-style root over the evidence digests. Leaves are
+// sorted by id, then each leaf is the domain-separated hash of "id:digest";
+// adjacent pairs are hashed together upward until one root remains. A single
+// leaf roots to itself.
 func Root(entries []model.BindingEntry) string {
 	if len(entries) == 0 {
 		return ""
 	}
-	level := make([][]byte, 0, len(entries))
-	for _, e := range entries {
-		h := sha256.Sum256([]byte(e.ID + ":" + e.Digest))
+	sorted := append([]model.BindingEntry(nil), entries...)
+	sort.Slice(sorted, func(i, j int) bool { return sorted[i].ID < sorted[j].ID })
+	level := make([][]byte, 0, len(sorted))
+	for _, e := range sorted {
+		h := sha256.Sum256([]byte(DomainLeaf + e.ID + ":" + e.Digest))
 		level = append(level, h[:])
 	}
 	for len(level) > 1 {
 		next := make([][]byte, 0, (len(level)+1)/2)
 		for i := 0; i < len(level); i += 2 {
 			if i+1 < len(level) {
-				h := sha256.Sum256(append(append([]byte{}, level[i]...), level[i+1]...))
+				h := sha256.Sum256([]byte(DomainNode + string(level[i]) + string(level[i+1])))
 				next = append(next, h[:])
 			} else {
 				next = append(next, level[i])
@@ -118,9 +132,9 @@ func DecodePublicKey(s string) (ed25519.PublicKey, error) {
 	return ed25519.PublicKey(b), nil
 }
 
-// BindingRoot signs/verifies a proof's binding root.
+// bindingPayload is the exact byte string signed: domain label + algorithm + root.
 func bindingPayload(p *model.Proof) []byte {
-	return []byte(p.Binding.Algorithm + ":" + p.Binding.Root)
+	return []byte(DomainSign + p.Binding.Algorithm + ":" + p.Binding.Root)
 }
 
 // Sign attaches an ed25519 signature over the binding root.

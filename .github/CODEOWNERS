@@ -1,0 +1,10 @@
+# Every code change requires a review by the project lead.
+* @EslaM-X
+
+# Security-sensitive paths: restrict changes to maintainers only.
+SECURITY.md @EslaM-X
+docs/CRYPTOGRAPHY.md @EslaM-X
+docs/THREAT_MODEL.md @EslaM-X
+schema/ @EslaM-X
+action.yml @EslaM-X
+.github/workflows/ @EslaM-X

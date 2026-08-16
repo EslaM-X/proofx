@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 EslaM-X <eslam.kora60@gmail.com>
 // Package model defines the ProofX evidence and proof data structures.
 //
 // ProofX turns software claims into independently verifiable evidence.

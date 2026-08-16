@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 EslaM-X <eslam.kora60@gmail.com>
 // Package evidence gathers raw facts about a project: git state, artifact
 // digests, dependency lockfiles, test results and the build environment.
 // Every collector produces a model.Evidence node whose payload is a
@@ -24,19 +26,30 @@ func CanonJSON(v any) (string, error) {
 	return string(b), nil
 }
 
-// Digests computes the hex sha256 of s.
+// DomainEvidence is the domain-separation label for evidence payload digests.
+// Every evidence digest commits this label, so hashes can never be confused
+// with hashes of other data (e.g. a Merkle leaf or a file hash).
+const DomainEvidence = "proofx/evidence/v1\x00"
+
+// Digests returns the raw hex sha256 of s. Prefer EvidenceDigest for any
+// value that will be embedded in a proof.
 func Digests(s string) string {
 	sum := sha256.Sum256([]byte(s))
 	return hex.EncodeToString(sum[:])
 }
 
-// DigestOf hashes the canonical JSON of v.
+// EvidenceDigest computes the domain-separated digest of a canonical payload.
+func EvidenceDigest(canon string) string {
+	return Digests(DomainEvidence + canon)
+}
+
+// DigestOf hashes the canonical JSON of v with domain separation.
 func DigestOf(v any) (string, error) {
 	s, err := CanonJSON(v)
 	if err != nil {
 		return "", err
 	}
-	return Digests(s), nil
+	return EvidenceDigest(s), nil
 }
 
 // Collectors is the ordered set of evidence collectors.
@@ -90,7 +103,7 @@ func Collect(c *Collectors, now time.Time) []Result {
 			Source:    sourceOf(s.typ, payload),
 			Timestamp: now.UTC().Format(time.RFC3339),
 			Payload:   canon,
-			Digest:    Digests(canon),
+			Digest:    EvidenceDigest(canon),
 		}
 		results = append(results, Result{Evidence: ev})
 	}

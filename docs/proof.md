@@ -24,13 +24,13 @@ go build -o proofx ./cmd/proofx
 ```json
 {
   "proofVersion": "1.0",
-  "id": "PX-7d611a48",
+  "id": "PX-56b79e75",
   "project": {
     "name": "EslaM-X/proofx",
     "repository": "EslaM-X/proofx"
   },
   "subject": {
-    "commit": "d874e63d523d1160f6a64c4501524c41a2f96e39",
+    "commit": "c51daaf9034aa588d2887c39db44b48c4a9b3f7c",
     "branch": "main",
     "repository": "EslaM-X/proofx"
   },
@@ -44,52 +44,52 @@ go build -o proofx ./cmd/proofx
       "id": "artifact",
       "type": "artifact",
       "source": "sha256 of configured artifacts",
-      "timestamp": "2026-08-16T06:40:17Z",
+      "timestamp": "2026-08-16T07:24:32Z",
       "payload": "{\"files\":{\"LICENSE\":\"...\",\"README.md\":\"...\",\"schema/proof.schema.json\":\"...\"}}",
-      "digest": "5ca123409745fe38077ac5aad482443f9c207481d9e51a3a1132fb63ebc97032"
+      "digest": "cc34d874ec91212017ac35d4b1f5616e4322e4f3af1059d43f70331ea1c54898"
     },
     {
       "id": "dependencies",
       "type": "dependencies",
       "source": "dependency lockfile digest",
-      "timestamp": "2026-08-16T06:40:17Z",
+      "timestamp": "2026-08-16T07:24:32Z",
       "payload": "{\"lockfiles\":{\"go.sum\":\"...\"}}",
-      "digest": "5d591bec0deaf9e41c7401a5671b21cb84042f78db4cb45cdad8c65dbc4a6acc"
+      "digest": "7b81e355f9a39eb6b237c4124eb2ce5dd68467afec9ee2420f3f887fd4a77aae"
     },
     {
       "id": "environment",
       "type": "environment",
       "source": "build toolchain + os",
-      "timestamp": "2026-08-16T06:40:17Z",
-      "payload": "{\"go_version\":\"go version go1.26.5 windows/amd64\",\"os\":\"windows\"}",
-      "digest": "417314ad5a296ae23e9ef5b1df8ff4bbf138df91c8f5e2add29c9a1c1291e269"
+      "timestamp": "2026-08-16T07:24:32Z",
+      "payload": "{\"go_version\":\"go version go1.26.5 windows/amd64\",\"node_version\":\"v24.18.0\",\"os\":\"windows\",\"working_dir\":\".\"}",
+      "digest": "d79f8e69b3539b53d245cc01d951581ad6c6b77c3072806f22a1c64fb815eeba"
     },
     {
       "id": "git",
       "type": "git",
       "source": "git: https://github.com/EslaM-X/proofx.git",
-      "timestamp": "2026-08-16T06:40:17Z",
-      "payload": "{\"branch\":\"main\",\"commit\":\"d874e63d523d1160f6a64c4501524c41a2f96e39\",\"dirty\":true,\"repository\":\"https://github.com/EslaM-X/proofx.git\"}",
-      "digest": "929d6f01fe7dcdb0b9d666ab38e13abb8a1d2ca389d2b6dadde7110537424594"
+      "timestamp": "2026-08-16T07:24:32Z",
+      "payload": "{\"branch\":\"main\",\"commit\":\"c51daaf9034aa588d2887c39db44b48c4a9b3f7c\",\"commit_time\":\"2026-08-16T09:59:46+03:00\",\"dirty\":true,\"repository\":\"https://github.com/EslaM-X/proofx.git\"}",
+      "digest": "d9035c066fbb20c76e9addf84ecc103078959d9b0ee7689f842e395ebbf5c284"
     }
   ],
   "binding": {
     "algorithm": "sha256",
-    "root": "7d611a485af943b4fef935726d9de8d3fbd2d7765ea11caa3ec64bca8aa7fb7d",
+    "root": "56b79e75fc29f766d506576238dda28e0325b39f809086eca1d79269ccd77628",
     "entries": [
-      { "id": "artifact",     "digest": "5ca123409745fe38077ac5aad482443f9c207481d9e51a3a1132fb63ebc97032" },
-      { "id": "dependencies", "digest": "5d591bec0deaf9e41c7401a5671b21cb84042f78db4cb45cdad8c65dbc4a6acc" },
-      { "id": "environment",  "digest": "417314ad5a296ae23e9ef5b1df8ff4bbf138df91c8f5e2add29c9a1c1291e269" },
-      { "id": "git",          "digest": "929d6f01fe7dcdb0b9d666ab38e13abb8a1d2ca389d2b6dadde7110537424594" }
+      { "id": "artifact",     "digest": "cc34d874ec91212017ac35d4b1f5616e4322e4f3af1059d43f70331ea1c54898" },
+      { "id": "dependencies", "digest": "7b81e355f9a39eb6b237c4124eb2ce5dd68467afec9ee2420f3f887fd4a77aae" },
+      { "id": "environment",  "digest": "d79f8e69b3539b53d245cc01d951581ad6c6b77c3072806f22a1c64fb815eeba" },
+      { "id": "git",          "digest": "d9035c066fbb20c76e9addf84ecc103078959d9b0ee7689f842e395ebbf5c284" }
     ]
   },
   "signature": {
     "algorithm": "ed25519",
-    "publicKey": "QqERgxcqZx6DXvMkAS1oB1PdZlkMGl3UVH1whC+xNVo=",
+    "publicKey": "JcArfc+P1JzIUMRi5HP/gH7AuYBa2RWdsEIUTmnwfnY=",
     "value": "..."
   },
   "coverage": { "total": 4, "verified": 4, "score": 100 },
-  "createdAt": "2026-08-16T06:40:18Z",
+  "createdAt": "2026-08-16T07:24:48Z",
   "builder": { "name": "proofx", "version": "0.1.0" }
 }
 ```

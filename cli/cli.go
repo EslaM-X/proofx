@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 EslaM-X <eslam.kora60@gmail.com>
 // Package cli implements the proofx command-line interface.
 //
 //	proofx init     scaffold proofx.yaml
@@ -43,6 +45,12 @@ func (c *CLI) run(args []string) int {
 		return c.cmdVerify(args[1:])
 	case "inspect":
 		return c.cmdInspect(args[1:])
+	case "explain":
+		return c.cmdExplain(args[1:])
+	case "diff":
+		return c.cmdDiff(args[1:])
+	case "graph":
+		return c.cmdGraph(args[1:])
 	case "keygen":
 		return c.cmdKeygen(args[1:])
 	case "version", "--version", "-v":
@@ -72,7 +80,12 @@ Commands:
   init       scaffold proofx.yaml in the current directory
   collect    gather evidence nodes into .proofx/evidence.json
   prove      bind + sign evidence into proof.json
-  verify     re-verify a proof against the current repository
+  verify     re-verify a proof against the current repository,
+             or verify an artifact against a proof (portable):
+               proofx verify --artifact <file> [--proof proof.json]
+  explain    explain why a proof passes or fails, with likely causes
+  diff       compare two proofs evidence-node by evidence-node
+  graph      render the Evidence Graph of a proof (--json for the model)
   inspect    print a proof in human-readable form
   keygen     generate an ed25519 signing key pair
   version    print the proofx version
@@ -83,5 +96,9 @@ Examples:
   proofx collect
   proofx prove
   proofx verify proof.json
+  proofx verify --artifact myapp-linux-amd64 --proof proof.json
+  proofx explain proof.json
+  proofx diff proof-v1.json proof-v2.json
+  proofx graph --json proof.json
 `, Version)
 }
