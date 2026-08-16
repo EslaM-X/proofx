@@ -239,6 +239,7 @@ JSON Schema: [`schema/proof.schema.json`](schema/proof.schema.json) · Sample: [
 | [CRYPTOGRAPHY.md](docs/CRYPTOGRAPHY.md) | formal cryptographic construction (canonicalization, Merkle, domain separation, signature payload) |
 | [THREAT_MODEL.md](docs/THREAT_MODEL.md) | exactly what ProofX protects — and what it does **not** |
 | [SECURITY.md](SECURITY.md) | vulnerability reporting, response times, key compromise procedure |
+| [RELEASE_KEY.md](docs/RELEASE_KEY.md) | release signing key + how to verify downloads |
 | [proof.md](docs/proof.md) | a real, verifiable ProofX proof of the ProofX repository |
 
 ## 🏗️ Design principles

@@ -1,0 +1,115 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-release:
+    name: build binaries + checksums + release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+
+      - name: build binaries
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p dist
+          for target in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64; do
+            os="${target%/*}"
+            arch="${target#*/}"
+            name="proofx-${os}-${arch}"
+            if [ "$os" = "windows" ]; then ext=".exe"; else ext=""; fi
+            echo "building $name"
+            GOOS="$os" GOARCH="$arch" CGO_ENABLED=0 \
+              go build -trimpath -ldflags="-s -w -X github.com/EslaM-X/proofx/cli.Version=${VERSION}" \
+              -o "dist/${name}${ext}" ./cmd/proofx
+          done
+
+      - name: checksums
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum proofx-* > checksums.txt
+          cat checksums.txt
+
+      - name: build release-sign helper
+        run: go build -o dist/release-sign ./tools/release-sign
+
+      - name: sign checksums
+        env:
+          RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          echo "$RELEASE_SIGNING_KEY" > /tmp/release-key.pem
+          ./dist/release-sign /tmp/release-key.pem dist/checksums.txt > dist/checksums.txt.sig
+          echo "signature:"; cat dist/checksums.txt.sig
+          rm /tmp/release-key.pem
+
+      - name: create release
+        run: |
+          set -euo pipefail
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "ProofX $GITHUB_REF_NAME" \
+            --notes "ProofX $GITHUB_REF_NAME — Evidence Infrastructure for Software.
+
+Binaries for linux / darwin / windows (amd64 + arm64).
+
+## Verify the download
+
+1. Download the binary and \`checksums.txt\`.
+2. Compare the binary digest: \`sha256sum -c checksums.txt\`.
+3. Optionally verify \`checksums.txt.sig\` with the public release key printed
+   at release time by an independent signer.
+
+Proofs produced by these binaries use the domain-separated protocol v1.0
+(see docs/CRYPTOGRAPHY.md)."
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  docker:
+    name: publish docker image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: set up buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.licenses=MIT

@@ -1,4 +1,4 @@
-# ProofX — Product Specification (v0.1)
+# ProofX — Product Specification (v0.2)
 
 > **Tagline:** Evidence you can verify.
 > **Claim:** ProofX turns "trust me." into "verify it yourself."
@@ -32,6 +32,8 @@ document that wraps standard cryptography.
 - Replace SLSA/Sigstore/in-toto. We *consume* them as attestation providers later.
 - Issue "security scores". We report *verification coverage* only.
 - Require a server or login for the core flow. Everything works offline.
+- Judge code quality, test methodology, or the signer's honesty. See the
+  [Threat Model](THREAT_MODEL.md) for the precise boundary.
 
 ## 3. Terminology
 
@@ -42,6 +44,8 @@ document that wraps standard cryptography.
 | Proof | a signed document binding claims to evidence (`proof.json`) |
 | Verification | re-collecting current evidence and comparing every digest |
 | Coverage | fraction of evidence nodes that re-verify (0–100) |
+| Binding root | order-independent sha256 Merkle root over sorted evidence digests |
+| Domain separation | per-step labels preventing hash type-confusion |
 
 ## 4. Evidence Graph
 
@@ -52,21 +56,32 @@ A proof is a set of evidence **nodes**. Each node has:
 - `source` (human-readable provenance pointer)
 - `timestamp` (RFC3339)
 - `payload` (canonical JSON of the observed fact)
-- `digest` (sha256 hex of the payload)
+- `digest` (sha256 hex of the domain-separated payload)
 
-```text
-commit ──▶ build ──▶ artifact ──▶ release ──▶ proof
-```
+`proofx graph` renders the graph as ASCII or emits it as a JSON data model
+(`--json`): nodes, directed relationships (`evidenceOf`, `binds`, `signedBy`),
+claims, and the proof reference. The graph is the machine-readable shape of a
+proof, not a fixed report.
 
-## 5. Binding & signature (no invented crypto)
+## 5. Binding & signature — cryptographic construction
 
-1. Sort evidence nodes by id.
-2. Each leaf = `sha256("<id>:<digest>")`.
-3. Merkle-style pairwise hashing produces a single **binding root**.
-4. `proofx prove` signs the root with **ed25519**; the public key is embedded.
+The authoritative, formal construction is **docs/CRYPTOGRAPHY.md**. Summary:
+
+1. **Canonicalization** — evidence payloads are compact JSON with sorted keys,
+   so identical logical objects hash identically.
+2. **Evidence digest** — `sha256("proofx/evidence/v1\x00" || payload)`.
+3. **Leaves** — entries are sorted by `id`; each leaf is
+   `sha256("proofx/leaf/v1\x00" || id || "\x00" || digest)`. Sorting happens
+   inside the root computation, so input order never matters.
+4. **Merkle tree** — internal nodes are `sha256("proofx/node/v1\x00" || left || right)`;
+   an odd node is promoted unchanged; the root of a single leaf is the leaf itself.
+5. **Signature** — `proofx prove` signs `"proofx/sign/v1\x00" || algorithm || "\x00" || root`
+   with **ed25519**; the raw 32-byte public key is embedded in the proof.
 
 Verification recomputes the root from the stored digests and checks the signature —
-so *anyone* can verify without trusting the prover or a central server.
+so *anyone* can verify without trusting the prover or a central server. The domain
+separation labels mean a digest produced in one protocol step can never be reused
+as another (leaf vs root vs evidence vs sign).
 
 ## 6. Proof document
 
@@ -75,33 +90,42 @@ so *anyone* can verify without trusting the prover or a central server.
 ```json
 {
   "proofVersion": "1.0",
-  "id": "PX-eea90562",
-  "project": { "name": "proofx", "repository": "EslaM-X/proofx" },
+  "id": "PX-56b79e75",
+  "project": { "name": "EslaM-X/proofx", "repository": "EslaM-X/proofx" },
   "subject": { "commit": "<40-hex>", "branch": "main", "repository": "EslaM-X/proofx" },
   "claims": [ { "id": "c1", "text": "Built from the recorded commit", "status": "evidenced" } ],
   "evidence": [ { "id": "git", "type": "git", "source": "git metadata",
                   "timestamp": "...", "payload": "{...}", "digest": "<64-hex>" } ],
   "binding": { "algorithm": "sha256", "root": "<64-hex>", "entries": [...] },
   "signature": { "algorithm": "ed25519", "publicKey": "<b64>", "value": "<b64>" },
-  "coverage": { "total": 3, "verified": 3, "score": 100 },
+  "coverage": { "total": 4, "verified": 4, "score": 100 },
   "createdAt": "...",
-  "builder": { "name": "proofx", "version": "0.1.0" }
+  "builder": { "name": "proofx", "version": "0.2.0" }
 }
 ```
 
+The public key is **inside** the proof, so verification is self-contained and
+works offline with no trusted server.
+
 ## 7. Threat model
 
-The proof is only as strong as the environment that produced it.
+The proof is only as strong as the environment that produced it. The full model
+is **docs/THREAT_MODEL.md**. Summary:
 
 **In scope (detected by ProofX):**
 - Claim misrepresentation → evidence is bound to real observed facts.
-- Artifact/README tampering after proof → per-node digest mismatch on verify.
-- Evidence-level tampering → binding root recomputation fails.
+- Artifact tampering after proof → digest mismatch on `verify --artifact` or repo verify.
+- Evidence-node modification → domain-separated digest + binding root mismatch.
+- Proof document modification → binding recomputation and/or signature fails.
 - Signature forgery → ed25519 verification fails.
+- Evidence reordering → leaves are sorted by id, so order is irrelevant.
 
 **Out of scope / documented caveats:**
 - A malicious CI environment can produce evidence about itself. ProofX records the
   environment node (toolchain, OS, commit) so consumers can judge trustworthiness.
+- A compromised signing key, a malicious maintainer, malicious source code, or
+  rigged test methodology are **not** detectable by ProofX — it is honest about
+  *what exists*, not *whether it is good*.
 - `key.pem` must be kept secret; it is never committed. Rotate keys by re-running `keygen`.
 - File hashes cover *contents*, not authorship. Combine with signed commits and
   Sigstore identity for stronger provenance.
@@ -109,20 +133,25 @@ The proof is only as strong as the environment that produced it.
 ## 8. CLI
 
 ```
-proofx init       scaffold proofx.yaml
+proofx init       scaffold proofx.yaml (keeps existing config)
 proofx keygen     generate ed25519 key pair
 proofx collect    gather evidence -> .proofx/evidence.json
 proofx prove      bind + sign -> proof.json
-proofx verify     re-verify proof against current repo
+proofx verify     re-verify proof against current repo,
+                  or --artifact <file> --proof <proof> (portable, repo-free)
+proofx explain    why each node passes/fails + likely causes + fixes
+proofx diff       compare two proofs evidence-node by evidence-node
+proofx graph      render the Evidence Graph (--json for the data model)
 proofx inspect    human-readable dump
 proofx version
+proofx help
 ```
 
 Exit codes: `0` verified / success, `1` verification failure, `2` usage error.
 
 ## 9. GitHub Action
 
-`EslaM-X/proofx@v0.1.0` (composite action):
+`EslaM-X/proofx@v0.2.0` (composite action):
 
 - downloads the matching release binary per runner OS/arch
 - runs `collect` + `prove` (or `verify` / `collect` / `keygen`)
@@ -134,22 +163,27 @@ Exit codes: `0` verified / success, `1` verification failure, `2` usage error.
 ```
 proofx/
 ├── cmd/proofx/          main entrypoint
-├── cli/                 command implementations
+├── cli/                 command implementations (verify, explain, diff, graph, ...)
 ├── model/               proof data structures
-├── evidence/            collectors + hashing
-├── proof/               binding + signing + verification
+├── evidence/            collectors + canonical JSON + domain-separated hashing
+├── proof/               binding + signing + verification (+ property/fuzz tests)
 ├── config/              proofx.yaml parsing
 ├── schema/              proof.schema.json
-├── docs/                this spec + sample proof
-├── .github/workflows/   ci.yml, proofx-dogfood.yml
+├── docs/                SPEC, CRYPTOGRAPHY, THREAT_MODEL, sample proof
+├── .github/             CODEOWNERS, workflows (ci.yml, proofx-dogfood.yml)
+├── SECURITY.md          disclosure policy
+├── AUTHORS.md           credits
 └── action.yml           GitHub Action definition
 ```
 
 ## 11. Roadmap
 
-- v0.1 — CLI + proof.json + schema + action + policy gate *(this release)*
-- v0.2 — `explain`, `diff`, public verifier (`proofx.dev/v/<id>`)
-- v0.3 — Sigstore/in-toto attestation integration; npm/PyPI/Docker collectors
+- v0.1 — CLI + proof.json + schema + action + policy gate *(released)*
+- v0.2 — domain-separated protocol, `explain`, `diff`, `graph`, portable
+  `verify --artifact`, property + fuzz tests, crypto spec, security docs,
+  signed checksums, Docker package *(this release)*
+- v0.3 — public verifier (`proofx.dev/v/<id>`), dynamic verification badge,
+  Sigstore/attestation integration; npm/PyPI/Docker collectors
 - v1.0 — Evidence Graph as first-class output; Go/JS/Python SDKs
 
 ## 12. Adoption milestones

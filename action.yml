@@ -9,7 +9,7 @@ inputs:
   version:
     description: 'ProofX CLI version to run (release tag).'
     required: false
-    default: 'v0.1.0'
+    default: 'v0.2.0'
   command:
     description: 'proofx subcommand to run (prove | collect | verify | keygen).'
     required: false
