@@ -1,0 +1,17 @@
+.git
+.gitignore
+.github
+docs
+*.md
+LICENSE
+.golangci.yml
+Makefile
+Dockerfile
+.dockerignore
+tools
+testdata
+proofx.exe
+proof.json
+.proofx
+dist
+bin

@@ -278,7 +278,7 @@ Want your repo here? Open a PR that adds `proofx init && proofx collect && proof
 
 ## 🤝 Contributing
 
-1. Read [docs/SPEC.md](docs/SPEC.md) and the [Threat Model](docs/THREAT_MODEL.md) first.
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md), [docs/SPEC.md](docs/SPEC.md) and the [Threat Model](docs/THREAT_MODEL.md) first.
 2. Open an issue to discuss the change before writing code.
 3. Branch → implement → test → open a PR (requires review before merge).
 
