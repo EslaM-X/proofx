@@ -3,7 +3,6 @@ package cli
 import (
 	"crypto/ed25519"
 	"crypto/x509"
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
