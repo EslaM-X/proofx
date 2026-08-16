@@ -63,6 +63,21 @@ jobs:
       - name: create release
         run: |
           set -euo pipefail
+          cat > /tmp/release-notes.md <<'EOF'
+          ProofX $GITHUB_REF_NAME — Evidence Infrastructure for Software.
+
+          Binaries for linux / darwin / windows (amd64 + arm64).
+
+          ## Verify the download
+
+          1. Download the binary and `checksums.txt`.
+          2. Compare the binary digest: `sha256sum -c checksums.txt`.
+          3. Optionally verify `checksums.txt.sig` with the public release key.
+
+          Proofs produced by these binaries use the domain-separated protocol
+          v1.0 (see docs/CRYPTOGRAPHY.md). Verify downloads with checksums.txt
+          (see docs/RELEASE_KEY.md).
+          EOF
           assets=""
           for f in dist/proofx-*; do
             assets="$assets $f"
@@ -70,20 +85,7 @@ jobs:
           assets="$assets dist/checksums.txt dist/checksums.txt.sig"
           gh release create "$GITHUB_REF_NAME" $assets \
             --title "ProofX $GITHUB_REF_NAME" \
-            --notes "ProofX $GITHUB_REF_NAME — Evidence Infrastructure for Software.
-
-Binaries for linux / darwin / windows (amd64 + arm64).
-
-## Verify the download
-
-1. Download the binary and \`checksums.txt\`.
-2. Compare the binary digest: \`sha256sum -c checksums.txt\`.
-3. Optionally verify \`checksums.txt.sig\` with the public release key printed
-   at release time by an independent signer.
-
-Proofs produced by these binaries use the domain-separated protocol v1.0
-(see docs/CRYPTOGRAPHY.md). Verify downloads with checksums.txt
-(see docs/RELEASE_KEY.md)."
+            --notes-file /tmp/release-notes.md
         env:
           GH_TOKEN: ${{ github.token }}
 
