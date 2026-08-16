@@ -63,7 +63,12 @@ jobs:
       - name: create release
         run: |
           set -euo pipefail
-          gh release create "$GITHUB_REF_NAME" dist/* \
+          assets=""
+          for f in dist/proofx-*; do
+            assets="$assets $f"
+          done
+          assets="$assets dist/checksums.txt dist/checksums.txt.sig"
+          gh release create "$GITHUB_REF_NAME" $assets \
             --title "ProofX $GITHUB_REF_NAME" \
             --notes "ProofX $GITHUB_REF_NAME — Evidence Infrastructure for Software.
 
@@ -77,7 +82,8 @@ Binaries for linux / darwin / windows (amd64 + arm64).
    at release time by an independent signer.
 
 Proofs produced by these binaries use the domain-separated protocol v1.0
-(see docs/CRYPTOGRAPHY.md)."
+(see docs/CRYPTOGRAPHY.md). Verify downloads with checksums.txt
+(see docs/RELEASE_KEY.md)."
         env:
           GH_TOKEN: ${{ github.token }}
 
