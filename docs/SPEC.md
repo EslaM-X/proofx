@@ -75,8 +75,11 @@ The authoritative, formal construction is **docs/CRYPTOGRAPHY.md**. Summary:
    inside the root computation, so input order never matters.
 4. **Merkle tree** — internal nodes are `sha256("proofx/node/v1\x00" || left || right)`;
    an odd node is promoted unchanged; the root of a single leaf is the leaf itself.
-5. **Signature** — `proofx prove` signs `"proofx/sign/v1\x00" || algorithm || "\x00" || root`
-   with **ed25519**; the raw 32-byte public key is embedded in the proof.
+5. **Signature** — `proofx prove` computes a commitment digest over the full
+   proof content (version, project, subject, claims, binding root) and signs
+   `"proofx/sign/v1\x00" || commitmentDigest` with **ed25519**; the raw 32-byte
+   public key is embedded in the proof. This binds the signature to the
+   complete semantic content, not just the evidence root.
 
 Verification recomputes the root from the stored digests and checks the signature —
 so *anyone* can verify without trusting the prover or a central server. The domain

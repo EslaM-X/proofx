@@ -142,7 +142,6 @@ func EnvCollector(dir string) func() (any, error) {
 			"go_version":   execVersion("go", "version"),
 			"node_version": execVersion("node", "--version"),
 			"os":           osName(),
-			"working_dir":  dir,
 		}
 		return payload, nil
 	}

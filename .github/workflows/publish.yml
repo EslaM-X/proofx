@@ -1,0 +1,139 @@
+name: publish
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  npm:
+    name: publish npm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: publish
+        working-directory: packages/npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  pypi:
+    name: publish pypi
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: install build tools
+        run: pip install build twine
+
+      - name: build
+        working-directory: packages/pypi
+        run: python -m build
+
+      - name: publish
+        working-directory: packages/pypi
+        run: twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+
+  homebrew:
+    name: update homebrew tap
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: get release checksums
+        id: checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          gh release download "$TAG" -p checksums.txt -D /tmp
+          echo "darwin_amd64=$(grep proofx-darwin-amd64 /tmp/checksums.txt | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+          echo "darwin_arm64=$(grep proofx-darwin-arm64 /tmp/checksums.txt | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+          echo "linux_amd64=$(grep proofx-linux-amd64 /tmp/checksums.txt | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+          echo "linux_arm64=$(grep proofx-linux-arm64 /tmp/checksums.txt | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+
+      - name: generate formula
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          VERSION: ${{ github.event.release.tag_name }}
+          DARWIN_AMD64: ${{ steps.checksums.outputs.darwin_amd64 }}
+          DARWIN_ARM64: ${{ steps.checksums.outputs.darwin_arm64 }}
+          LINUX_AMD64: ${{ steps.checksums.outputs.linux_amd64 }}
+          LINUX_ARM64: ${{ steps.checksums.outputs.linux_arm64 }}
+        run: |
+          sed -e "s/__VERSION__/$VERSION/g" \
+              -e "s/__DARWIN_AMD64__/$DARWIN_AMD64/g" \
+              -e "s/__DARWIN_ARM64__/$DARWIN_ARM64/g" \
+              -e "s/__LINUX_AMD64__/$LINUX_AMD64/g" \
+              -e "s/__LINUX_ARM64__/$LINUX_ARM64/g" \
+              > proofx.rb <<'RUBY'
+          # typed: false
+          # frozen_string_literal: true
+
+          # ProofX — Evidence Infrastructure for Software
+          # https://github.com/EslaM-X/proofx
+
+          class Proofx < Formula
+            desc "Evidence Infrastructure for Software — CLI + GitHub Action + public verification"
+            homepage "https://github.com/EslaM-X/proofx"
+            version "__VERSION__"
+            license "MIT"
+            on_macos do
+              on_intel do
+                url "https://github.com/EslaM-X/proofx/releases/download/v#{version}/proofx-darwin-amd64"
+                sha256 "__DARWIN_AMD64__"
+              end
+              on_arm do
+                url "https://github.com/EslaM-X/proofx/releases/download/v#{version}/proofx-darwin-arm64"
+                sha256 "__DARWIN_ARM64__"
+              end
+            end
+            on_linux do
+              on_intel do
+                url "https://github.com/EslaM-X/proofx/releases/download/v#{version}/proofx-linux-amd64"
+                sha256 "__LINUX_AMD64__"
+              end
+              on_arm do
+                url "https://github.com/EslaM-X/proofx/releases/download/v#{version}/proofx-linux-arm64"
+                sha256 "__LINUX_ARM64__"
+              end
+            end
+
+            def install
+              bin.install "proofx"
+            end
+
+            test do
+              assert_match "proofx #{version}", shell_output("#{bin}/proofx --version")
+            end
+          end
+          RUBY
+
+      - name: push to tap repo
+        env:
+          GH_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+        run: |
+          git clone "https://x-access-token:$GH_TOKEN@github.com/EslaM-X/homebrew-proofx.git" /tmp/tap
+          cp proofx.rb /tmp/tap/
+          cd /tmp/tap
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add proofx.rb
+          git diff --cached --quiet && exit 0
+          git commit -m "proofx ${{ github.event.release.tag_name }}"
+          git push

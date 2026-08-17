@@ -164,13 +164,7 @@ func (c *CLI) checkArtifactDigest(p *model.Proof, artifactFile, fileDigest strin
 			}
 			return Check{Name: "artifact", Status: "fail", Detail: fmt.Sprintf("%s expected %s got %s", base, shortDigest(want), shortDigest(fileDigest))}
 		}
-		// file not in map: is its digest equal to any recorded digest?
-		for name, want := range env.Files {
-			if want == fileDigest {
-				return Check{Name: "artifact", Status: "ok", Detail: base + " sha256 matches recorded " + name}
-			}
-		}
-		return Check{Name: "artifact", Status: "fail", Detail: fmt.Sprintf("%s digest %s not among proof artifact digests", base, shortDigest(fileDigest))}
+		return Check{Name: "artifact", Status: "fail", Detail: fmt.Sprintf("%s not declared in proof artifact digests", base)}
 	}
 	if art.Digest == fileDigest {
 		return Check{Name: "artifact", Status: "ok", Detail: base + " sha256 matches artifact node"}

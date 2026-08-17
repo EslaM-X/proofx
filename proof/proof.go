@@ -132,9 +132,41 @@ func DecodePublicKey(s string) (ed25519.PublicKey, error) {
 	return ed25519.PublicKey(b), nil
 }
 
-// bindingPayload is the exact byte string signed: domain label + algorithm + root.
+// commitmentDigest computes a stable digest over the non-redundant proof
+// commitment (version + project + subject + claims + binding root). This
+// ensures the signature commits to the full semantic content of the proof,
+// not just the evidence root.
+func commitmentDigest(p *model.Proof) string {
+	h := sha256.New()
+	h.Write([]byte(p.ProofVersion))
+	h.Write([]byte{0})
+	h.Write([]byte(p.Project.Name))
+	h.Write([]byte{0})
+	h.Write([]byte(p.Project.Repository))
+	h.Write([]byte{0})
+	h.Write([]byte(p.Subject.Commit))
+	h.Write([]byte{0})
+	h.Write([]byte(p.Subject.Branch))
+	h.Write([]byte{0})
+	h.Write([]byte(p.Subject.Repository))
+	h.Write([]byte{0})
+	for _, c := range p.Claims {
+		h.Write([]byte(c.ID))
+		h.Write([]byte{0})
+		h.Write([]byte(c.Text))
+		h.Write([]byte{0})
+		h.Write([]byte(c.Status))
+		h.Write([]byte{0})
+	}
+	h.Write([]byte(p.Binding.Algorithm))
+	h.Write([]byte{0})
+	h.Write([]byte(p.Binding.Root))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// bindingPayload is the exact byte string signed: domain label + commitment hash.
 func bindingPayload(p *model.Proof) []byte {
-	return []byte(DomainSign + p.Binding.Algorithm + ":" + p.Binding.Root)
+	return []byte(DomainSign + commitmentDigest(p))
 }
 
 // Sign attaches an ed25519 signature over the binding root.

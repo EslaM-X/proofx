@@ -127,14 +127,42 @@ The proof stores:
 
 ## 6. Signature payload
 
+The signature commits the **full proof commitment** — not just the binding
+root — so that claims, project, and subject cannot be modified without
+breaking the signature.
+
+### 6.1 Commitment digest
+
+A stable digest is computed over the non-redundant proof content:
+
+```
+commitmentDigest = hex( H(
+    proofVersion
+  || \x00 || projectName
+  || \x00 || projectRepository
+  || \x00 || subjectCommit
+  || \x00 || subjectBranch
+  || \x00 || subjectRepository
+  || \x00 || claim_1.id || \x00 || claim_1.text || \x00 || claim_1.status
+  || \x00 || claim_2.id || \x00 || claim_2.text || \x00 || claim_2.status
+  || ...
+  || \x00 || bindingAlgorithm
+  || \x00 || bindingRoot
+))
+```
+
+Fields are concatenated with NUL (`\x00`) separators in exactly the order
+shown. Claims are included in the order they appear in `proof.claims[]`.
+This is a **plain hash** (no domain-separation label) because it is never
+compared to evidence digests or Merkle nodes.
+
+### 6.2 Signed payload
+
 The signed byte string is:
 
 ```
-signedPayload = "proofx/sign/v1\x00" || algorithm || "\x00" || root
+signedPayload = "proofx/sign/v1\x00" || commitmentDigest
 ```
-
-- `algorithm` = `"sha256"` (the binding algorithm).
-- `root` = the 64-hex-char binding root string.
 
 The signature is then:
 
@@ -167,7 +195,9 @@ fingerprint) are embedded, so verification is self-contained.
    - Assert `root' == binding.root`.
 3. **Verify signature**:
    - Decode `signature.publicKey` (must be exactly 32 bytes).
-   - Recompute `signedPayload` per §6 using `binding.root`.
+   - Recompute `commitmentDigest` per §6.1 from `proofVersion`, `project`,
+     `subject`, `claims[]`, and `binding`.
+   - Recompute `signedPayload` per §6.2 using `commitmentDigest`.
    - Assert `Ed25519_verify(publicKey, signedPayload, signature.value)`.
 4. **Re-collect current evidence** (repo mode) or **hash the artifact**
    (portable `--artifact` mode) and compare each node's digest.
