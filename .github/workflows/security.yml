@@ -1,0 +1,85 @@
+name: security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 3 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz-smoke:
+    name: fuzz-smoke
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [FuzzParseProof, FuzzVerifyBytes, FuzzRoot, FuzzEvidenceDigest, FuzzFullVerify]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+      - name: fuzz ${{ matrix.target }}
+        run: go test -fuzz=${{ matrix.target }} -fuzztime=30s -run='^${{ matrix.target }}$' -v ./proof/...
+      - name: verify no test regressions
+        run: go test -count=1 -timeout 120s ./proof/...
+
+  fuzz-nightly:
+    name: fuzz-nightly
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [FuzzParseProof, FuzzVerifyBytes, FuzzRoot, FuzzEvidenceDigest, FuzzFullVerify]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+      - name: fuzz ${{ matrix.target }}
+        run: go test -fuzz=${{ matrix.target }} -fuzztime=10m -run='^${{ matrix.target }}$' -v ./proof/...
+      - name: verify no test regressions
+        run: go test -count=1 -timeout 120s ./proof/...
+
+  property-tests:
+    name: property-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+      - name: property tests (10k mutations each)
+        run: go test -v -run 'TestProperty' -timeout 300s ./proof/...
+
+  corpus:
+    name: security-corpus
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+      - name: generate corpus
+        run: go test -v -run TestSecurityCorpusGeneration ./proof/...
+      - name: verify corpus rejection
+        run: go test -v -run TestSecurityCorpusRejection ./proof/...
+      - name: commit corpus if changed
+        run: |
+          git diff --quiet proof/testdata/security/ || {
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add proof/testdata/security/
+            git commit -m "chore: update security corpus [skip ci]"
+            git push
+          }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
