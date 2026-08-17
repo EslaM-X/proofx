@@ -72,10 +72,20 @@ Claim              Evidence               Proof               Verification
 ### 1. Install
 
 ```bash
-# Option A — Go (recommended)
+# Option A — npm (recommended for JS/TS projects)
+npm install -g proofx
+
+# Option B — PyPI (recommended for Python projects)
+pip install proofx
+
+# Option C — Homebrew (macOS/Linux)
+brew tap EslaM-X/proofx https://github.com/EslaM-X/homebrew-proofx
+brew install proofx
+
+# Option D — Go
 go install github.com/EslaM-X/proofx/cmd/proofx@latest
 
-# Option B — download a pre-built release binary
+# Option E — pre-built binary
 #   https://github.com/EslaM-X/proofx/releases/latest
 #   (linux / darwin / windows × amd64 / arm64)
 ```

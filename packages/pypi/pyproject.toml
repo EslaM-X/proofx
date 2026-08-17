@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "proofx"
+version = "0.2.0"
+description = "ProofX — Evidence Infrastructure for Software. CLI + GitHub Action + public verification."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.7"
+authors = [
+    { name = "EslaM-X", email = "eslam.kora60@gmail.com" },
+]
+keywords = [
+    "cli", "evidence", "verification", "supply-chain", "security",
+    "merkle", "cryptography", "provenance", "attestation", "integrity",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Topic :: Software Development :: Build Tools",
+]
+
+[project.urls]
+Homepage = "https://github.com/EslaM-X/proofx"
+Repository = "https://github.com/EslaM-X/proofx"
+Issues = "https://github.com/EslaM-X/proofx/issues"
+
+[project.scripts]
+proofx = "proofx:main"
+
+[tool.setuptools.packages.find]
+include = ["proofx*"]

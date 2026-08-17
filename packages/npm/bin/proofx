@@ -1,0 +1,5 @@
+#!/usr/bin/sh
+# ProofX wrapper — runs the downloaded binary.
+# SPDX-License-Identifier: MIT
+dir="$(dirname "$0")"
+exec "$dir/proofx" "$@"

@@ -1,0 +1,43 @@
+{
+  "name": "proofx",
+  "version": "0.2.0",
+  "description": "ProofX — Evidence Infrastructure for Software. CLI + GitHub Action + public verification.",
+  "bin": {
+    "proofx": "bin/proofx"
+  },
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "files": [
+    "bin/",
+    "install.js"
+  ],
+  "keywords": [
+    "cli",
+    "evidence",
+    "verification",
+    "supply-chain",
+    "security",
+    "merkle",
+    "cryptography",
+    "provenance",
+    "attestation",
+    "integrity",
+    "hashing",
+    "ed25519"
+  ],
+  "author": "EslaM-X <eslam.kora60@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EslaM-X/proofx.git",
+    "directory": "packages/npm"
+  },
+  "homepage": "https://github.com/EslaM-X/proofx#readme",
+  "bugs": {
+    "url": "https://github.com/EslaM-X/proofx/issues"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
