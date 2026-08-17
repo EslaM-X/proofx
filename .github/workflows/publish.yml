@@ -3,6 +3,12 @@ name: publish
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish (e.g. v0.2.1)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -60,7 +66,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="${{ github.event.release.tag_name }}"
+          TAG="${{ github.event.release.tag_name || inputs.tag }}"
           gh release download "$TAG" -p checksums.txt -D /tmp
           echo "darwin_amd64=$(grep proofx-darwin-amd64 /tmp/checksums.txt | awk '{print $1}')" >> "$GITHUB_OUTPUT"
           echo "darwin_arm64=$(grep proofx-darwin-arm64 /tmp/checksums.txt | awk '{print $1}')" >> "$GITHUB_OUTPUT"
@@ -69,8 +75,8 @@ jobs:
 
       - name: generate formula
         env:
-          TAG: ${{ github.event.release.tag_name }}
-          VERSION: ${{ github.event.release.tag_name }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          VERSION: ${{ github.event.release.tag_name || inputs.tag }}
           DARWIN_AMD64: ${{ steps.checksums.outputs.darwin_amd64 }}
           DARWIN_ARM64: ${{ steps.checksums.outputs.darwin_arm64 }}
           LINUX_AMD64: ${{ steps.checksums.outputs.linux_amd64 }}
@@ -135,5 +141,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add proofx.rb
           git diff --cached --quiet && exit 0
-          git commit -m "proofx ${{ github.event.release.tag_name }}"
+          git commit -m "proofx ${{ github.event.release.tag_name || inputs.tag }}"
           git push
