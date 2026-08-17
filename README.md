@@ -138,7 +138,7 @@ Anyone downloading your release can verify it came from the exact build you sign
 ## 🤖 GitHub Action
 
 ```yaml
-- uses: EslaM-X/proofx@v0.2.0
+- uses: EslaM-X/proofx@v0.2.1
   with:
     command: prove
     policy: 90        # fail the job if verification coverage < 90
@@ -235,7 +235,7 @@ The **binding root** is an order-independent Merkle root over the sorted, domain
   "binding": { "algorithm": "sha256", "root": "56b79e75…", "entries": [ /* sorted */ ] },
   "signature": { "algorithm": "ed25519", "publicKey": "JcArfc+P…", "value": "…" },
   "coverage": { "total": 4, "verified": 4, "score": 100 },
-  "builder": { "name": "proofx", "version": "0.2.0" }
+  "builder": { "name": "proofx", "version": "0.2.1" }
 }
 ```
 

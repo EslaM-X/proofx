@@ -4,7 +4,7 @@ build-backend = "setuptools.backends._legacy:_Backend"
 
 [project]
 name = "proofx"
-version = "0.2.0"
+version = "0.2.1"
 description = "ProofX — Evidence Infrastructure for Software. CLI + GitHub Action + public verification."
 readme = "README.md"
 license = "MIT"

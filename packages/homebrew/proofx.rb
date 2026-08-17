@@ -7,7 +7,7 @@
 class Proofx < Formula
   desc "Evidence Infrastructure for Software — CLI + GitHub Action + public verification"
   homepage "https://github.com/EslaM-X/proofx"
-  version "0.2.0"
+  version "0.2.1"
   license "MIT"
   on_macos do
     on_intel do

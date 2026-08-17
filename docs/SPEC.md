@@ -103,7 +103,7 @@ as another (leaf vs root vs evidence vs sign).
   "signature": { "algorithm": "ed25519", "publicKey": "<b64>", "value": "<b64>" },
   "coverage": { "total": 4, "verified": 4, "score": 100 },
   "createdAt": "...",
-  "builder": { "name": "proofx", "version": "0.2.0" }
+  "builder": { "name": "proofx", "version": "0.2.1" }
 }
 ```
 
@@ -154,7 +154,7 @@ Exit codes: `0` verified / success, `1` verification failure, `2` usage error.
 
 ## 9. GitHub Action
 
-`EslaM-X/proofx@v0.2.0` (composite action):
+`EslaM-X/proofx@v0.2.1` (composite action):
 
 - downloads the matching release binary per runner OS/arch
 - runs `collect` + `prove` (or `verify` / `collect` / `keygen`)
