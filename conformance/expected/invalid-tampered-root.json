@@ -1,0 +1,19 @@
+{
+  "proofId": "invalid-tampered-root",
+  "valid": false,
+  "checks": [
+    {
+      "name": "binding",
+      "status": "fail"
+    },
+    {
+      "name": "signature",
+      "status": "fail"
+    }
+  ],
+  "coverage": {
+    "total": 1,
+    "verified": 0,
+    "score": 0
+  }
+}

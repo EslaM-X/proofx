@@ -1,0 +1,75 @@
+{
+  "proofVersion": "1.0",
+  "id": "valid-max-claims",
+  "project": {
+    "name": "maxclaims",
+    "repository": "https://example.com/maxclaims"
+  },
+  "subject": {
+    "commit": "aaa111",
+    "branch": "main",
+    "repository": "https://example.com/maxclaims"
+  },
+  "claims": [
+    {
+      "id": "claim-0",
+      "text": "Claim 0 text",
+      "status": "pass"
+    },
+    {
+      "id": "claim-1",
+      "text": "Claim 1 text",
+      "status": "pass"
+    },
+    {
+      "id": "claim-2",
+      "text": "Claim 2 text",
+      "status": "pass"
+    },
+    {
+      "id": "claim-3",
+      "text": "Claim 3 text",
+      "status": "pass"
+    },
+    {
+      "id": "claim-4",
+      "text": "Claim 4 text",
+      "status": "pass"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "git",
+      "type": "",
+      "source": "",
+      "timestamp": "",
+      "payload": "",
+      "digest": "aabb1122"
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "ebf628dc58743b9deb606914bc9383bc573a20b66ab3754a78c080712e5e10d7",
+    "entries": [
+      {
+        "id": "git",
+        "digest": "aabb1122"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "Na2BAeyW7TUjIkBgMTM8Oq6ON7emZzWhoXYqZJxB+KQ=",
+    "value": "u+jNBt3uzSKeIxQRGPQdRlEa8KfjE4/qYfbSVm4veiLsJtWKBSBxCaOAylzobDkwnzlu9KlQoOjuiLN1vmySBQ=="
+  },
+  "coverage": {
+    "total": 0,
+    "verified": 0,
+    "score": 0
+  },
+  "createdAt": "",
+  "builder": {
+    "name": "",
+    "version": ""
+  }
+}

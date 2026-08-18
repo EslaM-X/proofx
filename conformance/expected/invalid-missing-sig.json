@@ -1,0 +1,19 @@
+{
+  "proofId": "no-sig",
+  "valid": false,
+  "checks": [
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "fail"
+    }
+  ],
+  "coverage": {
+    "total": 0,
+    "verified": 0,
+    "score": 0
+  }
+}

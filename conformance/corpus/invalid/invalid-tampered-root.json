@@ -1,0 +1,55 @@
+{
+  "proofVersion": "1.0",
+  "id": "invalid-tampered-root",
+  "project": {
+    "name": "test",
+    "repository": "https://example.com/test"
+  },
+  "subject": {
+    "commit": "abc123",
+    "branch": "main",
+    "repository": "https://example.com/test"
+  },
+  "claims": [
+    {
+      "id": "build",
+      "text": "Build passes",
+      "status": "pass"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "git",
+      "type": "",
+      "source": "",
+      "timestamp": "",
+      "payload": "",
+      "digest": "aabb1122"
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "deadbeef00000000",
+    "entries": [
+      {
+        "id": "git",
+        "digest": "aabb1122"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "wgAcT1E6XbuUNTCjlzK5X67wueSA1QuEZflHtwNxupI=",
+    "value": "Feeqqkl80SSIupPqn9oKghHYoHXfQcWO7X/d1M5NLOM4kXblyct0+CcOn1l3ZrMdEB9qVLUXThc3VV1EBX3sDA=="
+  },
+  "coverage": {
+    "total": 0,
+    "verified": 0,
+    "score": 0
+  },
+  "createdAt": "",
+  "builder": {
+    "name": "",
+    "version": ""
+  }
+}

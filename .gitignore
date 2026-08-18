@@ -1,11 +1,17 @@
 # build artifacts
 /proofx
 /proofx.exe
+/proofx.wasm
 /bin/
 *.test
+*.exe
 
 # proofx runtime state (keys are never committed)
 .proofx/key.pem
 .proofx/evidence.json
 .proofx/test-summary.json
 proof.json
+
+# conformance results (generated, not committed)
+conformance/native/*.result.json
+conformance/wasm/*.result.json

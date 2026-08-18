@@ -1,0 +1,10 @@
+{
+  "proofId": "x",
+  "valid": false,
+  "checks": [],
+  "coverage": {
+    "total": 0,
+    "verified": 0,
+    "score": 0
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "proofVersion": "1.0",
+  "id": "valid-empty-branch",
+  "project": {
+    "name": "nobranch",
+    "repository": "https://example.com/nobranch"
+  },
+  "subject": {
+    "commit": "abc123",
+    "branch": "",
+    "repository": "https://example.com/nobranch"
+  },
+  "claims": [
+    {
+      "id": "build",
+      "text": "Build passes",
+      "status": "pass"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "git",
+      "type": "",
+      "source": "",
+      "timestamp": "",
+      "payload": "",
+      "digest": "aabb1122"
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "ebf628dc58743b9deb606914bc9383bc573a20b66ab3754a78c080712e5e10d7",
+    "entries": [
+      {
+        "id": "git",
+        "digest": "aabb1122"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "Jsuzxc7I9tk6kYkPg8NcYakblT6bmlfdpdh5xE8p7fc=",
+    "value": "4uFuIkrQ310NPf3bvmLDvjUQIUPnt+CBLgRr7k48Qu2kj8D9foKmXGkX9IqR/kdGPkKx0V63xIjxnO4akp3HBw=="
+  },
+  "coverage": {
+    "total": 0,
+    "verified": 0,
+    "score": 0
+  },
+  "createdAt": "",
+  "builder": {
+    "name": "",
+    "version": ""
+  }
+}

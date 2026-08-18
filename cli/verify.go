@@ -14,6 +14,7 @@ import (
 	"github.com/EslaM-X/proofx/evidence"
 	"github.com/EslaM-X/proofx/model"
 	"github.com/EslaM-X/proofx/proof"
+	"github.com/EslaM-X/proofx/verifycore"
 )
 
 // Check is one line of a verification report.
@@ -120,11 +121,11 @@ func (c *CLI) verifyArtifact(proofFile, artifactFile string) int {
 	}
 	artifactCheck := c.checkArtifactDigest(p, artifactFile, fileDigest)
 	res.Checks = append(res.Checks, artifactCheck)
-	if artifactCheck.Status == "ok" {
-		res.Checks = append(res.Checks, Check{Name: "binding", Status: "ok", Detail: "evidence binding valid"})
+	if artifactCheck.Status == verifycore.StatusOK {
+		res.Checks = append(res.Checks, Check{Name: "binding", Status: verifycore.StatusOK, Detail: "evidence binding valid"})
 	}
 
-	verified := bindOK.Status == "ok" && sigOK.Status == "ok" && artifactCheck.Status == "ok"
+	verified := bindOK.Status == verifycore.StatusOK && sigOK.Status == verifycore.StatusOK && artifactCheck.Status == verifycore.StatusOK
 	res.Verified = verified
 	res.Coverage = model.Coverage{Total: 1, Verified: boolInt(verified), Score: boolInt(verified) * 100}
 
@@ -150,7 +151,7 @@ func (c *CLI) checkArtifactDigest(p *model.Proof, artifactFile, fileDigest strin
 		}
 	}
 	if !found {
-		return Check{Name: "artifact", Status: "skipped", Detail: "proof has no artifact evidence node"}
+		return Check{Name: "artifact", Status: verifycore.StatusSkipped, Detail: "proof has no artifact evidence node"}
 	}
 	base := filepath.Base(artifactFile)
 	// structure: {"files": {"name": "sha256hex"}}
@@ -160,16 +161,16 @@ func (c *CLI) checkArtifactDigest(p *model.Proof, artifactFile, fileDigest strin
 	if err := json.Unmarshal([]byte(art.Payload), &env); err == nil && len(env.Files) > 0 {
 		if want, ok := env.Files[base]; ok {
 			if want == fileDigest {
-				return Check{Name: "artifact", Status: "ok", Detail: base + " sha256 matches"}
+				return Check{Name: "artifact", Status: verifycore.StatusOK, Detail: base + " sha256 matches"}
 			}
-			return Check{Name: "artifact", Status: "fail", Detail: fmt.Sprintf("%s expected %s got %s", base, shortDigest(want), shortDigest(fileDigest))}
+			return Check{Name: "artifact", Status: verifycore.StatusFail, Detail: fmt.Sprintf("%s expected %s got %s", base, shortDigest(want), shortDigest(fileDigest))}
 		}
-		return Check{Name: "artifact", Status: "fail", Detail: fmt.Sprintf("%s not declared in proof artifact digests", base)}
+		return Check{Name: "artifact", Status: verifycore.StatusFail, Detail: fmt.Sprintf("%s not declared in proof artifact digests", base)}
 	}
 	if art.Digest == fileDigest {
-		return Check{Name: "artifact", Status: "ok", Detail: base + " sha256 matches artifact node"}
+		return Check{Name: "artifact", Status: verifycore.StatusOK, Detail: base + " sha256 matches artifact node"}
 	}
-	return Check{Name: "artifact", Status: "fail", Detail: fmt.Sprintf("expected %s got %s", shortDigest(art.Digest), shortDigest(fileDigest))}
+	return Check{Name: "artifact", Status: verifycore.StatusFail, Detail: fmt.Sprintf("expected %s got %s", shortDigest(art.Digest), shortDigest(fileDigest))}
 }
 
 func boolInt(b bool) int {
@@ -201,14 +202,14 @@ func verifyAgainst(p *model.Proof, dir string, now time.Time) VerifyResult {
 	for _, e := range p.Evidence {
 		cur, ok := index[e.ID]
 		if !ok {
-			res.Checks = append(res.Checks, Check{Name: e.ID, Status: "skipped", Detail: "evidence source not present in current repo"})
+			res.Checks = append(res.Checks, Check{Name: e.ID, Status: verifycore.StatusSkipped, Detail: "evidence source not present in current repo"})
 			continue
 		}
 		if cur.Digest == e.Digest {
 			verified++
-			res.Checks = append(res.Checks, Check{Name: e.ID, Status: "ok", Detail: shortDigest(e.Digest)})
+			res.Checks = append(res.Checks, Check{Name: e.ID, Status: verifycore.StatusOK, Detail: shortDigest(e.Digest)})
 		} else {
-			res.Checks = append(res.Checks, Check{Name: e.ID, Status: "fail", Detail: fmt.Sprintf("expected %s got %s", shortDigest(e.Digest), shortDigest(cur.Digest))})
+			res.Checks = append(res.Checks, Check{Name: e.ID, Status: verifycore.StatusFail, Detail: fmt.Sprintf("expected %s got %s", shortDigest(e.Digest), shortDigest(cur.Digest))})
 		}
 	}
 
@@ -223,9 +224,9 @@ func verifyAgainst(p *model.Proof, dir string, now time.Time) VerifyResult {
 	}
 	res.Coverage = model.Coverage{Total: total, Verified: verified, Score: score}
 
-	allOK := okStruct.Status == "ok"
+	allOK := okStruct.Status == verifycore.StatusOK
 	for _, ch := range res.Checks {
-		if ch.Status == "fail" {
+		if ch.Status == verifycore.StatusFail {
 			allOK = false
 		}
 	}
@@ -248,16 +249,16 @@ func collectCurrent(dir string, now time.Time) []evidence.Result {
 
 func checkBinding(p *model.Proof) Check {
 	if err := proof.VerifyBinding(p); err != nil {
-		return Check{Name: "binding", Status: "fail", Detail: err.Error()}
+		return Check{Name: "binding", Status: verifycore.StatusFail, Detail: err.Error()}
 	}
-	return Check{Name: "binding", Status: "ok", Detail: "merkle root matches evidence digests"}
+	return Check{Name: "binding", Status: verifycore.StatusOK, Detail: "merkle root matches evidence digests"}
 }
 
 func statusOf(err error) string {
 	if err == nil {
-		return "ok"
+		return verifycore.StatusOK
 	}
-	return "fail"
+	return verifycore.StatusFail
 }
 
 func shortDigest(d string) string {
@@ -288,11 +289,11 @@ func printVerify(w interface{ Write([]byte) (int, error) }, res VerifyResult) {
 	for _, ch := range res.Checks {
 		mark := "  "
 		switch ch.Status {
-		case "ok":
+		case verifycore.StatusOK:
 			mark = "✓ "
-		case "fail":
+		case verifycore.StatusFail:
 			mark = "✗ "
-		case "skipped":
+		case verifycore.StatusSkipped:
 			mark = "· "
 		}
 		detail := ""

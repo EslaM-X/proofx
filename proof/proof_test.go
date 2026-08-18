@@ -267,7 +267,7 @@ func TestSignatureBindingRejectsModifiedSignature(t *testing.T) {
 	signProof(t, p)
 
 	_, otherPriv, _ := GenerateKey()
-	_ = Sign(p, otherPriv) // overwrite with different key
+	_ = Sign(p, otherPriv)     // overwrite with different key
 	p.Signature.PublicKey = "" // corrupt
 	if err := VerifySignature(p); err == nil {
 		t.Fatalf("forged signature must fail verification")

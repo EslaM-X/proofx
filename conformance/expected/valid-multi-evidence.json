@@ -1,0 +1,21 @@
+{
+  "proofId": "valid-multi-evidence",
+  "valid": true,
+  "checks": [
+    {
+      "name": "binding",
+      "status": "ok",
+      "detail": "merkle root matches evidence digests"
+    },
+    {
+      "name": "signature",
+      "status": "ok",
+      "detail": "ed25519 over full commitment"
+    }
+  ],
+  "coverage": {
+    "total": 3,
+    "verified": 3,
+    "score": 100
+  }
+}

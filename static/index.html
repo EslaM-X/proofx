@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProofX — Verify Evidence Proofs</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #262626;
+      --text: #e5e5e5;
+      --text-dim: #a3a3a3;
+      --green: #22c55e;
+      --green-bg: rgba(34, 197, 94, 0.1);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.1);
+      --blue: #3b82f6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      width: 100%;
+      padding: 2rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 { font-size: 1.5rem; font-weight: 600; }
+    header p { color: var(--text-dim); margin-top: 0.5rem; font-size: 0.9rem; }
+    main { max-width: 640px; width: 100%; padding: 2rem; flex: 1; }
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 3rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--blue);
+      background: rgba(59, 130, 246, 0.05);
+    }
+    .dropzone p { color: var(--text-dim); margin-top: 0.75rem; }
+    .dropzone .icon { font-size: 2rem; }
+    input[type="file"] { display: none; }
+    #result { margin-top: 1.5rem; display: none; }
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .result-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .result-badge.pass { background: var(--green-bg); color: var(--green); }
+    .result-badge.fail { background: var(--red-bg); color: var(--red); }
+    .result-id { color: var(--text-dim); font-size: 0.85rem; font-family: monospace; }
+    .check-list { list-style: none; }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      border-top: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .check-icon { flex-shrink: 0; width: 1.2rem; text-align: center; }
+    .check-icon.pass { color: var(--green); }
+    .check-icon.fail { color: var(--red); }
+    .check-icon.skip { color: var(--text-dim); }
+    .check-detail { color: var(--text-dim); font-size: 0.8rem; margin-left: auto; text-align: right; }
+    .coverage { margin-top: 1rem; color: var(--text-dim); font-size: 0.85rem; }
+    .loading { color: var(--text-dim); text-align: center; padding: 2rem; }
+    .error { color: var(--red); text-align: center; padding: 1rem; }
+    footer {
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.8rem;
+    }
+    footer a { color: var(--blue); text-decoration: none; }
+    @media (max-width: 480px) {
+      main { padding: 1rem; }
+      .dropzone { padding: 2rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ProofX</h1>
+    <p>Verify evidence proofs — drag &amp; drop a proof.json</p>
+  </header>
+  <main>
+    <div class="dropzone" id="dropzone">
+      <div class="icon">📄</div>
+      <p>Drop <strong>proof.json</strong> here or click to select</p>
+      <input type="file" id="fileInput" accept=".json,application/json">
+    </div>
+    <div id="result"></div>
+  </main>
+  <footer>
+    ProofX v0.3.0 — <a href="https://github.com/EslaM-X/proofx">GitHub</a> —
+    Verification runs entirely in your browser. No data is sent to any server.
+  </footer>
+  <script src="wasm_exec.js"></script>
+  <script src="verify.js"></script>
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const resultDiv = document.getElementById('result');
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) handleFile(fileInput.files[0]);
+    });
+
+    async function handleFile(file) {
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = '<div class="loading">Verifying…</div>';
+      try {
+        const text = await file.text();
+        const res = await window.verifyProofDocument(text);
+        renderResult(res);
+      } catch (e) {
+        resultDiv.innerHTML = '<div class="error">Error: ' + escapeHtml(e.message) + '</div>';
+      }
+    }
+
+    function renderResult(res) {
+      const valid = res.valid;
+      const badgeClass = valid ? 'pass' : 'fail';
+      const badgeText = valid ? 'VERIFIED' : 'NOT VERIFIED';
+      let checksHtml = '';
+      for (const ch of (res.checks || [])) {
+        const iconClass = ch.status === 'ok' ? 'pass' : ch.status === 'fail' ? 'fail' : 'skip';
+        const icon = ch.status === 'ok' ? '✓' : ch.status === 'fail' ? '✗' : '·';
+        const detail = ch.detail ? '<span class="check-detail">' + escapeHtml(ch.detail) + '</span>' : '';
+        checksHtml += '<li class="check-item"><span class="check-icon ' + iconClass + '">' + icon + '</span><span>' + escapeHtml(ch.name) + '</span>' + detail + '</li>';
+      }
+      const coverage = res.coverage || {};
+      const covText = 'Coverage: ' + (coverage.verified || 0) + '/' + (coverage.total || 0) + ' (' + (coverage.score || 0) + '%)';
+      resultDiv.innerHTML =
+        '<div class="result-card">' +
+          '<div class="result-header">' +
+            '<span class="result-badge ' + badgeClass + '">' + badgeText + '</span>' +
+            '<span class="result-id">' + escapeHtml(res.proofId || 'unknown') + '</span>' +
+          '</div>' +
+          '<ul class="check-list">' + checksHtml + '</ul>' +
+          '<div class="coverage">' + covText + '</div>' +
+        '</div>';
+    }
+
+    function escapeHtml(s) {
+      if (!s) return '';
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Handle /v/{proof-id} routes via SPA fallback
+    if (location.pathname.startsWith('/v/')) {
+      const proofId = location.pathname.slice(3);
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = '<div class="loading">Loading proof ' + escapeHtml(proofId) + '…</div>';
+      // For now, show instructions — full server-side proof lookup comes later
+      resultDiv.innerHTML =
+        '<div class="result-card">' +
+          '<div class="result-header">' +
+            '<span class="result-badge fail">MANUAL</span>' +
+            '<span class="result-id">' + escapeHtml(proofId) + '</span>' +
+          '</div>' +
+          '<p style="color: var(--text-dim);">Drag &amp; drop the proof.json for this ID to verify it locally.</p>' +
+        '</div>';
+    }
+  </script>
+</body>
+</html>

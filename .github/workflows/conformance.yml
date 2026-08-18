@@ -1,0 +1,100 @@
+name: conformance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    name: conformance (Go ${{ matrix.go }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ['1.26']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+          cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: gofmt check
+        run: |
+          test -z "$(gofmt -l .)" || { echo "gofmt needed on:"; gofmt -l .; exit 1; }
+
+      - name: go vet
+        run: go vet $(go list ./... | grep -v proofx-wasm)
+
+      - name: go test
+        run: go test -race $(go list ./... | grep -v proofx-wasm)
+
+      - name: build
+        run: go build $(go list ./... | grep -v proofx-wasm)
+
+      - name: generate corpus
+        run: go run ./conformance/generate
+
+      - name: corpus is deterministic
+        run: |
+          git diff --exit-code conformance/corpus/ conformance/expected/ || {
+            echo "ERROR: conformance corpus changed after regeneration."
+            echo "Run 'go run ./conformance/generate' locally and commit the diff."
+            exit 1
+          }
+
+      - name: native verifier
+        run: go run ./conformance/native
+
+      - name: build WASM
+        run: |
+          GOOS=js GOARCH=wasm go build -ldflags="-s -w" -o static/proofx.wasm ./cmd/proofx-wasm
+
+      - name: check wasm_exec.js matches Go version
+        run: |
+          GO_VERSION=$(go version | awk '{print $3}' | sed 's/go//')
+          WASM_EXEC_VERSION=$(grep -o "Go $GO_VERSION" static/wasm_exec.js | head -1 || true)
+          if [ -z "$WASM_EXEC_VERSION" ]; then
+            echo "ERROR: static/wasm_exec.js does not match Go $GO_VERSION"
+            echo "Copy the correct wasm_exec.js:"
+            echo "  cp \$(go env GOROOT)/lib/wasm/wasm_exec.js static/wasm_exec.js"
+            exit 1
+          fi
+          echo "wasm_exec.js version matches Go $GO_VERSION"
+
+      - name: WASM conformance runner
+        run: node conformance/wasm/run.js
+
+      - name: differential (native vs wasm)
+        run: node conformance/diff.js
+
+  self-verify:
+    name: self-verification
+    runs-on: ubuntu-latest
+    needs: conformance
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache: true
+
+      - name: build proofx
+        run: go build -o proofx ./cmd/proofx
+
+      - name: init + keygen + collect + prove + verify
+        run: |
+          ./proofx init
+          ./proofx keygen
+          ./proofx collect
+          ./proofx prove
+          ./proofx verify proof.json

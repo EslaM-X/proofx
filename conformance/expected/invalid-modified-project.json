@@ -1,0 +1,19 @@
+{
+  "proofId": "invalid-modified-project",
+  "valid": false,
+  "checks": [
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "fail"
+    }
+  ],
+  "coverage": {
+    "total": 1,
+    "verified": 0,
+    "score": 0
+  }
+}
