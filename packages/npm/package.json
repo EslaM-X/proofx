@@ -1,6 +1,6 @@
 {
   "name": "proofx",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "ProofX — Evidence Infrastructure for Software. CLI + GitHub Action + public verification.",
   "bin": {
     "proofx": "bin/proofx"
