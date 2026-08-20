@@ -68,8 +68,8 @@ func main() {
 		default:
 			dir = filepath.Join(corpusDir, "invalid")
 		}
-		os.MkdirAll(dir, 0o755)
-		os.MkdirAll(expectedDir, 0o755)
+		os.MkdirAll(dir, 0o755)         //nolint:errcheck
+		os.MkdirAll(expectedDir, 0o755) //nolint:errcheck
 
 		proofPath := filepath.Join(dir, c.Name+".json")
 		expectedPath := filepath.Join(expectedDir, c.Name+".json")
@@ -146,7 +146,7 @@ func validMinimal() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	proof.Sign(p, priv) //nolint:errcheck
 	return Case{
 		Name:        "valid-minimal",
 		Description: "minimal valid proof with one evidence node",
@@ -186,7 +186,7 @@ func validMultiEvidence() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	proof.Sign(p, priv) //nolint:errcheck
 	return Case{
 		Name:        "valid-multi-evidence",
 		Description: "proof with three evidence nodes",
@@ -227,7 +227,7 @@ func validMaxClaims() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	proof.Sign(p, priv) //nolint:errcheck
 	return Case{
 		Name:        "valid-max-claims",
 		Description: "proof with five claims",
@@ -260,7 +260,7 @@ func validUnicodeProject() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	proof.Sign(p, priv) //nolint:errcheck
 	return Case{
 		Name:        "valid-unicode-project",
 		Description: "proof with unicode project name",
@@ -293,7 +293,7 @@ func validEmptySubjectBranch() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	proof.Sign(p, priv) //nolint:errcheck
 	return Case{
 		Name:        "valid-empty-branch",
 		Description: "proof with empty subject branch",
@@ -328,7 +328,7 @@ func invalidTamperedRoot() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	proof.Sign(p, priv) //nolint:errcheck
 	p.Binding.Root = "deadbeef00000000"
 	return Case{
 		Name:        "invalid-tampered-root",
@@ -362,7 +362,7 @@ func invalidTamperedSignature() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	proof.Sign(p, priv) //nolint:errcheck
 	p.Signature.Value = "deadbeef"
 	return Case{
 		Name:        "invalid-tampered-sig",
@@ -427,7 +427,7 @@ func invalidWrongAlgorithm() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	proof.Sign(p, priv) //nolint:errcheck
 	p.Signature.Algorithm = "sha256"
 	return Case{
 		Name:        "invalid-wrong-algo",
@@ -462,7 +462,7 @@ func invalidSwappedPublicKey() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	proof.Sign(p, priv) //nolint:errcheck
 	p.Signature.PublicKey = proof.EncodePublicKey(otherPub)
 	return Case{
 		Name:        "invalid-swapped-key",
@@ -496,7 +496,7 @@ func invalidModifiedClaimText() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	proof.Sign(p, priv) //nolint:errcheck
 	p.Claims[0].Text = "Build FAILS"
 	return Case{
 		Name:        "invalid-modified-claim-text",
@@ -530,7 +530,7 @@ func invalidModifiedClaimStatus() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	proof.Sign(p, priv) //nolint:errcheck
 	p.Claims[0].Status = "fail"
 	return Case{
 		Name:        "invalid-modified-claim-status",
@@ -564,7 +564,7 @@ func invalidModifiedProject() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	proof.Sign(p, priv) //nolint:errcheck
 	p.Project.Name = "evil"
 	return Case{
 		Name:        "invalid-modified-project",
@@ -598,7 +598,7 @@ func invalidModifiedSubject() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	proof.Sign(p, priv) //nolint:errcheck
 	p.Subject.Commit = "tampered"
 	return Case{
 		Name:        "invalid-modified-subject",

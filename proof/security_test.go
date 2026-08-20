@@ -3,7 +3,6 @@
 package proof
 
 import (
-	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/json"
 	"math/rand"
@@ -98,18 +97,6 @@ func createFullSignedProof(t *testing.T) *model.Proof {
 		t.Fatal(err)
 	}
 	return p
-}
-
-func signWithFreshKey(t *testing.T, p *model.Proof) ed25519.PrivateKey {
-	t.Helper()
-	_, priv, err := GenerateKey()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := Sign(p, priv); err != nil {
-		t.Fatal(err)
-	}
-	return priv
 }
 
 func mustVerifyBoth(t *testing.T, p *model.Proof) {
