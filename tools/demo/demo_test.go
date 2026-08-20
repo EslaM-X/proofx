@@ -1,4 +1,4 @@
-package proof_test
+package demo_test
 
 import (
 	"encoding/json"
