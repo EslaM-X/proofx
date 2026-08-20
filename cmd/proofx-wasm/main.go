@@ -7,7 +7,9 @@
 // Build:
 //
 //	GOOS=js GOARCH=wasm go build -ldflags="-s -w" -o proofx.wasm ./cmd/proofx-wasm
+
 //go:build js && wasm
+
 package main
 
 import (

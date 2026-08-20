@@ -27,7 +27,10 @@ func main() {
 	corpusDir := filepath.Join("conformance", "corpus")
 	expectedDir := filepath.Join("conformance", "expected")
 	outputDir := filepath.Join("conformance", "native")
-	os.MkdirAll(outputDir, 0o755)
+	if err := os.MkdirAll(outputDir, 0o755); err != nil {
+		fmt.Fprintf(os.Stderr, "error creating output dir: %v\n", err)
+		os.Exit(1)
+	}
 
 	results := []NativeResult{}
 
