@@ -7,26 +7,26 @@
 class Proofx < Formula
   desc "Evidence Infrastructure for Software — CLI + GitHub Action + public verification"
   homepage "https://github.com/EslaM-X/proofx"
-  version "0.2.1"
+  version "0.3.0"
   license "MIT"
   on_macos do
     on_intel do
       url "https://github.com/EslaM-X/proofx/releases/download/v#{version}/proofx-darwin-amd64"
-      sha256 "4671e9081ea461a5fd5fc9682d2afe7ce15eb08c23bbf2388b34a5fa61960e98"
+      sha256 "adde1afb7643a4ade1f2d23ac517000bda5a43adea16392ee1d936d6c127a78b"
     end
     on_arm do
       url "https://github.com/EslaM-X/proofx/releases/download/v#{version}/proofx-darwin-arm64"
-      sha256 "3e925b69f6feedb1bc9c92b218709046f9faeaf298481a0b6aec10d9342b73d9"
+      sha256 "ad3643e5f949741cb76c7bb5a289d06af0a52a6738ecbe8309ed3062c2873e95"
     end
   end
   on_linux do
     on_intel do
       url "https://github.com/EslaM-X/proofx/releases/download/v#{version}/proofx-linux-amd64"
-      sha256 "cb23dad2cfeed52111454d67d5a951310d782fbbcef60ef9dccacbc0c1989ce3"
+      sha256 "ce23c531cabc51f81f63fd54fa9aa1de245f421ecefdf2fa1ae31d6eb58bd65c"
     end
     on_arm do
       url "https://github.com/EslaM-X/proofx/releases/download/v#{version}/proofx-linux-arm64"
-      sha256 "fe1189d83b58e4a60e8e9946f4bc8bc84b557322c71e5f03a1e5b05b1c1c03ae"
+      sha256 "1bf192a8d5cdaf68df3d4cf8c73185d1a9f94491c620c9d047b879e0155e99f9"
     end
   end
 

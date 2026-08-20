@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "proofx"
-version = "0.2.1"
+version = "0.3.0"
 description = "ProofX — Evidence Infrastructure for Software. CLI + GitHub Action + public verification."
 readme = "README.md"
 license = "MIT"
@@ -20,7 +20,6 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Topic :: Security",
