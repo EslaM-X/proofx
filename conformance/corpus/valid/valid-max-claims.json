@@ -59,8 +59,8 @@
   },
   "signature": {
     "algorithm": "ed25519",
-    "publicKey": "Na2BAeyW7TUjIkBgMTM8Oq6ON7emZzWhoXYqZJxB+KQ=",
-    "value": "u+jNBt3uzSKeIxQRGPQdRlEa8KfjE4/qYfbSVm4veiLsJtWKBSBxCaOAylzobDkwnzlu9KlQoOjuiLN1vmySBQ=="
+    "publicKey": "rcFAEfgtHFbZVqpPnXPYhYNhpgYEhSXg0Ixjjcdd2Mc=",
+    "value": "63wbGAiTurKb9MR9vgUGZs/nOPP4x5ECSUBqjLMpwVEt4mMPyZTu/cW7wcbaF44lyQNUdmM/Ooa8mu1fEC8eAQ=="
   },
   "coverage": {
     "total": 0,

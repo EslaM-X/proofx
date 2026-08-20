@@ -1,0 +1,13 @@
+# Force LF line endings for conformance corpus (determinism on CI)
+conformance/corpus/**    text eol=lf
+conformance/expected/**  text eol=lf
+conformance/native/**    text eol=lf
+
+# JSON and YAML should be LF everywhere
+*.json  text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.js    text eol=lf
+
+# Go source
+*.go    text eol=lf

@@ -58,17 +58,15 @@ jobs:
         run: |
           GOOS=js GOARCH=wasm go build -ldflags="-s -w" -o static/proofx.wasm ./cmd/proofx-wasm
 
-      - name: check wasm_exec.js matches Go version
+      - name: check wasm_exec.js matches Go installation
         run: |
-          GO_VERSION=$(go version | awk '{print $3}' | sed 's/go//')
-          WASM_EXEC_VERSION=$(grep -o "Go $GO_VERSION" static/wasm_exec.js | head -1 || true)
-          if [ -z "$WASM_EXEC_VERSION" ]; then
-            echo "ERROR: static/wasm_exec.js does not match Go $GO_VERSION"
+          diff static/wasm_exec.js "$(go env GOROOT)/lib/wasm/wasm_exec.js" || {
+            echo "ERROR: static/wasm_exec.js does not match Go $(go version | awk '{print $3}')"
             echo "Copy the correct wasm_exec.js:"
-            echo "  cp \$(go env GOROOT)/lib/wasm/wasm_exec.js static/wasm_exec.js"
+            echo "  cp $(go env GOROOT)/lib/wasm/wasm_exec.js static/wasm_exec.js"
             exit 1
-          fi
-          echo "wasm_exec.js version matches Go $GO_VERSION"
+          }
+          echo "wasm_exec.js matches Go $(go version | awk '{print $3}')"
 
       - name: WASM conformance runner
         run: node conformance/wasm/run.js

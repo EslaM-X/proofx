@@ -13,6 +13,7 @@
 package main
 
 import (
+	"crypto/ed25519"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -22,6 +23,27 @@ import (
 	"github.com/EslaM-X/proofx/proof"
 	"github.com/EslaM-X/proofx/verifycore"
 )
+
+// deterministicReader produces a fixed byte stream so that key generation
+// in the conformance generator is reproducible across runs and platforms.
+type deterministicReader struct{ n byte }
+
+func (d *deterministicReader) Read(p []byte) (int, error) {
+	for i := range p {
+		d.n++
+		p[i] = d.n
+	}
+	return len(p), nil
+}
+
+// sharedDeterministicSource is the single reader used by all generateDeterministicKey
+// calls so that each call produces a different key.
+var sharedDeterministicSource = &deterministicReader{n: 0}
+
+// generateDeterministicKey produces a stable ed25519 keypair for conformance.
+func generateDeterministicKey() (ed25519.PublicKey, ed25519.PrivateKey, error) {
+	return ed25519.GenerateKey(sharedDeterministicSource)
+}
 
 type Case struct {
 	Name        string
@@ -110,7 +132,7 @@ func buildCases() []Case {
 
 func validMinimal() Case {
 	ev := []model.Evidence{{ID: "git", Digest: "aabb1122"}}
-	_, priv, _ := proof.GenerateKey()
+	_, priv, _ := generateDeterministicKey()
 	p := &model.Proof{
 		ID:           "valid-minimal",
 		ProofVersion: model.ProofVersion,
@@ -147,7 +169,7 @@ func validMultiEvidence() Case {
 		{ID: "deps", Digest: "ccdd3344"},
 		{ID: "tests", Digest: "eeff5566"},
 	}
-	_, priv, _ := proof.GenerateKey()
+	_, priv, _ := generateDeterministicKey()
 	p := &model.Proof{
 		ID:           "valid-multi-evidence",
 		ProofVersion: model.ProofVersion,
@@ -183,7 +205,7 @@ func validMultiEvidence() Case {
 
 func validMaxClaims() Case {
 	ev := []model.Evidence{{ID: "git", Digest: "aabb1122"}}
-	_, priv, _ := proof.GenerateKey()
+	_, priv, _ := generateDeterministicKey()
 	claims := make([]model.Claim, 5)
 	for i := range claims {
 		claims[i] = model.Claim{
@@ -224,7 +246,7 @@ func validMaxClaims() Case {
 
 func validUnicodeProject() Case {
 	ev := []model.Evidence{{ID: "git", Digest: "aabb1122"}}
-	_, priv, _ := proof.GenerateKey()
+	_, priv, _ := generateDeterministicKey()
 	p := &model.Proof{
 		ID:           "valid-unicode-project",
 		ProofVersion: model.ProofVersion,
@@ -257,7 +279,7 @@ func validUnicodeProject() Case {
 
 func validEmptySubjectBranch() Case {
 	ev := []model.Evidence{{ID: "git", Digest: "aabb1122"}}
-	_, priv, _ := proof.GenerateKey()
+	_, priv, _ := generateDeterministicKey()
 	p := &model.Proof{
 		ID:           "valid-empty-branch",
 		ProofVersion: model.ProofVersion,
@@ -292,7 +314,7 @@ func validEmptySubjectBranch() Case {
 
 func invalidTamperedRoot() Case {
 	ev := []model.Evidence{{ID: "git", Digest: "aabb1122"}}
-	_, priv, _ := proof.GenerateKey()
+	_, priv, _ := generateDeterministicKey()
 	p := &model.Proof{
 		ID:           "invalid-tampered-root",
 		ProofVersion: model.ProofVersion,
@@ -326,7 +348,7 @@ func invalidTamperedRoot() Case {
 
 func invalidTamperedSignature() Case {
 	ev := []model.Evidence{{ID: "git", Digest: "aabb1122"}}
-	_, priv, _ := proof.GenerateKey()
+	_, priv, _ := generateDeterministicKey()
 	p := &model.Proof{
 		ID:           "invalid-tampered-sig",
 		ProofVersion: model.ProofVersion,
@@ -391,7 +413,7 @@ func invalidMissingSignature() Case {
 
 func invalidWrongAlgorithm() Case {
 	ev := []model.Evidence{{ID: "git", Digest: "aabb1122"}}
-	_, priv, _ := proof.GenerateKey()
+	_, priv, _ := generateDeterministicKey()
 	p := &model.Proof{
 		ID:           "invalid-wrong-algo",
 		ProofVersion: model.ProofVersion,
@@ -425,8 +447,8 @@ func invalidWrongAlgorithm() Case {
 
 func invalidSwappedPublicKey() Case {
 	ev := []model.Evidence{{ID: "git", Digest: "aabb1122"}}
-	_, priv, _ := proof.GenerateKey()
-	otherPub, _, _ := proof.GenerateKey()
+	_, priv, _ := generateDeterministicKey()
+	otherPub, _, _ := generateDeterministicKey()
 	p := &model.Proof{
 		ID:           "invalid-swapped-key",
 		ProofVersion: model.ProofVersion,
@@ -460,7 +482,7 @@ func invalidSwappedPublicKey() Case {
 
 func invalidModifiedClaimText() Case {
 	ev := []model.Evidence{{ID: "git", Digest: "aabb1122"}}
-	_, priv, _ := proof.GenerateKey()
+	_, priv, _ := generateDeterministicKey()
 	p := &model.Proof{
 		ID:           "invalid-modified-claim-text",
 		ProofVersion: model.ProofVersion,
@@ -494,7 +516,7 @@ func invalidModifiedClaimText() Case {
 
 func invalidModifiedClaimStatus() Case {
 	ev := []model.Evidence{{ID: "git", Digest: "aabb1122"}}
-	_, priv, _ := proof.GenerateKey()
+	_, priv, _ := generateDeterministicKey()
 	p := &model.Proof{
 		ID:           "invalid-modified-claim-status",
 		ProofVersion: model.ProofVersion,
@@ -528,7 +550,7 @@ func invalidModifiedClaimStatus() Case {
 
 func invalidModifiedProject() Case {
 	ev := []model.Evidence{{ID: "git", Digest: "aabb1122"}}
-	_, priv, _ := proof.GenerateKey()
+	_, priv, _ := generateDeterministicKey()
 	p := &model.Proof{
 		ID:           "invalid-modified-project",
 		ProofVersion: model.ProofVersion,
@@ -562,7 +584,7 @@ func invalidModifiedProject() Case {
 
 func invalidModifiedSubject() Case {
 	ev := []model.Evidence{{ID: "git", Digest: "aabb1122"}}
-	_, priv, _ := proof.GenerateKey()
+	_, priv, _ := generateDeterministicKey()
 	p := &model.Proof{
 		ID:           "invalid-modified-subject",
 		ProofVersion: model.ProofVersion,
