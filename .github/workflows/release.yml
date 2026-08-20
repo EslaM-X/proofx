@@ -20,7 +20,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: '1.26'
           cache: true
 
       - name: build binaries
@@ -39,11 +39,18 @@ jobs:
               -o "dist/${name}${ext}" ./cmd/proofx
           done
 
+      - name: build WASM verifier
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          GOOS=js GOARCH=wasm go build -ldflags="-s -w" -o dist/proofx.wasm ./cmd/proofx-wasm
+          cp static/wasm_exec.js dist/
+          echo "WASM built: $(wc -c < dist/proofx.wasm) bytes"
+
       - name: checksums
         run: |
           set -euo pipefail
           cd dist
-          sha256sum proofx-* > checksums.txt
+          sha256sum proofx-* proofx.wasm wasm_exec.js > checksums.txt
           cat checksums.txt
 
       - name: build release-sign helper
@@ -62,26 +69,46 @@ jobs:
       - name: create release
         run: |
           set -euo pipefail
-          cat > /tmp/release-notes.md <<'EOF'
-          ProofX $GITHUB_REF_NAME — Evidence Infrastructure for Software.
+          cat > /tmp/release-notes.md <<'NOTES'
+          # ProofX v0.3.0 — Independent Verification
 
-          Binaries for linux / darwin / windows (amd64 + arm64).
+          ## What's new
+
+          - **Independent verification core** (`verifycore/`). Standalone
+            verification engine with zero external dependencies.
+          - **Browser-native WASM verifier**. `proofx.wasm` runs in any
+            modern browser — no server, no network, no upload.
+          - **18-case conformance suite**. Valid, invalid, and malformed
+            proofs with deterministic corpus.
+          - **Native/WASM differential verification**. Every conformance
+            case produces identical results on native Go and WASM.
+          - **Zero-trust local browser verification**. Drop a proof file
+            on the verifier page — verification happens entirely in your
+            browser. No data leaves your machine.
+          - **ProofX self-verification**. ProofX verifies its own proofs.
+          - **GitHub Pages verifier** at proofx.dev.
+          - **`.gitattributes`** for cross-platform deterministic corpus.
+          - **CI toolchain guard**. wasm_exec.js must match the Go
+            installation (diff-based check).
+
+          ## Pipeline
+
+          Evidence → Claims → Merkle → Commitment → Ed25519 → Proof
+          → verifycore → CLI + WASM → Browser → proofx.dev
 
           ## Verify the download
 
           1. Download the binary and `checksums.txt`.
-          2. Compare the binary digest: `sha256sum -c checksums.txt`.
+          2. Compare: `sha256sum -c checksums.txt`
           3. Optionally verify `checksums.txt.sig` with the public release key.
 
-          Proofs produced by these binaries use the domain-separated protocol
-          v1.0 (see docs/CRYPTOGRAPHY.md). Verify downloads with checksums.txt
-          (see docs/RELEASE_KEY.md).
-          EOF
+          No proof data is uploaded to any server during browser verification.
+          NOTES
           assets=""
           for f in dist/proofx-*; do
             assets="$assets $f"
           done
-          assets="$assets dist/checksums.txt dist/checksums.txt.sig"
+          assets="$assets dist/proofx.wasm dist/wasm_exec.js dist/checksums.txt dist/checksums.txt.sig"
           gh release create "$GITHUB_REF_NAME" $assets \
             --title "ProofX $GITHUB_REF_NAME" \
             --notes-file /tmp/release-notes.md

@@ -4,7 +4,39 @@ All notable changes to ProofX are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [0.2.1] - Security / Protocol Update
+## [0.3.0] - Independent Verification
+
+### Added
+
+- **Independent verification core** (`verifycore/`). Standalone engine
+  with zero external dependencies — no CLI, no filesystem, no network.
+- **Browser-native WASM verifier** (`cmd/proofx-wasm`). Exposes
+  `verifyProof(jsonString)` as a global JS function. 3.47 MB.
+- **18-case conformance suite** (`conformance/`). Deterministic corpus
+  with valid (5), invalid (10), and malformed (3) proof documents.
+- **Native/WASM differential verification** (`conformance/diff.js`).
+  Every case produces identical results on native Go and WASM.
+- **ProofX self-verification**. ProofX verifies its own proofs end-to-end.
+- **GitHub Pages verifier** at `proofx.dev`. Drag/drop a proof file —
+  verification happens entirely in your browser.
+- **`.gitattributes`** for cross-platform LF enforcement on conformance
+  corpus, JSON, YAML, JS, and Go files.
+- **CI toolchain guard**. wasm_exec.js must match the Go installation
+  via diff against GOROOT.
+- **Deterministic key generation** in conformance generator. Shared
+  stateful reader ensures reproducible corpus across runs and platforms.
+
+### Changed
+
+- **CI Go 1.26** for conformance and release builds.
+- **Release workflow** now builds WASM binary and wasm_exec.js as
+  release assets with checksums.
+
+### Security
+
+- Deterministic conformance corpus prevents non-reproducible CI failures.
+- Diff-based wasm_exec.js check prevents version skew between compiler
+  and runtime support file.
 
 ### Changed
 
