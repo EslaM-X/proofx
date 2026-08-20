@@ -29,6 +29,8 @@ jobs:
 
       - name: setup pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: upload pages artifact
         uses: actions/upload-pages-artifact@v3
