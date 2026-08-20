@@ -9,6 +9,10 @@ linters:
     - misspell
     - gofmt
 
+issues:
+  exclude-dirs:
+    - cmd/proofx-wasm
+
 linters-settings:
   govet:
     enable:

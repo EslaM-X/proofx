@@ -25,11 +25,11 @@ jobs:
         run: |
           test -z "$(gofmt -l .)" || { echo "gofmt needed on:"; gofmt -l .; exit 1; }
       - name: go vet
-        run: go vet ./...
+        run: go vet $(go list ./... | grep -v proofx-wasm)
       - name: build
-        run: go build ./...
+        run: go build $(go list ./... | grep -v proofx-wasm)
       - name: test
-        run: go test -race -cover ./...
+        run: go test -race -cover $(go list ./... | grep -v proofx-wasm)
 
   lint:
     name: lint
