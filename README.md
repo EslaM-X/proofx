@@ -104,17 +104,30 @@ proofx verify proof.json
 ### 3. See it work
 
 ```text
-ProofX Verification — PX-56b79e75
+$ proofx verify proof.json
+
+ProofX Verification — PX-e2cc6779
 ────────────────────────────────────────────────
 ✓  binding  (merkle root matches evidence digests)
-✓  artifact  (cc34d874ec91)
+✓  artifact  (43e15b6c3287)
 ✓  dependencies  (7b81e355f9a3)
-✓  environment  (d79f8e69b353)
-✓  git  (d9035c066fbb)
+✓  environment  (656ba252b077)
+✓  git  (ecc19b79b4cb)
 ✓  signature  (ed25519 over binding root)
 ────────────────────────────────────────────────
 ✓ VERIFIED — 4/4 evidence nodes match current repo
 Verification coverage: 100/100
+```
+
+### 4. Verify in your browser (zero-trust)
+
+Open [**proofx.dev**](https://proofx.dev) → drag-and-drop `proof.json` → verification runs **entirely in your browser** using WebAssembly. No data leaves your machine.
+
+```text
+Browser verification (WASM)       CLI verification
+✓ binding (merkle root)           ✓ binding (merkle root)
+✓ signature (ed25519)             ✓ signature (ed25519)
+✓ 4/4 evidence — 100%            ✓ 4/4 evidence — 100%
 ```
 
 Tamper with a tracked artifact and verify again — the mismatch is reported **per node**, with a non-zero exit code your CI can enforce.
@@ -138,7 +151,7 @@ Anyone downloading your release can verify it came from the exact build you sign
 ## 🤖 GitHub Action
 
 ```yaml
-- uses: EslaM-X/proofx@v0.2.1
+- uses: EslaM-X/proofx@v0.3.0
   with:
     command: prove
     policy: 90        # fail the job if verification coverage < 90
@@ -235,7 +248,7 @@ The **binding root** is an order-independent Merkle root over the sorted, domain
   "binding": { "algorithm": "sha256", "root": "56b79e75…", "entries": [ /* sorted */ ] },
   "signature": { "algorithm": "ed25519", "publicKey": "JcArfc+P…", "value": "…" },
   "coverage": { "total": 4, "verified": 4, "score": 100 },
-  "builder": { "name": "proofx", "version": "0.2.1" }
+  "builder": { "name": "proofx", "version": "0.3.0" }
 }
 ```
 
@@ -282,9 +295,9 @@ Want your repo here? Open a PR that adds `proofx init && proofx collect && proof
 ## 🗺️ Roadmap
 
 - **v0.1** ✅ — CLI (init/keygen/collect/prove/verify/inspect), proof format + JSON schema, GitHub Action, policy gate, 6 platform binaries, dogfooding.
-- **v0.2** 🔄 — `explain`, `diff`, `graph`, portable `verify --artifact`, property + fuzz tests, formal crypto spec, checksums + signed releases, Docker package.
-- **v0.3** — public verifier `proofx.dev/v/<id>`, dynamic verification badge, Sigstore/attestation integration, npm/PyPI/Docker collectors.
-- **v1.0** — SDKs (Go/JS/Python), Evidence Graph as a first-class output, certified compliance packs.
+- **v0.2** ✅ — `explain`, `diff`, `graph`, portable `verify --artifact`, property + fuzz tests, formal crypto spec, checksums + signed releases, Docker package.
+- **v0.3** ✅ — independent browser verification via `proofx.wasm`, 18-case conformance suite, differential native/WASM testing, GitHub Pages verifier at proofx.dev, `.gitattributes` for deterministic corpus, CI toolchain guard.
+- **v1.0** — SDKs (Go/JS/Python), Evidence Graph as a first-class output, dynamic verification badge, Sigstore/attestation integration, npm/PyPI/Docker collectors, certified compliance packs.
 
 ## 🤝 Contributing
 
