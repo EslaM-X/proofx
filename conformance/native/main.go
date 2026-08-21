@@ -3,6 +3,8 @@
 // Package main runs the native (Go) verification against every corpus case
 // and writes result.json files for comparison with WASM results.
 //
+// v0.3 proofs use verifycore.Verify(); v0.4 proofs use verifycore.V4Verify().
+//
 // Run: go run ./conformance/native
 package main
 
@@ -18,9 +20,25 @@ import (
 )
 
 type NativeResult struct {
-	Name    string                  `json:"name"`
-	Result  verifycore.VerifyResult `json:"result"`
-	Success bool                    `json:"success"` // true if result matches expected
+	Name    string                     `json:"name"`
+	Result  verifycore.V4VerifyResult  `json:"result"`
+	Version string                     `json:"version"`
+	Success bool                       `json:"success"`
+}
+
+// v3ToV4Result wraps a v0.3 VerifyResult into a V4VerifyResult for uniform output.
+func v3ToV4Result(r verifycore.VerifyResult, p *model.Proof) verifycore.V4VerifyResult {
+	return verifycore.V4VerifyResult{
+		ProofID: r.ProofID,
+		Valid:   r.Valid,
+		Checks:  r.Checks,
+		Coverage: model.V4Coverage{
+			Evidence:  model.CoverageDim{Total: r.Coverage.Total, Verified: r.Coverage.Verified},
+			Claims:    model.CoverageDim{Total: len(p.Claims), Verified: r.Coverage.Verified},
+			Relations: model.CoverageDim{Total: 0},
+			Score:     r.Coverage.Score,
+		},
+	}
 }
 
 func main() {
@@ -55,29 +73,48 @@ func main() {
 				continue
 			}
 
-			p, err := verifycore.ParseProof(b)
-			var res verifycore.VerifyResult
-			if err != nil {
-				res = verifycore.VerifyResult{
-					Valid:    false,
-					Checks:   []verifycore.Check{{Name: "parse", Status: verifycore.StatusFail, Detail: "parse error: " + err.Error()}},
-					Coverage: model.Coverage{Total: 0, Verified: 0, Score: 0},
-				}
+			var res verifycore.V4VerifyResult
+			var version string
+
+			// Try v0.4 first
+			p4, err := verifycore.V4ParseProof(b)
+			if err == nil {
+				res = verifycore.V4Verify(p4)
+				version = "0.4"
 			} else {
-				res = verifycore.Verify(p)
+				// Try v0.3 (use v0.3 verifier directly, matching CLI behavior)
+				p3, err3 := verifycore.ParseProof(b)
+				if err3 != nil {
+					res = verifycore.V4VerifyResult{
+						Valid:   false,
+						Checks:  []verifycore.Check{{Name: "parse", Status: verifycore.StatusFail, Detail: "parse error: " + err3.Error()}},
+					}
+					version = "error"
+				} else {
+					v3res := verifycore.Verify(p3)
+					res = v3ToV4Result(v3res, p3)
+					version = "0.3"
+				}
 			}
 
 			// Load expected and compare
 			expectedBytes, err := os.ReadFile(expectedPath)
 			success := false
 			if err == nil {
-				var expected verifycore.VerifyResult
-				if json.Unmarshal(expectedBytes, &expected) == nil {
-					success = (res.Valid == expected.Valid)
+				// Try v0.4 expected first
+				var expected4 verifycore.V4VerifyResult
+				if json.Unmarshal(expectedBytes, &expected4) == nil && expected4.Checks != nil {
+					success = (res.Valid == expected4.Valid)
+				} else {
+					// Try v0.3 expected
+					var expected3 verifycore.VerifyResult
+					if json.Unmarshal(expectedBytes, &expected3) == nil {
+						success = (res.Valid == expected3.Valid)
+					}
 				}
 			}
 
-			nr := NativeResult{Name: name, Result: res, Success: success}
+			nr := NativeResult{Name: name, Result: res, Version: version, Success: success}
 			results = append(results, nr)
 
 			outPath := filepath.Join(outputDir, name+".result.json")
@@ -89,7 +126,7 @@ func main() {
 			if !success {
 				status = "FAIL"
 			}
-			fmt.Printf("  [%s] %s (valid=%v)\n", status, name, res.Valid)
+			fmt.Printf("  [%s] %s (valid=%v, version=%s)\n", status, name, res.Valid, version)
 		}
 	}
 

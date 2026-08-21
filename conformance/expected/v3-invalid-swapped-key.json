@@ -1,0 +1,20 @@
+{
+  "proofId": "v3-invalid-swapped-key",
+  "valid": false,
+  "checks": [
+    {
+      "name": "binding",
+      "status": "ok",
+      "detail": "merkle root matches evidence digests"
+    },
+    {
+      "name": "signature",
+      "status": "fail"
+    }
+  ],
+  "coverage": {
+    "total": 1,
+    "verified": 0,
+    "score": 0
+  }
+}

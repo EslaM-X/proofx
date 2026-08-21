@@ -1,14 +1,14 @@
 {
   "proofVersion": "1.0",
-  "id": "valid-empty-branch",
+  "id": "v3-valid-minimal",
   "project": {
-    "name": "nobranch",
-    "repository": "https://example.com/nobranch"
+    "name": "test",
+    "repository": "https://example.com/test"
   },
   "subject": {
     "commit": "abc123",
-    "branch": "",
-    "repository": "https://example.com/nobranch"
+    "branch": "main",
+    "repository": "https://example.com/test"
   },
   "claims": [
     {
@@ -39,8 +39,8 @@
   },
   "signature": {
     "algorithm": "ed25519",
-    "publicKey": "AgvUJ0RrcjQk2A0srTUro982SdDvj6rgyn6yVEOUGyk=",
-    "value": "dUIx7/CfEaD4xu2vYljJhcXpgvVZ55jXHEb2ibsgF2NaLFh0GLdt5pNOPgjqcuytZqGIEtJNO2Qyh8ln3MiIAw=="
+    "publicKey": "ebVWLo/mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ=",
+    "value": "0HbrbadJtH5+eABNtFZzBZXYpa/abLFaQUNHgTU2vskkI3iS9qjZNQD5jhsZIAFCG1eLOzchZkjqxnh8UIDoCw=="
   },
   "coverage": {
     "total": 0,

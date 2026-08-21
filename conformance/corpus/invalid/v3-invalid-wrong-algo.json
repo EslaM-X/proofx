@@ -1,14 +1,14 @@
 {
   "proofVersion": "1.0",
-  "id": "valid-unicode-project",
+  "id": "v3-invalid-wrong-algo",
   "project": {
-    "name": "прое́кт",
-    "repository": "https://example.com/unicode"
+    "name": "test",
+    "repository": "https://example.com/test"
   },
   "subject": {
     "commit": "abc123",
     "branch": "main",
-    "repository": "https://example.com/unicode"
+    "repository": "https://example.com/test"
   },
   "claims": [
     {
@@ -38,9 +38,9 @@
     ]
   },
   "signature": {
-    "algorithm": "ed25519",
-    "publicKey": "iC0Oo7KGTnpYfz5pjOpEWZmDEuZV4F+l6LURnYuqyM0=",
-    "value": "+vui6Sw18FUGqwWOWWL0XXryzSxGT6eKnRYya1/OSAvjXchXkP7XP3rQrU8QVkh9GdUsJ0OV8hqeALbGOxsjDg=="
+    "algorithm": "sha256",
+    "publicKey": "bI0UsEdZPXEX3ERZV9i91ncsMD0GQpf9yOMpkn03C9o=",
+    "value": "a+/g/t00X2LFAd8jfFn1T/4znSHFrW2Z1nikT/A43vffsShVgE99IANijLJznejb9Qvuqxf6IN2ngoPjZ+axCQ=="
   },
   "coverage": {
     "total": 0,

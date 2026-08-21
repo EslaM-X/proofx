@@ -1,0 +1,84 @@
+{
+  "proofVersion": "1.0",
+  "id": "v3-valid-multi-evidence",
+  "project": {
+    "name": "test",
+    "repository": "https://example.com/test"
+  },
+  "subject": {
+    "commit": "abc123",
+    "branch": "main",
+    "repository": "https://example.com/test"
+  },
+  "claims": [
+    {
+      "id": "build",
+      "text": "Build passes",
+      "status": "pass"
+    },
+    {
+      "id": "tests",
+      "text": "Tests pass",
+      "status": "pass"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "git",
+      "type": "",
+      "source": "",
+      "timestamp": "",
+      "payload": "",
+      "digest": "aabb1122"
+    },
+    {
+      "id": "deps",
+      "type": "",
+      "source": "",
+      "timestamp": "",
+      "payload": "",
+      "digest": "ccdd3344"
+    },
+    {
+      "id": "tests",
+      "type": "",
+      "source": "",
+      "timestamp": "",
+      "payload": "",
+      "digest": "eeff5566"
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "2b0de5c9a507779b736c69a6720ef3ae19566817dbb3d571182f1d7aac958bed",
+    "entries": [
+      {
+        "id": "deps",
+        "digest": "ccdd3344"
+      },
+      {
+        "id": "git",
+        "digest": "aabb1122"
+      },
+      {
+        "id": "tests",
+        "digest": "eeff5566"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "5/FioQvsVZr+oZXk3OhLaVaNXSywlj60RsBoXisX8vA=",
+    "value": "5esbzqO8ySBk++b5BI9BYfyN2rAMB0+jjY/QmD8UnMLP+JbZI7YvpJqmjWy7DPWbLHyZvTNA9vidCmm+fwRnCA=="
+  },
+  "coverage": {
+    "total": 0,
+    "verified": 0,
+    "score": 0
+  },
+  "createdAt": "",
+  "builder": {
+    "name": "",
+    "version": ""
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "proofId": "v4-invalid-tampered-root",
+  "valid": false,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    },
+    {
+      "name": "evidence",
+      "status": "ok"
+    },
+    {
+      "name": "binding",
+      "status": "fail"
+    },
+    {
+      "name": "commitment",
+      "status": "fail"
+    },
+    {
+      "name": "signature",
+      "status": "fail"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 1,
+      "verified": 1
+    },
+    "relations": {
+      "total": 1,
+      "verified": 0
+    },
+    "claims": {
+      "total": 1,
+      "verified": 0
+    },
+    "score": 0
+  }
+}

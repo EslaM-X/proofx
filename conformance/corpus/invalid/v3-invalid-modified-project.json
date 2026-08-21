@@ -1,0 +1,55 @@
+{
+  "proofVersion": "1.0",
+  "id": "v3-invalid-modified-project",
+  "project": {
+    "name": "evil",
+    "repository": "https://example.com/test"
+  },
+  "subject": {
+    "commit": "abc123",
+    "branch": "main",
+    "repository": "https://example.com/test"
+  },
+  "claims": [
+    {
+      "id": "build",
+      "text": "Build passes",
+      "status": "pass"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "git",
+      "type": "",
+      "source": "",
+      "timestamp": "",
+      "payload": "",
+      "digest": "aabb1122"
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "ebf628dc58743b9deb606914bc9383bc573a20b66ab3754a78c080712e5e10d7",
+    "entries": [
+      {
+        "id": "git",
+        "digest": "aabb1122"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "AgvUJ0RrcjQk2A0srTUro982SdDvj6rgyn6yVEOUGyk=",
+    "value": "MCweCx5t+hkM8YY3EXJKiO5E3NRN0OCQHrxitIrBRbfkfabLluo4u17M3eZ+fbMqkwWYhq9RhtpjQsTGTSbaCg=="
+  },
+  "coverage": {
+    "total": 0,
+    "verified": 0,
+    "score": 0
+  },
+  "createdAt": "",
+  "builder": {
+    "name": "",
+    "version": ""
+  }
+}

@@ -4,9 +4,9 @@
   <img src="brand/logo/proofx-logo-dark.svg" width="400" alt="ProofX">
 </p>
 
-**Cryptographically verifiable evidence for software**
+**ProofX turns software execution into a proof that anyone can independently verify.**
 
-*Turn "trust me." into "verify it yourself."*
+*No trust required. No server. Just math.*
 
 [![Go](https://img.shields.io/badge/Go-1.23%2B-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -23,6 +23,26 @@
 ---
 
 </div>
+
+## The Idea
+
+```text
+  Execution              Evidence              Relations              Claims
+  ──────────             ────────              ─────────              ──────
+  CI pipeline runs   →   commit + deps +   →   evidence supports  →  "built from
+  tests + build           builder + env         claims                 commit X"
+                         + results
+                              │                      │
+                              ▼                      ▼
+                         sha256 Merkle         Merkle root
+                         root                  + ed25519
+                         (binding)             (signature)
+                              │
+                              ▼
+                         proof.json
+```
+
+**Execution** happens. **Evidence** is collected. **Relations** bind them. **Claims** state what happened. **Proof** ties it all together with a signature. Anyone can verify — no server, no trust, just math.
 
 ## 2-Minute Quick Start
 
@@ -64,11 +84,12 @@ proofx verify proof.json
 ```
 ✓ PROOF VERIFIED
 
-Evidence: 5/5
-Coverage: 100%
-Binding:  PASS
+Evidence:  3/3
+Relations: 1/1
+Claims:    2/2
+Coverage:  100%
+Binding:   PASS
 Signature: PASS
-Artifacts: PASS
 ```
 
 That's it. You now have a **cryptographically signed, independently verifiable** proof of your project's state.
@@ -116,21 +137,48 @@ Replace `PX-your-proof-id` with the proof ID from your `proof.json`.
 
 | | ProofX | Traditional badges |
 |---|---|---|
+| **Execution model** | capture execution → extract evidence → verify | sign a result |
 | **Cryptographic binding** | sha256 Merkle root + ed25519 signature | A static image |
 | **Independently verifiable** | anyone with `proof.json` re-verifies, no server | Trust the badge host |
-| **One open document** | claims + evidence + signature in `proof.json` | Scattered reports |
-| **Composable** | Evidence Graph data model | One-off snapshots |
+| **Relations** | evidence supports claims (not just co-exists) | No structure |
+| **Coverage** | 3 dimensions: evidence, relations, claims | Boolean only |
 | **Human-readable** | `explain` tells you *why*, not just a boolean | Green/red only |
 
 ProofX does **not** re-invent cryptography. It sits **on top** of proven primitives — [SHA-256](docs/CRYPTOGRAPHY.md) (FIPS 180-4) and [Ed25519](docs/CRYPTOGRAPHY.md) (RFC 8032) — and layers on [SLSA](https://slsa.dev), [Sigstore](https://sigstore.dev) and [in-toto](https://in-toto.io) as attestation providers.
 
+## The Execution Proof Model (v0.4)
+
+v0.4 introduces **relations** — the missing link between evidence and claims.
+
+```json
+{
+  "proofVersion": "2.0",
+  "execution": {
+    "action": { "tool": "proofx", "version": "0.4.0" },
+    "environment": { "os": "linux", "arch": "amd64", "engine": "github-actions" }
+  },
+  "evidence": [
+    { "id": "e1", "type": "git.commit", "digest": "aabb1122..." },
+    { "id": "e2", "type": "test.results", "digest": "ccdd3344..." }
+  ],
+  "relations": [
+    { "from": "e2", "to": "c1", "type": "supports" },
+    { "from": "e1", "to": "c1", "type": "supports" }
+  ],
+  "claims": [
+    { "id": "c1", "text": "All tests pass on the recorded commit", "status": "evidenced" }
+  ],
+  "binding": { "algorithm": "sha256", "root": "..." },
+  "signature": { "algorithm": "ed25519", "value": "..." }
+}
 ```
-Claim              Evidence               Proof               Verification
-"release v1.4.2    commit + workflow +    sha256 Merkle       proofx verify
- built from        builder + digest +     root, ed25519       release.tar.gz
- commit abc123"    tests + deps +         signed bundle
-                   timestamp
-```
+
+**What changed from v0.3:**
+- **Evidence must have a `supports` relation to a claim.** Unlinked evidence is flagged as *present but not used*.
+- **Relations are part of the signature.** Mutating a relation breaks the proof.
+- **Coverage is 3-dimensional.** Evidence coverage, relation coverage, claim coverage — each measured independently.
+
+**Backward compatible:** v0.4 verifier reads v0.3 proofs. v0.3 CLI reads v0.4 proofs. No breaking changes.
 
 ## Verify an artifact without a repository
 
@@ -155,6 +203,7 @@ Anyone downloading your release can verify it came from the exact build you sign
 | `proofx verify proof.json` | re-verify against the current repository |
 | `proofx verify --artifact FILE --proof proof.json` | portable, repo-free artifact check |
 | `proofx explain proof.json` | *why* each node passes/fails, likely causes + fixes |
+| `proofx claims proof.json` | extract and display all claims with their status |
 | `proofx diff v1.json v2.json` | evidence changes between releases |
 | `proofx graph proof.json` | render the Evidence Graph (ASCII) |
 | `proofx graph --json proof.json` | the Evidence Graph as a data model |
@@ -169,78 +218,61 @@ ProofX Explain — PX-56b79e75
     signature is a valid ed25519 over the binding root.
 ✓ binding  [OK]
     merkle root matches the recorded evidence digests.
-✓ artifact  [OK]
-    cc34d874ec91
+✓ e1 git.commit  [OK]
     current state matches the recorded evidence.
-✗ git  [FAIL]
-    expected d9035c066fbb actual 49b08f038c17
+✓ e2 test.results  [OK]
+    current state matches the recorded evidence.
+✗ e3 deps.lock  [FAIL]
+    expected aabb1122 actual ccdd3344
     the current state differs from the recorded evidence.
-    Likely cause: the repository advanced to a new commit since the proof.
-    Recommended:  checkout the recorded commit and re-verify, or create a new proof.
+    Likely cause: dependencies changed since the proof was created.
+    Recommended:  re-run `proofx collect` and create a new proof.
+✓ c1  [EVIDENCED]
+    supported by: e1, e2
+✗ c2  [UNSUPPORTED]
+    no evidence supports this claim.
 ```
 
-## The Evidence Graph
+## Coverage: 3 Dimensions
 
-Every proof bundles evidence **nodes** — id, type, source, timestamp, canonical payload, sha256 digest — into a directed graph:
+v0.4 coverage is **not a single score**. It's three measurements:
 
 ```text
-  commit
-    │
-    ├── artifact
-    ├── dependencies
-    ├── environment
-    └── git
-    │
-    ▼
-  PROOF  (PX-56b79e75)
-    │
-    ▼
-  SIGNATURE (ed25519)
+Evidence:  4/5 nodes verified
+Relations: 3/4 relations valid
+Claims:    2/3 claims evidenced
+Overall:   73%
 ```
 
-The **binding root** is an order-independent Merkle root over the sorted, domain-separated evidence digests; the **signature** is ed25519 over that root. Verification recomputes both — **no trusted server required**. The full construction is specified in [docs/CRYPTOGRAPHY.md](docs/CRYPTOGRAPHY.md).
+- **Evidence coverage:** how many evidence nodes re-verify against the current state
+- **Relation coverage:** how many relations point to valid evidence-claim pairs
+- **Claim coverage:** how many claims are supported by at least one valid relation
+
+This prevents the "100% coverage with unused evidence" problem. Every evidence node must have a purpose.
 
 ## Concepts
 
 | Term | Meaning |
 |------|---------|
-| **Claim** | a human statement a project makes (e.g. "built from commit X") |
-| **Evidence** | an independently checkable fact (git state, file digests, test summary, lockfile hash, toolchain) |
-| **Proof** | a signed document binding claims to evidence (`proof.json`) |
-| **Verification** | re-collecting current evidence and comparing every digest |
-| **Coverage** | the share of evidence nodes that re-verify — **not** a security score |
-| **Binding root** | order-independent sha256 Merkle root over evidence digests |
+| **Execution** | the action that produced evidence (CI run, build, test suite) |
+| **Evidence** | an independently checkable fact (commit, file digests, test results, deps) |
+| **Relation** | a directed link from evidence to claim (e.g. "e1 supports c1") |
+| **Claim** | a human statement backed by evidence ("all tests pass on this commit") |
+| **Proof** | a signed document: execution + evidence + relations + claims + signature |
+| **Verification** | recomputing every digest and checking every relation |
+| **Coverage** | 3-dimensional: evidence verified, relations valid, claims evidenced |
+| **Binding root** | order-independent sha256 Merkle root over evidence + relations |
 | **Signature** | ed25519 over the binding root, key embedded in the proof |
 
-> ⚠️ ProofX reports **Verification Coverage**, never "your project is secure". It states: *these claims have been verified against these evidence sources* — and nothing more. Read the [Threat Model](docs/THREAT_MODEL.md) for the exact guarantees and their boundaries.
-
-## Proof document format
-
-`proof.json` is versioned, schema-validated, and self-contained — the public key lives inside the proof, so verification works offline:
-
-```json
-{
-  "proofVersion": "1.0",
-  "id": "PX-56b79e75",
-  "project": { "name": "EslaM-X/proofx", "repository": "EslaM-X/proofx" },
-  "subject": { "commit": "c51daaf9…", "branch": "main", "repository": "EslaM-X/proofx" },
-  "claims": [ { "id": "c1", "text": "Built from the recorded git commit", "status": "evidenced" } ],
-  "evidence": [ /* nodes: id, type, source, timestamp, payload, digest */ ],
-  "binding": { "algorithm": "sha256", "root": "56b79e75…", "entries": [ /* sorted */ ] },
-  "signature": { "algorithm": "ed25519", "publicKey": "JcArfc+P…", "value": "…" },
-  "coverage": { "total": 4, "verified": 4, "score": 100 },
-  "builder": { "name": "proofx", "version": "0.3.0" }
-}
-```
-
-JSON Schema: [`schema/proof.schema.json`](schema/proof.schema.json) · Sample: [`docs/proof.md`](docs/proof.md)
+> ProofX reports **Verification Coverage**, never "your project is secure". It states: *these claims have been verified against these evidence sources* — and nothing more. Read the [Threat Model](docs/THREAT_MODEL.md) for the exact guarantees and their boundaries.
 
 ## Documentation
 
 | Doc | Contents |
 |-----|----------|
+| [V0.4-SPEC.md](docs/V0.4-SPEC.md) | Execution Proof Model specification |
 | [SPEC.md](docs/SPEC.md) | full project specification & architecture |
-| [CRYPTOGRAPHY.md](docs/CRYPTOGRAPHY.md) | formal cryptographic construction (canonicalization, Merkle, domain separation, signature payload) |
+| [CRYPTOGRAPHY.md](docs/CRYPTOGRAPHY.md) | formal cryptographic construction |
 | [THREAT_MODEL.md](docs/THREAT_MODEL.md) | exactly what ProofX protects — and what it does **not** |
 | [SECURITY.md](SECURITY.md) | vulnerability reporting, response times, key compromise procedure |
 | [RELEASE_KEY.md](docs/RELEASE_KEY.md) | release signing key + how to verify downloads |
@@ -251,6 +283,7 @@ JSON Schema: [`schema/proof.schema.json`](schema/proof.schema.json) · Sample: [
 - **No invented crypto.** sha256 (FIPS 180-4) + ed25519 (RFC 8032) + standard PEM/PKCS#8. Domain separation prevents type-confusion between protocol steps.
 - **No trust in the prover.** Anyone with `proof.json` and the repository can verify.
 - **Deterministic.** Evidence payloads are canonicalized; the Merkle root is order-independent — asserted by property tests and fuzzers.
+- **Relations required.** Every evidence node must have a purpose. Unlinked evidence is flagged.
 - **Honest coverage.** Missing sources are reported as *skipped*, never as pass.
 - **Open & MIT licensed.** The core — CLI, verifier, schema, action — is free and open forever.
 
@@ -278,6 +311,7 @@ Want your repo here? Open a PR that adds `proofx init && proofx collect && proof
 - **v0.1** ✅ — CLI (init/keygen/collect/prove/verify/inspect), proof format + JSON schema, GitHub Action, policy gate, 6 platform binaries, dogfooding.
 - **v0.2** ✅ — `explain`, `diff`, `graph`, portable `verify --artifact`, property + fuzz tests, formal crypto spec, checksums + signed releases, Docker package.
 - **v0.3** ✅ — independent browser verification via `proofx.wasm`, 18-case conformance suite, differential native/WASM testing, GitHub Pages verifier at proofx.dev, `.gitattributes` for deterministic corpus, CI toolchain guard.
+- **v0.4** ✅ — Execution Proof Model: `supports` relations, 3-dimensional coverage, v0.4 proof format, backward-compatible verifier, 46-case conformance suite, 0-difference native↔WASM.
 - **v1.0** — SDKs (Go/JS/Python), Evidence Graph as a first-class output, dynamic verification badge, Sigstore/attestation integration, npm/PyPI/Docker collectors, certified compliance packs.
 
 ## Contributing
@@ -301,6 +335,6 @@ Want your repo here? Open a PR that adds `proofx init && proofx collect && proof
 
 **⭐ Star the project if you want open, verifiable software evidence to become a standard.**
 
-*Trust is good. Proof is better. ProofX is both.*
+*Execution happens. Proof makes it verifiable. ProofX makes it simple.*
 
 </div>

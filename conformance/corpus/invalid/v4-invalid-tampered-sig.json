@@ -1,0 +1,97 @@
+{
+  "proofVersion": "2.0",
+  "id": "v4-invalid-tampered-sig",
+  "project": {
+    "name": "test",
+    "repository": "https://example.com/test"
+  },
+  "subject": {
+    "commit": "abc123",
+    "branch": "main",
+    "repository": "https://example.com/test"
+  },
+  "execution": {
+    "id": "exec-001",
+    "type": "ci-workflow",
+    "startedAt": "2026-08-21T02:00:00Z",
+    "completedAt": "2026-08-21T02:05:00Z",
+    "environment": {
+      "os": "ubuntu-24.04",
+      "arch": "amd64",
+      "runtime": "go1.26.5"
+    }
+  },
+  "evidence": [
+    {
+      "id": "git",
+      "type": "git",
+      "source": "git",
+      "timestamp": "",
+      "payload": "{\"commit\":\"abc123\"}",
+      "digest": "a3a060aa0fe8708e7a279cd42e085f0f9bc0d9e2f73e32f23f0f56cf3f6c0981"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "from": "exec-001",
+      "to": "git",
+      "kind": "produces"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim.build",
+      "type": "build_passed",
+      "subject": "execution:exec-001",
+      "statement": "Build passed",
+      "status": "pass",
+      "supportedBy": [
+        "git"
+      ]
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "e3fc1dc80638c68b19669685282e9b51f80ca8072593d15c2c8907f391c9994b",
+    "entries": [
+      {
+        "id": "claim:claim.build",
+        "digest": "f547bfbd297835038dedd2bfd6fe879eb52489134ffa77302a51c3d6a4558c90"
+      },
+      {
+        "id": "ev:git",
+        "digest": "a3a060aa0fe8708e7a279cd42e085f0f9bc0d9e2f73e32f23f0f56cf3f6c0981"
+      },
+      {
+        "id": "rel:r1",
+        "digest": "7020b93266132ac3b6590f794597019828ffc39c88dc34e16ce9605edf0fe59e"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "iC0Oo7KGTnpYfz5pjOpEWZmDEuZV4F+l6LURnYuqyM0=",
+    "value": "deadbeef"
+  },
+  "coverage": {
+    "evidence": {
+      "total": 1,
+      "verified": 1
+    },
+    "relations": {
+      "total": 1,
+      "verified": 1
+    },
+    "claims": {
+      "total": 1,
+      "verified": 1
+    },
+    "score": 100
+  },
+  "createdAt": "2026-08-21T02:05:00Z",
+  "builder": {
+    "name": "proofx",
+    "version": "0.4.0"
+  }
+}

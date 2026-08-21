@@ -1,0 +1,1 @@
+{"id":"x","proofVersion":"99.0","project":{"name":"t","repository":"r"},"subject":{"commit":"a","branch":"b","repository":"r"},"claims":[],"evidence":[],"binding":{"algorithm":"sha256","root":"","entries":[]},"signature":{"algorithm":"ed25519","publicKey":"","value":""}}

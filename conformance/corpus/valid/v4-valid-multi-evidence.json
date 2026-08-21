@@ -1,0 +1,199 @@
+{
+  "proofVersion": "2.0",
+  "id": "v4-valid-multi-evidence",
+  "project": {
+    "name": "test",
+    "repository": "https://example.com/test"
+  },
+  "subject": {
+    "commit": "abc123",
+    "branch": "main",
+    "repository": "https://example.com/test"
+  },
+  "execution": {
+    "id": "exec-001",
+    "type": "ci-workflow",
+    "startedAt": "2026-08-21T02:00:00Z",
+    "completedAt": "2026-08-21T02:05:00Z",
+    "environment": {
+      "os": "ubuntu-24.04",
+      "arch": "amd64",
+      "runtime": "go1.26.5"
+    }
+  },
+  "evidence": [
+    {
+      "id": "git",
+      "type": "git",
+      "source": "git",
+      "timestamp": "",
+      "payload": "{\"commit\":\"abc123\"}",
+      "digest": "a3a060aa0fe8708e7a279cd42e085f0f9bc0d9e2f73e32f23f0f56cf3f6c0981"
+    },
+    {
+      "id": "deps",
+      "type": "deps",
+      "source": "npm",
+      "timestamp": "",
+      "payload": "{\"lockfile\":\"sha256:abcd\"}",
+      "digest": "9a93f564c5ecae75a5e9912fea749abbc3e9a63aa0e63260828bee141033073b"
+    },
+    {
+      "id": "tests",
+      "type": "tests",
+      "source": "jest",
+      "timestamp": "",
+      "payload": "{\"passed\":42,\"failed\":0}",
+      "digest": "bd275ac0002206d2aa3c14cffaf1c928d18c81e01c6daf2739236a63a2c556df"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "from": "exec-001",
+      "to": "git",
+      "kind": "produces"
+    },
+    {
+      "id": "r2",
+      "from": "exec-001",
+      "to": "deps",
+      "kind": "produces"
+    },
+    {
+      "id": "r3",
+      "from": "exec-001",
+      "to": "tests",
+      "kind": "produces"
+    },
+    {
+      "id": "r4",
+      "from": "git",
+      "to": "claim.build",
+      "kind": "supports"
+    },
+    {
+      "id": "r5",
+      "from": "deps",
+      "to": "claim.deps",
+      "kind": "supports"
+    },
+    {
+      "id": "r6",
+      "from": "tests",
+      "to": "claim.tests",
+      "kind": "supports"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim.build",
+      "type": "build_passed",
+      "subject": "execution:exec-001",
+      "statement": "Build passed",
+      "status": "pass",
+      "supportedBy": [
+        "git"
+      ]
+    },
+    {
+      "id": "claim.deps",
+      "type": "deps_locked",
+      "subject": "execution:exec-001",
+      "statement": "Dependencies locked",
+      "status": "pass",
+      "supportedBy": [
+        "deps"
+      ]
+    },
+    {
+      "id": "claim.tests",
+      "type": "tests_passed",
+      "subject": "execution:exec-001",
+      "statement": "All tests passed",
+      "status": "pass",
+      "supportedBy": [
+        "tests"
+      ]
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "beee68a462d808590ed6d28b776d74ab4bac531194634ff703bf08484f5f3adc",
+    "entries": [
+      {
+        "id": "claim:claim.build",
+        "digest": "f547bfbd297835038dedd2bfd6fe879eb52489134ffa77302a51c3d6a4558c90"
+      },
+      {
+        "id": "claim:claim.deps",
+        "digest": "8daef67a67d3933f7fa199c1c01623ef1233b3921fdbda302d5df3c8351d83b4"
+      },
+      {
+        "id": "claim:claim.tests",
+        "digest": "95aa8b7e875610cd0b53f58f5dc19cd0911e88790214922b7f91827da530e647"
+      },
+      {
+        "id": "ev:deps",
+        "digest": "9a93f564c5ecae75a5e9912fea749abbc3e9a63aa0e63260828bee141033073b"
+      },
+      {
+        "id": "ev:git",
+        "digest": "a3a060aa0fe8708e7a279cd42e085f0f9bc0d9e2f73e32f23f0f56cf3f6c0981"
+      },
+      {
+        "id": "ev:tests",
+        "digest": "bd275ac0002206d2aa3c14cffaf1c928d18c81e01c6daf2739236a63a2c556df"
+      },
+      {
+        "id": "rel:r1",
+        "digest": "7020b93266132ac3b6590f794597019828ffc39c88dc34e16ce9605edf0fe59e"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "85b9a25a4103c16a71b298ef9bca713785aa8f5671f889a08071a9fff13640e7"
+      },
+      {
+        "id": "rel:r3",
+        "digest": "b41fa62275cc0b0ade4661d8337c777af288276014bb3d7d291c0d86b0f79155"
+      },
+      {
+        "id": "rel:r4",
+        "digest": "653e39afb2f647e437efc8bdcfd964e8571e55982b9af80c30f309f6ada99b02"
+      },
+      {
+        "id": "rel:r5",
+        "digest": "90273beffb675d6bd445e7a43ffca49e79234ac2cce4206ea5f6076ee1472674"
+      },
+      {
+        "id": "rel:r6",
+        "digest": "f11ecb57c586c67f6d3992ef4b6f8d63c35d1902fb143a8946f56105bce4ab1e"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "bI0UsEdZPXEX3ERZV9i91ncsMD0GQpf9yOMpkn03C9o=",
+    "value": "c5PoFsDuRnm7XIVkT4ty09QJs6ReLKT65JhE58SO++km3VE47FCOVMkDqF/2VtBukqbqWu4gKg1EdCdBuVtEBg=="
+  },
+  "coverage": {
+    "evidence": {
+      "total": 3,
+      "verified": 3
+    },
+    "relations": {
+      "total": 6,
+      "verified": 6
+    },
+    "claims": {
+      "total": 3,
+      "verified": 3
+    },
+    "score": 100
+  },
+  "createdAt": "2026-08-21T02:05:00Z",
+  "builder": {
+    "name": "proofx",
+    "version": "0.4.0"
+  }
+}

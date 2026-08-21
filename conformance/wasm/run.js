@@ -33,7 +33,7 @@ async function main() {
   go.run(result.instance);
 
   const verifyFn = globalThis.verifyProof;
-  if (!typeof verifyFn) {
+  if (!verifyFn) {
     console.error('verifyProof not available after WASM init');
     process.exit(1);
   }
@@ -56,8 +56,14 @@ async function main() {
         const resultStr = verifyFn(proofBytes.toString());
         res = JSON.parse(resultStr);
       } catch (e) {
-        res = { valid: false, checks: [{ name: 'wasm-error', status: 'fail', detail: e.message }], coverage: { total: 0, verified: 0, score: 0 } };
+        res = { valid: false, version: 'error', checks: [{ name: 'wasm-error', status: 'fail', detail: e.message }], coverage: { evidence: { total: 0, verified: 0 }, relations: { total: 0, verified: 0 }, claims: { total: 0, verified: 0 }, score: 0 } };
       }
+
+      // Normalize: WASM output may not have coverage dimensions — add defaults
+      if (!res.coverage) res.coverage = { evidence: { total: 0, verified: 0 }, relations: { total: 0, verified: 0 }, claims: { total: 0, verified: 0 }, score: 0 };
+      if (!res.coverage.evidence) res.coverage.evidence = { total: 0, verified: 0 };
+      if (!res.coverage.relations) res.coverage.relations = { total: 0, verified: 0 };
+      if (!res.coverage.claims) res.coverage.claims = { total: 0, verified: 0 };
 
       // Compare with expected
       let success = false;
@@ -66,14 +72,17 @@ async function main() {
         success = (res.valid === expected.valid);
       }
 
-      const nr = { name, result: res, success };
+      // Detect version from WASM output
+      const version = res.version || 'unknown';
+
+      const nr = { name, result: res, version, success };
       results.push(nr);
 
       const outPath = path.join(outputDir, name + '.result.json');
       fs.writeFileSync(outPath, JSON.stringify(nr, null, 2));
 
       const status = success ? 'PASS' : 'FAIL';
-      console.log(`  [${status}] ${name} (valid=${res.valid})`);
+      console.log(`  [${status}] ${name} (valid=${res.valid}, version=${version})`);
     }
   }
 

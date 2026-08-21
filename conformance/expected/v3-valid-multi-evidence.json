@@ -1,5 +1,5 @@
 {
-  "proofId": "valid-empty-branch",
+  "proofId": "v3-valid-multi-evidence",
   "valid": true,
   "checks": [
     {
@@ -14,8 +14,8 @@
     }
   ],
   "coverage": {
-    "total": 1,
-    "verified": 1,
+    "total": 3,
+    "verified": 3,
     "score": 100
   }
 }

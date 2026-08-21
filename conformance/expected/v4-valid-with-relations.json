@@ -1,0 +1,67 @@
+{
+  "proofId": "v4-valid-with-relations",
+  "valid": true,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    },
+    {
+      "name": "evidence",
+      "status": "ok"
+    },
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "commitment",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "ok"
+    },
+    {
+      "name": "claims",
+      "status": "ok"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 2,
+      "verified": 2
+    },
+    "relations": {
+      "total": 4,
+      "verified": 4
+    },
+    "claims": {
+      "total": 2,
+      "verified": 2
+    },
+    "score": 100
+  },
+  "claims": [
+    {
+      "id": "claim.tests_passed",
+      "type": "tests_passed",
+      "statement": "All tests passed",
+      "status": "pass",
+      "supportedBy": [
+        "tests"
+      ],
+      "valid": true
+    },
+    {
+      "id": "claim.exec_bound",
+      "type": "execution_bound",
+      "statement": "Bound to commit abc123",
+      "status": "pass",
+      "supportedBy": [
+        "git"
+      ],
+      "valid": true
+    }
+  ]
+}
