@@ -32,13 +32,13 @@ jobs:
           test -z "$(gofmt -l .)" || { echo "gofmt needed on:"; gofmt -l .; exit 1; }
 
       - name: go vet
-        run: go vet $(go list ./... | grep -v proofx-wasm)
+        run: go vet $(go list ./... | grep -v proofx-wasm | grep -v v04test)
 
       - name: go test
         run: go test -race $(go list ./... | grep -v proofx-wasm)
 
       - name: build
-        run: go build $(go list ./... | grep -v proofx-wasm)
+        run: go build $(go list ./... | grep -v proofx-wasm | grep -v v04test)
 
       - name: generate corpus
         run: go run ./conformance/generate

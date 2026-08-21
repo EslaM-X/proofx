@@ -81,6 +81,12 @@ func V3ToV4(data []byte) (*V4Proof, error) {
 		return nil, fmt.Errorf("proofx: not a v0.3 proof (version=%q)", v3.ProofVersion)
 	}
 
+	// All evidence IDs — used to populate SupportedBy
+	allEvIDs := make([]string, len(v3.Evidence))
+	for i, e := range v3.Evidence {
+		allEvIDs[i] = e.ID
+	}
+
 	// Convert claims
 	claims := make([]V4Claim, len(v3.Claims))
 	for i, c := range v3.Claims {
@@ -90,7 +96,7 @@ func V3ToV4(data []byte) (*V4Proof, error) {
 			Subject:     "proof:v0.3",
 			Statement:   c.Text,
 			Status:      c.Status,
-			SupportedBy: nil, // v0.3 claims have no evidence linkage
+			SupportedBy: allEvIDs, // v0.3: all evidence supports all claims
 		}
 	}
 
@@ -117,7 +123,18 @@ func V3ToV4(data []byte) (*V4Proof, error) {
 		binding.Entries[i] = BindingEntry{ID: e.ID, Digest: e.Digest}
 	}
 
-	// Build v0.4 proof — no execution, no relations
+	// Build supports relations — one from execution to each claim
+	relations := make([]Relation, len(claims))
+	for i, c := range claims {
+		relations[i] = Relation{
+			ID:   "r:v3:" + c.ID,
+			From: v3.ID, // execution ID
+			To:   c.ID,
+			Kind: RelSupports,
+		}
+	}
+
+	// Build v0.4 proof
 	p := &V4Proof{
 		ProofVersion: ProofVersionV2, // NOTE: this changes the version
 		ID:           v3.ID,
@@ -135,7 +152,7 @@ func V3ToV4(data []byte) (*V4Proof, error) {
 			Type: ExecCustom,
 		},
 		Evidence:  evidence,
-		Relations: nil, // v0.3 has no relations
+		Relations: relations,
 		Claims:    claims,
 		Binding:   binding,
 		Signature: Signature{
