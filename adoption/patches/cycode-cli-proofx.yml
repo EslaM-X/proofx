@@ -1,0 +1,43 @@
+name: ProofX
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  proofx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Run tests
+        run: |
+          pip install poetry
+          poetry install
+          poetry run python -m pytest
+
+      - name: Generate and verify proof
+        uses: EslaM-X/proofx-action@v0.3.2
+        with:
+          collect: true
+          prove: true
+          verify: true
+          fail-on-unverified: true
+
+      - name: Upload proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: proof
+          path: proof.json
+          retention-days: 90
