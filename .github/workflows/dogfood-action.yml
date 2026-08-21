@@ -3,6 +3,7 @@ name: Dogfood — ProofX verifies ProofX
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   dogfood:
