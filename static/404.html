@@ -5,16 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ProofX — Verify</title>
   <script>
-    // SPA fallback: redirect /v/{proof-id} to index.html with the path intact
-    // GitHub Pages serves 404.html for unknown paths; we redirect to the root
-    // and let index.html handle the /v/{id} route via client-side routing.
+    // GitHub Pages SPA fallback:
+    // /v/{proof-id} → /verify.html?v={proof-id}
+    // Unknown paths → /
     (function() {
       var path = window.location.pathname;
       if (path.startsWith('/v/')) {
-        // Redirect to index.html preserving the path
-        window.location.replace('/?v=' + encodeURIComponent(path.slice(3)));
+        var proofId = path.slice(3);
+        window.location.replace('/verify.html?v=' + encodeURIComponent(proofId));
       } else {
-        // Unknown path — redirect to root
         window.location.replace('/');
       }
     })();

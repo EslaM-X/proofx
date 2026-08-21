@@ -20,6 +20,7 @@ async function initWasm() {
     // The WASM module sets window.verifyProof via js.Global().Set()
     wasmVerifyFn = window.verifyProof;
     wasmReady = true;
+    window.wasmReady = true;
     document.dispatchEvent(new Event('wasm-ready'));
   } catch (e) {
     wasmError = e.message;

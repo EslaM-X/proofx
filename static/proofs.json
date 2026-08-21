@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "proofs": {
+    "PX-e2cc6779": {
+      "project": "EslaM-X/proofx",
+      "repository": "EslaM-X/proofx",
+      "branch": "main",
+      "proofPath": "proof.json",
+      "description": "ProofX self-verification proof",
+      "created": "2026-08-20"
+    }
+  }
+}

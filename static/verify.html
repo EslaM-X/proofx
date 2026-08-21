@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProofX — Verify Proof</title>
+  <meta name="description" content="Cryptographically verify a ProofX proof — entirely in your browser. No server. No trust.">
+  <meta property="og:title" content="ProofX — Verify Proof">
+  <meta property="og:description" content="Cryptographically verify a ProofX proof — entirely in your browser.">
+  <meta property="og:type" content="website">
+  <style>
+    :root {
+      --bg: #0a0e17;
+      --surface: #111827;
+      --border: #1e293b;
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+      --text-muted: #64748b;
+      --green: #00ff88;
+      --green-bg: rgba(0, 255, 136, 0.08);
+      --green-border: rgba(0, 255, 136, 0.2);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.08);
+      --red-border: rgba(239, 68, 68, 0.2);
+      --cyan: #00d4ff;
+      --cyan-bg: rgba(0, 212, 255, 0.08);
+      --teal: #00ffd0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Header */
+    .header {
+      width: 100%;
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .header-brand svg { width: 32px; height: 32px; }
+    .header-brand span { font-weight: 600; font-size: 1rem; letter-spacing: 1px; }
+    .header-link {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    .header-link:hover { color: var(--cyan); }
+
+    /* Main content */
+    .container {
+      max-width: 600px;
+      width: 100%;
+      padding: 3rem 2rem;
+      flex: 1;
+    }
+
+    /* Loading state */
+    .loading {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { color: var(--text-dim); font-size: 0.95rem; }
+    .loading-id { color: var(--cyan); font-family: monospace; font-size: 0.85rem; margin-top: 0.5rem; }
+
+    /* Error state */
+    .error {
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+    .error-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .error-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .error-detail { color: var(--text-dim); font-size: 0.9rem; line-height: 1.6; }
+    .error-action {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.6rem 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--cyan);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: border-color 0.2s;
+    }
+    .error-action:hover { border-color: var(--cyan); }
+
+    /* Result card */
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .result-card.verified { border-color: var(--green-border); }
+    .result-card.failed { border-color: var(--red-border); }
+
+    /* Result header */
+    .result-header {
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-status {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .status-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+    .status-icon.pass { background: var(--green-bg); color: var(--green); }
+    .status-icon.fail { background: var(--red-bg); color: var(--red); }
+    .status-text { font-size: 1.1rem; font-weight: 600; }
+    .status-text.pass { color: var(--green); }
+    .status-text.fail { color: var(--red); }
+    .result-proof-id {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      background: var(--bg);
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    /* Proof info */
+    .proof-info {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .info-item {}
+    .info-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+    .info-value {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .info-value.mono {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+    }
+
+    /* Evidence checks */
+    .checks-section {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .checks-title {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 1rem;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .check-item:last-child { border-bottom: none; }
+    .check-icon { flex-shrink: 0; width: 1.2rem; text-align: center; font-weight: 600; }
+    .check-icon.pass { color: var(--green); }
+    .check-icon.fail { color: var(--red); }
+    .check-icon.skip { color: var(--text-muted); }
+    .check-name { flex: 1; }
+    .check-detail {
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* Coverage bar */
+    .coverage-section {
+      padding: 1.5rem 2rem;
+    }
+    .coverage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    .coverage-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .coverage-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+    .coverage-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--bg);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .coverage-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.6s ease;
+    }
+    .coverage-fill.full { background: var(--green); }
+    .coverage-fill.partial { background: #f59e0b; }
+    .coverage-fill.none { background: var(--red); }
+
+    /* Trust section */
+    .trust-section {
+      padding: 1.25rem 2rem;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+    }
+    .trust-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+    .trust-icon { color: var(--cyan); }
+
+    /* Drag-drop zone (alternative) */
+    .alt-verify {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    .alt-verify-text {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 0.75rem;
+    }
+    .dropzone {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .dropzone:hover {
+      border-color: var(--cyan);
+      background: var(--cyan-bg);
+    }
+    .dropzone-text { color: var(--text-dim); font-size: 0.85rem; }
+    input[type="file"] { display: none; }
+
+    /* Footer */
+    .footer {
+      width: 100%;
+      padding: 1.25rem 2rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    .footer a { color: var(--cyan); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 480px) {
+      .container { padding: 2rem 1rem; }
+      .result-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
+      .info-grid { grid-template-columns: 1fr; }
+      .trust-items { flex-direction: column; gap: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="/" class="header-brand">
+      <svg viewBox="0 0 120 120" fill="none">
+        <defs>
+          <linearGradient id="sg" x1="20" y1="0" x2="100" y2="120" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#00D4FF"/>
+            <stop offset="100%" stop-color="#00FFD0"/>
+          </linearGradient>
+        </defs>
+        <rect width="120" height="120" rx="24" fill="#0A0E17"/>
+        <path d="M60 15 L95 30 L95 60 Q95 90 60 105 Q25 90 25 60 L25 30 Z" fill="url(#sg)" opacity="0.12" stroke="url(#sg)" stroke-width="2.5"/>
+        <rect x="44" y="35" width="32" height="32" rx="4" fill="none" stroke="#00FFD0" stroke-width="2.5"/>
+        <polyline points="50,52 58,60 72,42" fill="none" stroke="#00FF88" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>PROOFX</span>
+    </a>
+    <a href="https://github.com/EslaM-X/proofx" class="header-link" target="_blank">GitHub →</a>
+  </div>
+
+  <div class="container" id="container">
+    <!-- Loading state (shown initially) -->
+    <div class="loading" id="loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading proof…</div>
+      <div class="loading-id" id="loading-id"></div>
+    </div>
+
+    <!-- Error state (hidden) -->
+    <div class="error" id="error" style="display:none"></div>
+
+    <!-- Result (hidden) -->
+    <div id="result" style="display:none"></div>
+  </div>
+
+  <!-- Drag-drop alternative -->
+  <div class="alt-verify" id="alt-verify" style="display:none">
+    <div class="alt-verify-text">Or verify a different proof:</div>
+    <div class="dropzone" id="dropzone">
+      <div class="dropzone-text">Drop <strong>proof.json</strong> here or click to select</div>
+      <input type="file" id="fileInput" accept=".json,application/json">
+    </div>
+  </div>
+
+  <div class="footer">
+    Verification runs entirely in your browser via WebAssembly. No data is sent to any server.
+    · <a href="https://github.com/EslaM-X/proofx">ProofX</a> v0.3.0
+  </div>
+
+  <script src="wasm_exec.js"></script>
+  <script src="verify.js"></script>
+  <script>
+    (function() {
+      const container = document.getElementById('container');
+      const loading = document.getElementById('loading');
+      const loadingId = document.getElementById('loading-id');
+      const errorDiv = document.getElementById('error');
+      const resultDiv = document.getElementById('result');
+      const altVerify = document.getElementById('alt-verify');
+
+      // Extract proof ID from URL: /v/PX-xxxxx or ?v=PX-xxxxx
+      const pathMatch = location.pathname.match(/^\/v\/([A-Za-z0-9-]+)$/);
+      const queryMatch = location.search.match(/[?&]v=([A-Za-z0-9-]+)/);
+      const proofId = (pathMatch && pathMatch[1]) || (queryMatch && queryMatch[1]);
+
+      if (!proofId) {
+        showError('No proof ID', 'Usage: proofx.dev/v/<strong>PX-your-proof-id</strong>');
+        return;
+      }
+
+      loadingId.textContent = proofId;
+
+      // Wait for WASM to be ready, then load proof
+      function onWasmReady() { loadProof(proofId); }
+      function onWasmError() { showError('WASM failed to load', 'WebAssembly could not be initialized. Try refreshing.'); }
+
+      if (window.wasmReady) {
+        onWasmReady();
+      } else {
+        document.addEventListener('wasm-ready', onWasmReady);
+        document.addEventListener('wasm-error', onWasmError);
+      }
+
+      async function loadProof(id) {
+        loadingId.textContent = id + ' — fetching…';
+        try {
+          // 1. Fetch proof registry
+          const registryResp = await fetch('/proofs.json');
+          if (!registryResp.ok) throw new Error('Could not load proof registry');
+          const registry = await registryResp.json();
+
+          // 2. Look up proof
+          const entry = registry.proofs[id];
+          if (!entry) {
+            showError(
+              'Proof not found',
+              'Proof ID <strong>' + escapeHtml(id) + '</strong> is not in the registry.<br><br>' +
+              'You can still verify it by dragging the proof.json file below.'
+            );
+            showAltVerify();
+            return;
+          }
+
+          // 3. Fetch proof.json from GitHub
+          loadingId.textContent = id + ' — verifying…';
+          const proofUrl = 'https://raw.githubusercontent.com/' + entry.repository + '/' + (entry.branch || 'main') + '/' + (entry.proofPath || 'proof.json');
+          const proofResp = await fetch(proofUrl);
+          if (!proofResp.ok) throw new Error('Could not fetch proof from ' + entry.repository);
+          const proofText = await proofResp.text();
+
+          // 4. Verify with WASM
+          const res = await window.verifyProofDocument(proofText);
+
+          // 5. Render result
+          renderResult(id, entry, res);
+
+        } catch (e) {
+          showError('Verification failed', escapeHtml(e.message));
+          showAltVerify();
+        }
+      }
+
+      function renderResult(id, entry, res) {
+        loading.style.display = 'none';
+        resultDiv.style.display = 'block';
+        altVerify.style.display = 'block';
+
+        const valid = res.valid;
+        const cardClass = valid ? 'verified' : 'failed';
+        const iconClass = valid ? 'pass' : 'fail';
+        const statusIcon = valid ? '✓' : '✗';
+        const statusText = valid ? 'PROOF VERIFIED' : 'VERIFICATION FAILED';
+        const statusClass = valid ? 'pass' : 'fail';
+
+        // Coverage
+        const cov = res.coverage || {};
+        const covScore = cov.score || 0;
+        const covVerified = cov.verified || 0;
+        const covTotal = cov.total || 0;
+        const covClass = covScore === 100 ? 'full' : covScore > 0 ? 'partial' : 'none';
+
+        // Evidence checks
+        let checksHtml = '';
+        for (const ch of (res.checks || [])) {
+          const chIconClass = ch.status === 'ok' ? 'pass' : ch.status === 'fail' ? 'fail' : 'skip';
+          const chIcon = ch.status === 'ok' ? '✓' : ch.status === 'fail' ? '✗' : '·';
+          const detail = ch.detail ? '<span class="check-detail">' + escapeHtml(ch.detail) + '</span>' : '';
+          checksHtml += '<div class="check-item">' +
+            '<span class="check-icon ' + chIconClass + '">' + chIcon + '</span>' +
+            '<span class="check-name">' + escapeHtml(ch.name) + '</span>' +
+            detail + '</div>';
+        }
+
+        // Project info
+        const projectName = entry.project || 'Unknown';
+        const commit = res.commit || '—';
+        const branch = res.branch || '—';
+
+        resultDiv.innerHTML =
+          '<div class="result-card ' + cardClass + '">' +
+            // Header
+            '<div class="result-header">' +
+              '<div class="result-status">' +
+                '<div class="status-icon ' + iconClass + '">' + statusIcon + '</div>' +
+                '<span class="status-text ' + statusClass + '">' + statusText + '</span>' +
+              '</div>' +
+              '<span class="result-proof-id">' + escapeHtml(id) + '</span>' +
+            '</div>' +
+
+            // Info grid
+            '<div class="proof-info">' +
+              '<div class="info-grid">' +
+                '<div class="info-item">' +
+                  '<div class="info-label">Project</div>' +
+                  '<div class="info-value">' + escapeHtml(projectName) + '</div>' +
+                '</div>' +
+                '<div class="info-item">' +
+                  '<div class="info-label">Repository</div>' +
+                  '<div class="info-value mono">' + escapeHtml(entry.repository || '—') + '</div>' +
+                '</div>' +
+                '<div class="info-item">' +
+                  '<div class="info-label">Commit</div>' +
+                  '<div class="info-value mono">' + escapeHtml(commit.substring(0, 12)) + '</div>' +
+                '</div>' +
+                '<div class="info-item">' +
+                  '<div class="info-label">Branch</div>' +
+                  '<div class="info-value">' + escapeHtml(branch) + '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+
+            // Evidence checks
+            '<div class="checks-section">' +
+              '<div class="checks-title">Evidence Verification</div>' +
+              checksHtml +
+            '</div>' +
+
+            // Coverage bar
+            '<div class="coverage-section">' +
+              '<div class="coverage-header">' +
+                '<span class="coverage-label">Verification Coverage</span>' +
+                '<span class="coverage-value">' + covVerified + '/' + covTotal + ' (' + covScore + '%)</span>' +
+              '</div>' +
+              '<div class="coverage-bar">' +
+                '<div class="coverage-fill ' + covClass + '" style="width: ' + covScore + '%"></div>' +
+              '</div>' +
+            '</div>' +
+
+            // Trust indicators
+            '<div class="trust-section">' +
+              '<div class="trust-items">' +
+                '<div class="trust-item"><span class="trust-icon">🔒</span> WASM verified in browser</div>' +
+                '<div class="trust-item"><span class="trust-icon">🔐</span> Ed25519 signature</div>' +
+                '<div class="trust-item"><span class="trust-icon">📦</span> SHA-256 Merkle binding</div>' +
+                '<div class="trust-item"><span class="trust-icon">🌐</span> No server required</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+
+        // Update page title
+        document.title = (valid ? '✓ ' : '✗ ') + id + ' — ProofX Verification';
+      }
+
+      function showError(title, detail) {
+        loading.style.display = 'none';
+        errorDiv.style.display = 'block';
+        errorDiv.innerHTML =
+          '<div class="error-icon">⚠️</div>' +
+          '<div class="error-title">' + title + '</div>' +
+          '<div class="error-detail">' + detail + '</div>' +
+          '<a href="/" class="error-action">← Back to ProofX</a>';
+      }
+
+      function showAltVerify() {
+        altVerify.style.display = 'block';
+      }
+
+      // Drag and drop
+      const dropzone = document.getElementById('dropzone');
+      const fileInput = document.getElementById('fileInput');
+
+      dropzone.addEventListener('click', () => fileInput.click());
+      dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.style.borderColor = '#00d4ff'; });
+      dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = ''; });
+      dropzone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropzone.style.borderColor = '';
+        if (e.dataTransfer.files.length) handleFileDrop(e.dataTransfer.files[0]);
+      });
+      fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) handleFileDrop(fileInput.files[0]);
+      });
+
+      async function handleFileDrop(file) {
+        loading.style.display = 'block';
+        errorDiv.style.display = 'none';
+        resultDiv.style.display = 'none';
+        loadingId.textContent = 'Verifying ' + file.name + '…';
+        try {
+          const text = await file.text();
+          const res = await window.verifyProofDocument(text);
+          // Extract proof ID from the proof itself
+          const proof = JSON.parse(text);
+          const id = proof.id || 'local-' + file.name;
+          renderResult(id, { project: proof.project?.name || 'Local', repository: 'local' }, res);
+        } catch (e) {
+          showError('Verification failed', escapeHtml(e.message));
+        }
+      }
+
+      function escapeHtml(s) {
+        if (!s) return '';
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+    })();
+  </script>
+</body>
+</html>
