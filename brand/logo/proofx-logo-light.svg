@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" fill="none">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0" y1="0" x2="40" y2="50" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0090AA"/>
+      <stop offset="100%" stop-color="#00B894"/>
+    </linearGradient>
+    <linearGradient id="xGrad" x1="280" y1="30" x2="380" y2="90" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0090AA"/>
+      <stop offset="100%" stop-color="#00B894"/>
+    </linearGradient>
+  </defs>
+  <!-- Shield -->
+  <path d="M30 10 L55 5 L55 30 Q55 55 30 65 Q5 55 5 30 L5 5 Z" fill="url(#shieldGrad)" opacity="0.1" stroke="url(#shieldGrad)" stroke-width="2"/>
+  <!-- Cube -->
+  <rect x="22" y="18" width="16" height="16" rx="2" fill="none" stroke="#00B894" stroke-width="1.5"/>
+  <!-- Checkmark -->
+  <polyline points="25,27 29,31 35,22" fill="none" stroke="#00B894" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Lock -->
+  <rect x="26" y="36" width="8" height="6" rx="1" fill="none" stroke="#0090AA" stroke-width="1"/>
+  <path d="M28 36 L28 33 Q28 30 30 30 Q32 30 32 33 L32 36" fill="none" stroke="#0090AA" stroke-width="1"/>
+  <!-- Ascending pixels -->
+  <rect x="8" y="48" width="4" height="4" fill="#0090AA" opacity="0.4"/>
+  <rect x="14" y="44" width="4" height="8" fill="#0090AA" opacity="0.6"/>
+  <rect x="20" y="40" width="4" height="12" fill="#0090AA" opacity="0.8"/>
+  <rect x="26" y="36" width="4" height="16" fill="#0090AA"/>
+  <!-- PROOFX text -->
+  <text x="75" y="52" font-family="'SF Pro Display', 'Inter', 'Segoe UI', system-ui, sans-serif" font-size="42" font-weight="700" fill="#1A1A2E" letter-spacing="2">PROOF</text>
+  <text x="275" y="52" font-family="'SF Pro Display', 'Inter', 'Segoe UI', system-ui, sans-serif" font-size="42" font-weight="700" fill="url(#xGrad)" letter-spacing="2">X</text>
+  <!-- Tagline -->
+  <text x="75" y="72" font-family="'SF Pro Display', 'Inter', 'Segoe UI', system-ui, sans-serif" font-size="11" fill="#0090AA" letter-spacing="4" opacity="0.8">VERIFY. TRUST. PROVE.</text>
+</svg>

@@ -1,8 +1,10 @@
 <div align="center">
 
-# 🛡️ ProofX
+<p align="center">
+  <img src="brand/logo/proofx-logo-dark.svg" width="400" alt="ProofX">
+</p>
 
-**Evidence Infrastructure for Software**
+**Cryptographically verifiable evidence for software**
 
 *Turn "trust me." into "verify it yourself."*
 
@@ -13,6 +15,7 @@
 [![Dogfood](https://github.com/EslaM-X/proofx/actions/workflows/proofx-dogfood.yml/badge.svg)](https://github.com/EslaM-X/proofx/actions/workflows/proofx-dogfood.yml)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-success)](https://github.com/EslaM-X/proofx)
 [![Security](https://img.shields.io/badge/security-policy-brightgreen.svg)](SECURITY.md)
+<img src="brand/badges/proof-verified-badge.svg" alt="Proof Verified">
 [![Made in Egypt](https://img.shields.io/badge/Made%20with%20%E2%9D%A4%20in-Egypt-white?logo=github&logoColor=white)](https://github.com/EslaM-X)
 
 [Releases](https://github.com/EslaM-X/proofx/releases) · [Packages](https://github.com/EslaM-X/proofx/pkgs) · [Docs](docs/SPEC.md) · [Crypto Spec](docs/CRYPTOGRAPHY.md) · [Threat Model](docs/THREAT_MODEL.md) · [Discussions](https://github.com/EslaM-X/proofx/discussions) · [Issues](https://github.com/EslaM-X/proofx/issues) · [Security](SECURITY.md)
@@ -21,7 +24,7 @@
 
 </div>
 
-> 🇪🇬 Built by **[EslaM](https://github.com/EslaM-X)** — where the Nile meets the blockchain. ProofX is a gift from Egypt to the open-source world: proof for every release, evidence for every claim.
+> **VERIFY. TRUST. PROVE.** — Built by **[EslaM](https://github.com/EslaM-X)**. ProofX provides cryptographically verifiable evidence for software.
 
 ## ✨ What is ProofX?
 

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 40" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="280" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0A0E17"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00D4FF"/>
+      <stop offset="100%" stop-color="#00FFD0"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="280" height="40" rx="8" fill="url(#bg)" stroke="#1E293B" stroke-width="1"/>
+  <!-- Shield icon -->
+  <path d="M20 8 L30 12 L30 20 Q30 28 20 32 Q10 28 10 20 L10 12 Z" fill="url(#accent)" opacity="0.2" stroke="url(#accent)" stroke-width="1"/>
+  <!-- Checkmark -->
+  <polyline points="15,20 19,24 25,16" fill="none" stroke="#00FF88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Text -->
+  <text x="40" y="17" font-family="'SF Pro Display', 'Inter', system-ui, sans-serif" font-size="10" font-weight="600" fill="#00FF88" letter-spacing="1">✓ PROOF VERIFIED</text>
+  <text x="40" y="30" font-family="'SF Pro Display', 'Inter', system-ui, sans-serif" font-size="8" fill="#64748B" letter-spacing="0.5">Cryptographic evidence verified</text>
+</svg>

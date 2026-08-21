@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <linearGradient id="shieldGrad" x1="20" y1="0" x2="100" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0090AA"/>
+      <stop offset="100%" stop-color="#00B894"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="120" height="120" rx="24" fill="#FFFFFF"/>
+  <!-- Shield -->
+  <path d="M60 15 L95 30 L95 60 Q95 90 60 105 Q25 90 25 60 L25 30 Z" fill="url(#shieldGrad)" opacity="0.08" stroke="url(#shieldGrad)" stroke-width="2.5"/>
+  <!-- Cube -->
+  <rect x="44" y="35" width="32" height="32" rx="4" fill="none" stroke="#00B894" stroke-width="2.5"/>
+  <!-- Checkmark -->
+  <polyline points="50,52 58,60 72,42" fill="none" stroke="#00B894" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Lock -->
+  <rect x="50" y="72" width="20" height="14" rx="3" fill="none" stroke="#0090AA" stroke-width="2"/>
+  <path d="M55 72 L55 66 Q55 60 60 60 Q65 60 65 66 L65 72" fill="none" stroke="#0090AA" stroke-width="2"/>
+  <circle cx="60" cy="79" r="2" fill="#0090AA"/>
+  <!-- Ascending pixels -->
+  <rect x="20" y="92" width="6" height="6" fill="#0090AA" opacity="0.4"/>
+  <rect x="30" y="86" width="6" height="12" fill="#0090AA" opacity="0.6"/>
+  <rect x="40" y="80" width="6" height="18" fill="#0090AA" opacity="0.8"/>
+  <rect x="50" y="74" width="6" height="24" fill="#0090AA"/>
+</svg>

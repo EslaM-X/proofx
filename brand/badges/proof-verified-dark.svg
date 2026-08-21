@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="shieldGrad" x1="40" y1="0" x2="160" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00D4FF"/>
+      <stop offset="100%" stop-color="#00FFD0"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#0A0E17" stroke="url(#shieldGrad)" stroke-width="2"/>
+  <!-- Inner circle -->
+  <circle cx="100" cy="100" r="80" fill="none" stroke="url(#shieldGrad)" stroke-width="0.5" opacity="0.3"/>
+  <!-- Shield -->
+  <path d="M100 30 L145 50 L145 90 Q145 130 100 150 Q55 130 55 90 L55 50 Z" fill="url(#shieldGrad)" opacity="0.1" stroke="url(#shieldGrad)" stroke-width="2"/>
+  <!-- Cube -->
+  <rect x="80" y="60" width="40" height="40" rx="5" fill="none" stroke="#00FFD0" stroke-width="2.5"/>
+  <!-- Checkmark -->
+  <polyline points="87,80 97,90 115,65" fill="none" stroke="#00FF88" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Lock -->
+  <rect x="85" y="108" width="30" height="20" rx="4" fill="none" stroke="#00D4FF" stroke-width="2"/>
+  <path d="M92 108 L92 100 Q92 92 100 92 Q108 92 108 100 L108 108" fill="none" stroke="#00D4FF" stroke-width="2"/>
+  <circle cx="100" cy="118" r="3" fill="#00D4FF"/>
+  <!-- Text around circle -->
+  <path id="topArc" d="M 30 100 A 70 70 0 0 1 170 100" fill="none"/>
+  <text font-family="'SF Pro Display', 'Inter', system-ui, sans-serif" font-size="12" font-weight="600" fill="#00D4FF" letter-spacing="6">
+    <textPath href="#topArc" startOffset="50%" text-anchor="middle">PROOFX</textPath>
+  </text>
+  <path id="bottomArc" d="M 170 105 A 70 70 0 0 1 30 105" fill="none"/>
+  <text font-family="'SF Pro Display', 'Inter', system-ui, sans-serif" font-size="8" font-weight="400" fill="#00FFD0" letter-spacing="4" opacity="0.8">
+    <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">VERIFY. TRUST. PROVE.</textPath>
+  </text>
+</svg>
