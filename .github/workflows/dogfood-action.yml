@@ -17,13 +17,16 @@ jobs:
           chmod +x proofx
           sudo mv proofx /usr/local/bin/
 
+      - name: Initialize ProofX
+        run: |
+          proofx init
+          proofx keygen
+
       - name: Collect evidence
         run: proofx collect
 
       - name: Generate proof
         run: proofx prove
-        env:
-          PROOFX_SIGNING_KEY: ${{ secrets.PROOFX_SIGNING_KEY }}
 
       - name: Verify with proofx-action
         uses: EslaM-X/proofx-action@v0.3.0
