@@ -11,13 +11,13 @@ Projects using ProofX to generate cryptographically verifiable evidence of their
 
 ## External Adopters (Pending)
 
-| Project | Category | Status | PR |
-|---------|----------|--------|-----|
-| [256lights/zb](https://github.com/256lights/zb) | Reproducible builds | Pending | — |
-| [cycodehq/cycode-cli](https://github.com/cycodehq/cycode-cli) | Security scanning | Pending | — |
-| [doiito/gliding_horse](https://github.com/doiito/gliding_horse) | AI agent framework | Pending | — |
-| [BarisYazici/libfranka-sim](https://github.com/BarisYazici/libfranka-sim) | Robotics simulation | Pending | — |
-| [TamizhSK/YEET](https://github.com/TamizhSK/YEET) | CI/CD infrastructure | Pending | — |
+| Project | Category | Status | Proof ID | PR |
+|---------|----------|--------|----------|-----|
+| [256lights/zb](https://github.com/256lights/zb) | Reproducible builds | CI Passing | PX-814c8087 | [#355](https://github.com/256lights/zb/pull/355) |
+| [cycodehq/cycode-cli](https://github.com/cycodehq/cycode-cli) | Security scanning | Pending | — | — |
+| [doiito/gliding_horse](https://github.com/doiito/gliding_horse) | AI agent framework | Pending | — | — |
+| [BarisYazici/libfranka-sim](https://github.com/BarisYazici/libfranka-sim) | Robotics simulation | Pending | — | — |
+| [TamizhSK/YEET](https://github.com/TamizhSK/YEET) | CI/CD infrastructure | Pending | — | — |
 
 ## Why These Projects?
 
@@ -64,6 +64,7 @@ WASM verification in browser
 ## Metrics
 
 - **Repositories using ProofX:** 2 (internal)
-- **External repositories:** 0 (5 pending)
-- **Total proofs generated:** 1
+- **External repositories:** 1 (zb — CI passing, pending review)
+- **Total proofs generated:** 2
+- **First external proof:** PX-814c8087 (zb, 2026-08-21)
 - **Independent verifications:** —

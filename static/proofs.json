@@ -8,6 +8,14 @@
       "proofPath": "proof.json",
       "description": "ProofX self-verification proof",
       "created": "2026-08-20"
+    },
+    "PX-814c8087": {
+      "project": "256lights/zb",
+      "repository": "EslaM-X/zb",
+      "branch": "main",
+      "proofPath": "proof.json",
+      "description": "ProofX external adoption — first external proof",
+      "created": "2026-08-21"
     }
   }
 }
