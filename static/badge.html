@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProofX Badge</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: transparent;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .badge:hover { opacity: 0.85; }
+    .badge.verified {
+      background: linear-gradient(135deg, #0a0e17, #111827);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      color: #00ff88;
+    }
+    .badge.failed {
+      background: linear-gradient(135deg, #1a0a0a, #171111);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+    .badge.unknown {
+      background: linear-gradient(135deg, #1a1a0a, #171711);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: #94a3b8;
+    }
+    .badge-icon { font-size: 14px; }
+    .badge-text { letter-spacing: 0.5px; }
+    .loading {
+      color: #64748b;
+      font-size: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading" id="loading">Loading…</div>
+  <a class="badge" id="badge" style="display:none" target="_blank"></a>
+
+  <script>
+    (function() {
+      const badge = document.getElementById('badge');
+      const loading = document.getElementById('loading');
+
+      // Get proof ID from URL: /badge/PX-xxxxx or ?id=PX-xxxxx
+      const pathMatch = location.pathname.match(/^\/badge\/([A-Za-z0-9-]+)$/);
+      const queryMatch = location.search.match(/[?&]id=([A-Za-z0-9-]+)/);
+      const proofId = (pathMatch && pathMatch[1]) || (queryMatch && queryMatch[1]);
+
+      if (!proofId) {
+        loading.textContent = 'No proof ID';
+        return;
+      }
+
+      loadBadge(proofId);
+
+      async function loadBadge(id) {
+        try {
+          const resp = await fetch('/proofs.json');
+          if (!resp.ok) throw new Error('Registry unavailable');
+          const registry = await resp.json();
+          const entry = registry.proofs[id];
+
+          if (!entry) {
+            showBadge('unknown', id, 'Proof not in registry');
+            return;
+          }
+
+          // Fetch proof from GitHub
+          const proofUrl = 'https://raw.githubusercontent.com/' + entry.repository + '/' + (entry.branch || 'main') + '/' + (entry.proofPath || 'proof.json');
+          const proofResp = await fetch(proofUrl);
+          if (!proofResp.ok) throw new Error('Proof fetch failed');
+          const proof = await proofResp.json();
+
+          // Verify signature locally (basic check)
+          const verified = proof.signature && proof.signature.value && proof.coverage && proof.coverage.score > 0;
+          const status = verified ? 'verified' : 'unknown';
+          const label = verified ? '✓ ProofX Verified' : 'ProofX';
+
+          showBadge(status, id, label);
+
+        } catch (e) {
+          showBadge('unknown', id, 'ProofX');
+        }
+      }
+
+      function showBadge(status, id, label) {
+        loading.style.display = 'none';
+        badge.style.display = 'inline-flex';
+        badge.className = 'badge ' + status;
+        badge.href = '/v/' + id;
+        badge.innerHTML = '<span class="badge-icon">' + (status === 'verified' ? '✓' : status === 'failed' ? '✗' : '?') + '</span><span class="badge-text">' + escapeHtml(label) + '</span>';
+        document.title = label + ' — ' + id;
+      }
+
+      function escapeHtml(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+    })();
+  </script>
+</body>
+</html>

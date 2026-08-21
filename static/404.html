@@ -6,13 +6,17 @@
   <title>ProofX — Verify</title>
   <script>
     // GitHub Pages SPA fallback:
-    // /v/{proof-id} → /verify.html?v={proof-id}
-    // Unknown paths → /
+    // /v/{proof-id}         → /verify.html?v={proof-id}
+    // /badge/{proof-id}     → /badge.html?id={proof-id}
+    // Unknown paths         → /
     (function() {
       var path = window.location.pathname;
       if (path.startsWith('/v/')) {
         var proofId = path.slice(3);
         window.location.replace('/verify.html?v=' + encodeURIComponent(proofId));
+      } else if (path.startsWith('/badge/')) {
+        var badgeId = path.slice(7);
+        window.location.replace('/badge.html?id=' + encodeURIComponent(badgeId));
       } else {
         window.location.replace('/');
       }

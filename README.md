@@ -94,6 +94,22 @@ Verification runs **entirely in your browser** using WebAssembly. No data leaves
 
 Every push now generates a signed proof. Every PR can verify it.
 
+### Step 6 — Add the verification badge
+
+Add this to your README to show your project is verified:
+
+```markdown
+[![Proof Verified](https://proofx.dev/badge/PX-your-proof-id)](https://proofx.dev/v/PX-your-proof-id)
+```
+
+Replace `PX-your-proof-id` with the proof ID from your `proof.json`.
+
+**What happens when someone clicks the badge:**
+1. Badge shows: `✓ ProofX Verified`
+2. Click opens: `proofx.dev/v/PX-your-proof-id`
+3. WASM verification runs **in their browser**
+4. They see the full evidence breakdown — no trust required
+
 ---
 
 ## What makes ProofX different
