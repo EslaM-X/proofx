@@ -154,8 +154,12 @@ func main() {
 		default:
 			dir = filepath.Join(corpusDir, "invalid")
 		}
-		os.MkdirAll(dir, 0o755)
-		os.MkdirAll(expectedDir, 0o755)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			panic(err)
+		}
+		if err := os.MkdirAll(expectedDir, 0o755); err != nil {
+			panic(err)
+		}
 
 		proofPath := filepath.Join(dir, c.Name+".json")
 		expectedPath := filepath.Join(expectedDir, c.Name+".json")
@@ -195,8 +199,12 @@ func main() {
 		default:
 			dir = filepath.Join(corpusDir, "invalid")
 		}
-		os.MkdirAll(dir, 0o755)
-		os.MkdirAll(expectedDir, 0o755)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			panic(err)
+		}
+		if err := os.MkdirAll(expectedDir, 0o755); err != nil {
+			panic(err)
+		}
 
 		proofPath := filepath.Join(dir, c.Name+".json")
 		expectedPath := filepath.Join(expectedDir, c.Name+".json")
@@ -228,8 +236,12 @@ func main() {
 	// Write WASM security cases (malformed bytes)
 	for _, c := range wasmCases {
 		dir := filepath.Join(corpusDir, "malformed")
-		os.MkdirAll(dir, 0o755)
-		os.MkdirAll(expectedDir, 0o755)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			panic(err)
+		}
+		if err := os.MkdirAll(expectedDir, 0o755); err != nil {
+			panic(err)
+		}
 
 		proofPath := filepath.Join(dir, c.Name+".json")
 		expectedPath := filepath.Join(expectedDir, c.Name+".json")
@@ -271,7 +283,9 @@ func v3MakeProof(id string, ev []model.Evidence, claims []model.Claim, priv ed25
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	if err := proof.Sign(p, priv); err != nil {
+		panic(err)
+	}
 	return p
 }
 
@@ -364,7 +378,9 @@ func v3ValidUnicodeProject() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	if err := proof.Sign(p, priv); err != nil {
+		panic(err)
+	}
 	return Case{
 		Name:        "v3-valid-unicode-project",
 		Description: "v0.3 proof with unicode project name",
@@ -397,7 +413,9 @@ func v3ValidEmptySubjectBranch() Case {
 			Entries:   proof.BindingEntries(ev),
 		},
 	}
-	proof.Sign(p, priv)
+	if err := proof.Sign(p, priv); err != nil {
+		panic(err)
+	}
 	return Case{
 		Name:        "v3-valid-empty-branch",
 		Description: "v0.3 proof with empty subject branch",

@@ -20,10 +20,10 @@ import (
 )
 
 type NativeResult struct {
-	Name    string                     `json:"name"`
-	Result  verifycore.V4VerifyResult  `json:"result"`
-	Version string                     `json:"version"`
-	Success bool                       `json:"success"`
+	Name    string                    `json:"name"`
+	Result  verifycore.V4VerifyResult `json:"result"`
+	Version string                    `json:"version"`
+	Success bool                      `json:"success"`
 }
 
 // v3ToV4Result wraps a v0.3 VerifyResult into a V4VerifyResult for uniform output.
@@ -86,8 +86,8 @@ func main() {
 				p3, err3 := verifycore.ParseProof(b)
 				if err3 != nil {
 					res = verifycore.V4VerifyResult{
-						Valid:   false,
-						Checks:  []verifycore.Check{{Name: "parse", Status: verifycore.StatusFail, Detail: "parse error: " + err3.Error()}},
+						Valid:  false,
+						Checks: []verifycore.Check{{Name: "parse", Status: verifycore.StatusFail, Detail: "parse error: " + err3.Error()}},
 					}
 					version = "error"
 				} else {
