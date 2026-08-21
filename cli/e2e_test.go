@@ -280,7 +280,9 @@ func TestE2E_Verify_ArtifactModeTampered(t *testing.T) {
 	}
 
 	path := writeV4Proof(t, dir, "proof.json", p)
-	os.WriteFile(filepath.Join(dir, "myapp.bin"), artifactBytes, 0o644)
+	if err := os.WriteFile(filepath.Join(dir, "myapp.bin"), artifactBytes, 0o644); err != nil {
+		t.Fatal(err)
+	}
 
 	c, code := runCLI([]string{"verify", "--artifact", filepath.Join(dir, "myapp.bin"), "--proof", path})
 	if code != 0 {
@@ -291,7 +293,9 @@ func TestE2E_Verify_ArtifactModeTampered(t *testing.T) {
 	}
 
 	// Now tamper the artifact
-	os.WriteFile(filepath.Join(dir, "myapp.bin"), []byte("tampered!"), 0o644)
+	if err := os.WriteFile(filepath.Join(dir, "myapp.bin"), []byte("tampered!"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	c2, code2 := runCLI([]string{"verify", "--artifact", filepath.Join(dir, "myapp.bin"), "--proof", path})
 	if code2 != 1 {
 		t.Fatalf("tampered artifact: expected exit 1, got %d\nstdout: %s", code2, stdoutStr(c2))
@@ -390,7 +394,9 @@ func TestE2E_Inspect_V3BackwardCompat(t *testing.T) {
 		Builder:      model.Builder{Name: "proofx", Version: "0.3.0"},
 	}
 	_, priv, _ := proof.GenerateKey()
-	proof.Sign(p, priv)
+	if err := proof.Sign(p, priv); err != nil {
+		t.Fatal(err)
+	}
 	b, _ := proof.MarshalProof(p)
 	path := writeRaw(t, dir, "proof.json", b)
 
@@ -559,7 +565,9 @@ func TestE2E_Explain_V3BackwardCompat(t *testing.T) {
 		Builder:      model.Builder{Name: "proofx", Version: "0.3.0"},
 	}
 	_, priv, _ := proof.GenerateKey()
-	proof.Sign(p, priv)
+	if err := proof.Sign(p, priv); err != nil {
+		t.Fatal(err)
+	}
 	b, _ := proof.MarshalProof(p)
 	path := writeRaw(t, dir, "proof.json", b)
 
