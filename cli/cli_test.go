@@ -128,13 +128,13 @@ func TestExplainReportsFailures(t *testing.T) {
 		t.Fatal(err)
 	}
 	c := &CLI{Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}}
-	code := c.run([]string{"explain", proofPath, dir})
+	code := c.run([]string{"explain", proofPath})
 	if code != 0 {
 		t.Fatalf("explain should exit 0 regardless of failure state")
 	}
 	out := stdoutString(c.Stdout)
-	if !strings.Contains(out, "artifact") || !strings.Contains(out, "Likely cause") {
-		t.Fatalf("explain should detail the artifact node:\n%s", out)
+	if !strings.Contains(out, "evidence") || !strings.Contains(out, "Conclusion") {
+		t.Fatalf("explain should detail the evidence and show conclusion:\n%s", out)
 	}
 }
 

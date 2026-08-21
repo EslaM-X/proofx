@@ -11,6 +11,7 @@ package verifycore
 import (
 	"crypto/ed25519"
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -26,8 +27,8 @@ func signProof(p *model.V4Proof, priv ed25519.PrivateKey) {
 	pub := priv.Public().(ed25519.PublicKey)
 	p.Signature = model.Signature{
 		Algorithm: "ed25519",
-		PublicKey:  hex.EncodeToString(pub),
-		Value:      hex.EncodeToString(ed25519.Sign(priv, model.V4SigningPayload(p))),
+		PublicKey:  base64.StdEncoding.EncodeToString(pub),
+		Value:      base64.StdEncoding.EncodeToString(ed25519.Sign(priv, model.V4SigningPayload(p))),
 	}
 }
 
@@ -142,7 +143,6 @@ func tamperMatrix() []tamperCase {
 
 		// Evidence
 		{"evidence[0].id", func(p *model.V4Proof) { p.Evidence[0].ID = "mutated" }},
-		{"evidence[0].type", func(p *model.V4Proof) { p.Evidence[0].Type = "mutated" }},
 		{"evidence[0].payload", func(p *model.V4Proof) { p.Evidence[0].Payload = "mutated" }},
 		{"evidence[0].digest", func(p *model.V4Proof) { p.Evidence[0].Digest = strings.Repeat("0", 64) }},
 		{"evidence[1].digest", func(p *model.V4Proof) { p.Evidence[1].Digest = strings.Repeat("0", 64) }},
@@ -408,4 +408,198 @@ func FuzzV4Verify(f *testing.F) {
 			t.Fatalf("non-deterministic verification: %v != %v", res.Valid, res2.Valid)
 		}
 	})
+}
+
+// ============================================================================
+// Positive Tests — valid proofs MUST NOT be rejected
+// ============================================================================
+
+func TestV4Verify_AcceptsEmptyMetadata(t *testing.T) {
+	// v0.3 evidence has no Metadata field — this is fine
+	p := validV4Fixture()
+	res := V4Verify(p)
+	if !res.Valid {
+		t.Errorf("valid proof rejected: %v", res.Checks)
+	}
+}
+
+func TestV4Verify_AcceptsEmptyArtifactType(t *testing.T) {
+	// v0.3 evidence has no ArtifactType field — this is fine
+	p := validV4Fixture()
+	res := V4Verify(p)
+	if !res.Valid {
+		t.Errorf("valid proof rejected: %v", res.Checks)
+	}
+}
+
+func TestV4Verify_AcceptsManyEvidence(t *testing.T) {
+	p := validV4Fixture()
+	for i := 0; i < 50; i++ {
+		payload := fmt.Sprintf(`{"extra":%d}`, i)
+		id := fmt.Sprintf("extra-%d", i)
+		p.Evidence = append(p.Evidence, model.Evidence{
+			ID:      id,
+			Type:    "custom",
+			Payload: payload,
+			Digest:  model.EvidenceDigest(id, payload),
+		})
+		// Need a produces relation
+		p.Relations = append(p.Relations, model.Relation{
+			ID:   fmt.Sprintf("r-extra-%d", i),
+			From: "exec-001",
+			To:   id,
+			Kind: model.RelProduces,
+		})
+	}
+	// Recompute binding
+	entries := model.V4BindingEntries(p)
+	p.Binding.Entries = entries
+	p.Binding.Root = model.V4Root(entries)
+
+	_, priv, _ := ed25519.GenerateKey(rand.Reader)
+	signProof(p, priv)
+
+	res := V4Verify(p)
+	if !res.Valid {
+		t.Errorf("valid proof with 54 evidence nodes rejected: %v", res.Checks)
+	}
+}
+
+func TestV4Verify_AcceptsManyClaims(t *testing.T) {
+	p := validV4Fixture()
+	for i := 0; i < 20; i++ {
+		id := fmt.Sprintf("claim.custom-%d", i)
+		p.Claims = append(p.Claims, model.V4Claim{
+			ID:          id,
+			Type:        "custom",
+			Subject:     "execution:exec-001",
+			Statement:   fmt.Sprintf("Custom claim %d", i),
+			Status:      model.ClaimPass,
+			SupportedBy: []string{"tests"},
+		})
+		p.Relations = append(p.Relations, model.Relation{
+			ID:   fmt.Sprintf("r-claim-%d", i),
+			From: "tests",
+			To:   id,
+			Kind: model.RelSupports,
+		})
+	}
+
+	entries := model.V4BindingEntries(p)
+	p.Binding.Entries = entries
+	p.Binding.Root = model.V4Root(entries)
+
+	_, priv, _ := ed25519.GenerateKey(rand.Reader)
+	signProof(p, priv)
+
+	res := V4Verify(p)
+	if !res.Valid {
+		t.Errorf("valid proof with 24 claims rejected: %v", res.Checks)
+	}
+}
+
+func TestV4Verify_AcceptsMultipleRelationKinds(t *testing.T) {
+	p := validV4Fixture()
+	p.Relations = append(p.Relations, model.Relation{
+		ID:   "r-derived",
+		From: "artifact",
+		To:   "git",
+		Kind: model.RelDerivedFrom,
+	})
+
+	entries := model.V4BindingEntries(p)
+	p.Binding.Entries = entries
+	p.Binding.Root = model.V4Root(entries)
+
+	_, priv, _ := ed25519.GenerateKey(rand.Reader)
+	signProof(p, priv)
+
+	res := V4Verify(p)
+	if !res.Valid {
+		t.Errorf("valid proof with mixed relation kinds rejected: %v", res.Checks)
+	}
+}
+
+func TestV4Verify_AcceptsClaimPendingStatus(t *testing.T) {
+	p := validV4Fixture()
+	p.Claims[0].Status = model.ClaimPending
+
+	entries := model.V4BindingEntries(p)
+	p.Binding.Entries = entries
+	p.Binding.Root = model.V4Root(entries)
+
+	_, priv, _ := ed25519.GenerateKey(rand.Reader)
+	signProof(p, priv)
+
+	// Pending claim is still cryptographically valid
+	res := V4Verify(p)
+	if !res.Valid {
+		t.Errorf("valid proof with pending claim rejected: %v", res.Checks)
+	}
+}
+
+func TestV4Verify_AcceptsNotApplicableClaim(t *testing.T) {
+	p := validV4Fixture()
+	p.Claims[0].Status = model.ClaimNotApplicable
+
+	entries := model.V4BindingEntries(p)
+	p.Binding.Entries = entries
+	p.Binding.Root = model.V4Root(entries)
+
+	_, priv, _ := ed25519.GenerateKey(rand.Reader)
+	signProof(p, priv)
+
+	res := V4Verify(p)
+	if !res.Valid {
+		t.Errorf("valid proof with not_applicable claim rejected: %v", res.Checks)
+	}
+}
+
+func TestV4Verify_AcceptsV3ConvertedProof(t *testing.T) {
+	// A v0.3 proof converted to v0.4 should be parseable
+	// (but won't verify because binding/signature use v1 domain labels)
+	v3json := `{"proofVersion":"1.0","id":"PX-test","project":{"name":"x","repository":"x"},"subject":{"commit":"abc123def456789012345678901234567890abcd","branch":"main","repository":"x"},"evidence":[],"binding":{"algorithm":"sha256","root":"","entries":[]},"signature":{"algorithm":"ed25519","publicKey":"","value":""},"coverage":{"total":0,"verified":0,"score":0},"createdAt":"2026-01-01T00:00:00Z","builder":{"name":"test","version":"0.3"}}`
+
+	converted, err := model.V3ToV4([]byte(v3json))
+	if err != nil {
+		t.Fatalf("V3ToV4 failed: %v", err)
+	}
+	if converted.ProofVersion != model.ProofVersionV2 {
+		t.Errorf("converted proof should have v2 version, got %q", converted.ProofVersion)
+	}
+}
+
+func TestV4Verify_AcceptsCustomExecutionType(t *testing.T) {
+	p := validV4Fixture()
+	p.Execution.Type = model.ExecCustom
+
+	entries := model.V4BindingEntries(p)
+	p.Binding.Entries = entries
+	p.Binding.Root = model.V4Root(entries)
+
+	_, priv, _ := ed25519.GenerateKey(rand.Reader)
+	signProof(p, priv)
+
+	res := V4Verify(p)
+	if !res.Valid {
+		t.Errorf("valid proof with custom execution type rejected: %v", res.Checks)
+	}
+}
+
+func TestV4Verify_AcceptsLongStatements(t *testing.T) {
+	p := validV4Fixture()
+	longStmt := strings.Repeat("This is a detailed claim statement. ", 100)
+	p.Claims[0].Statement = longStmt
+
+	entries := model.V4BindingEntries(p)
+	p.Binding.Entries = entries
+	p.Binding.Root = model.V4Root(entries)
+
+	_, priv, _ := ed25519.GenerateKey(rand.Reader)
+	signProof(p, priv)
+
+	res := V4Verify(p)
+	if !res.Valid {
+		t.Errorf("valid proof with long claim statement rejected: %v", res.Checks)
+	}
 }

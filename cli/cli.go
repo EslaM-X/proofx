@@ -42,11 +42,13 @@ func (c *CLI) run(args []string) int {
 	case "prove":
 		return c.cmdProve(args[1:])
 	case "verify":
-		return c.cmdVerify(args[1:])
+		return c.cmdVerifyV4(args[1:])
 	case "inspect":
-		return c.cmdInspect(args[1:])
+		return c.cmdInspectGraph(args[1:])
 	case "explain":
-		return c.cmdExplain(args[1:])
+		return c.cmdExplainV4(args[1:])
+	case "claims":
+		return c.cmdClaimsV4(args[1:])
 	case "diff":
 		return c.cmdDiff(args[1:])
 	case "graph":
