@@ -1,0 +1,41 @@
+# ProofX — Release Artifact Attestation
+# Signs release executables and Docker images with cryptographic proof.
+# Docs: https://github.com/EslaM-X/proofx
+
+name: ProofX Release Attestation
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  proofx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download ${{ github.event.release.tag_name }} \
+            --pattern '*' \
+            --dir release-assets
+
+      - name: Generate and verify ProofX proof
+        uses: EslaM-X/proofx-action@v0.3.0
+        with:
+          collect: true
+          prove: true
+          verify: true
+
+      - name: Upload proof to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.event.release.tag_name }} \
+            proof.json \
+            --clobber

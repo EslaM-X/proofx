@@ -1,0 +1,38 @@
+# ProofX — Cryptographic Build Attestation
+# Adds a signed proof binding CI results to the commit.
+# Docs: https://github.com/EslaM-X/proofx
+
+name: ProofX Attestation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  proofx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tests (prerequisite)
+        run: go test ./...
+
+      - name: Generate and verify ProofX proof
+        uses: EslaM-X/proofx-action@v0.3.0
+        with:
+          collect: true
+          prove: true
+          verify: true
+
+      - name: Upload proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proofx-proof
+          path: proof.json
+          retention-days: 90
