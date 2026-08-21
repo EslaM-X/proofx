@@ -27,8 +27,8 @@ func signProof(p *model.V4Proof, priv ed25519.PrivateKey) {
 	pub := priv.Public().(ed25519.PublicKey)
 	p.Signature = model.Signature{
 		Algorithm: "ed25519",
-		PublicKey:  base64.StdEncoding.EncodeToString(pub),
-		Value:      base64.StdEncoding.EncodeToString(ed25519.Sign(priv, model.V4SigningPayload(p))),
+		PublicKey: base64.StdEncoding.EncodeToString(pub),
+		Value:     base64.StdEncoding.EncodeToString(ed25519.Sign(priv, model.V4SigningPayload(p))),
 	}
 }
 

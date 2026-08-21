@@ -11,15 +11,15 @@
 // different commitment.
 //
 // Test layers:
-//   1. Schema / Parsing
-//   2. Graph Integrity
-//   3. Claim Integrity
-//   4. Cryptographic Binding
-//   5. Relation Semantics
-//   6. Claims Verification
-//   7. v0.3 Compatibility
-//   +. Canonicalization
-//   +. Property / Fuzz
+//  1. Schema / Parsing
+//  2. Graph Integrity
+//  3. Claim Integrity
+//  4. Cryptographic Binding
+//  5. Relation Semantics
+//  6. Claims Verification
+//  7. v0.3 Compatibility
+//     +. Canonicalization
+//     +. Property / Fuzz
 package v04test
 
 import (
@@ -57,13 +57,13 @@ const (
 
 // Relation kinds
 const (
-	RelProduces   = "produces"
-	RelDependsOn  = "depends_on"
-	RelSupports   = "supports"
+	RelProduces    = "produces"
+	RelDependsOn   = "depends_on"
+	RelSupports    = "supports"
 	RelDerivedFrom = "derived_from"
-	RelEvaluates  = "evaluates"
-	RelSignedBy   = "signed_by"
-	RelBinds      = "binds"
+	RelEvaluates   = "evaluates"
+	RelSignedBy    = "signed_by"
+	RelBinds       = "binds"
 )
 
 // Claim statuses
@@ -120,10 +120,10 @@ type Execution struct {
 }
 
 type Environment struct {
-	OS      string      `json:"os"`
-	Arch    string      `json:"arch"`
-	Runtime string      `json:"runtime"`
-	Tools   []Tool      `json:"tools,omitempty"`
+	OS      string `json:"os"`
+	Arch    string `json:"arch"`
+	Runtime string `json:"runtime"`
+	Tools   []Tool `json:"tools,omitempty"`
 }
 
 type Tool struct {
@@ -151,13 +151,13 @@ type Relation struct {
 }
 
 type V4Claim struct {
-	ID          string   `json:"id"`
-	Type        string   `json:"type"`
-	Subject     string   `json:"subject"`
-	Statement   string   `json:"statement"`
-	Status      string   `json:"status"`
-	SupportedBy []string `json:"supportedBy"`
-	EvaluatedAt string   `json:"evaluatedAt"`
+	ID          string          `json:"id"`
+	Type        string          `json:"type"`
+	Subject     string          `json:"subject"`
+	Statement   string          `json:"statement"`
+	Status      string          `json:"status"`
+	SupportedBy []string        `json:"supportedBy"`
+	EvaluatedAt string          `json:"evaluatedAt"`
 	Metadata    json.RawMessage `json:"metadata,omitempty"`
 }
 
@@ -201,17 +201,17 @@ type Builder struct {
 // ============================================================================
 
 type V3Proof struct {
-	ProofVersion string     `json:"proofVersion"`
-	ID           string     `json:"id"`
-	Project      Project    `json:"project"`
-	Subject      Subject    `json:"subject"`
-	Claims       []V3Claim  `json:"claims"`
-	Evidence     []Evidence `json:"evidence"`
-	Binding      Binding    `json:"binding"`
-	Signature    Signature  `json:"signature"`
+	ProofVersion string      `json:"proofVersion"`
+	ID           string      `json:"id"`
+	Project      Project     `json:"project"`
+	Subject      Subject     `json:"subject"`
+	Claims       []V3Claim   `json:"claims"`
+	Evidence     []Evidence  `json:"evidence"`
+	Binding      Binding     `json:"binding"`
+	Signature    Signature   `json:"signature"`
 	Coverage     CoverageDim `json:"coverage"`
-	CreatedAt    string     `json:"createdAt"`
-	Builder      Builder    `json:"builder"`
+	CreatedAt    string      `json:"createdAt"`
+	Builder      Builder     `json:"builder"`
 }
 
 type V3Claim struct {
@@ -828,13 +828,13 @@ func TestCryptoBinding_RootChangesWithClaim(t *testing.T) {
 
 func TestRelationSemantics_AllowedTypes(t *testing.T) {
 	allowed := map[string][2][]string{
-		RelProduces:   {{"execution"}, {"evidence"}},
-		RelDependsOn:  {{"evidence"}, {"evidence"}},
-		RelSupports:   {{"evidence"}, {"claim"}},
+		RelProduces:    {{"execution"}, {"evidence"}},
+		RelDependsOn:   {{"evidence"}, {"evidence"}},
+		RelSupports:    {{"evidence"}, {"claim"}},
 		RelDerivedFrom: {{"evidence"}, {"evidence"}},
-		RelEvaluates:  {{"claim"}, {"evidence"}},
-		RelSignedBy:   {{"proof"}, {"signature"}},
-		RelBinds:      {{"binding"}, {"evidence"}},
+		RelEvaluates:   {{"claim"}, {"evidence"}},
+		RelSignedBy:    {{"proof"}, {"signature"}},
+		RelBinds:       {{"binding"}, {"evidence"}},
 	}
 
 	for kind, validEndpoints := range allowed {
@@ -1004,7 +1004,9 @@ func TestV3Compat_V4ProofRejectedByV3Verifier(t *testing.T) {
 
 	// Simulate v0.3 verifier: must reject proofVersion != "1.0"
 	var raw map[string]interface{}
-	json.Unmarshal(b, &raw)
+	if err := json.Unmarshal(b, &raw); err != nil {
+		t.Fatalf("unmarshal failed: %v", err)
+	}
 	if raw["proofVersion"] != ProofVersionV1 {
 		// This is correct — v0.3 verifier rejects v0.4
 		return
@@ -1036,8 +1038,12 @@ func TestCanonicalization_JSONFieldOrdering(t *testing.T) {
 	b := `{"c":3,"a":1,"b":2}`
 
 	var objA, objB map[string]int
-	json.Unmarshal([]byte(a), &objA)
-	json.Unmarshal([]byte(b), &objB)
+	if err := json.Unmarshal([]byte(a), &objA); err != nil {
+		t.Fatalf("unmarshal a: %v", err)
+	}
+	if err := json.Unmarshal([]byte(b), &objB); err != nil {
+		t.Fatalf("unmarshal b: %v", err)
+	}
 
 	canonicalA := canonicalJSON(objA)
 	canonicalB := canonicalJSON(objB)
@@ -1093,7 +1099,7 @@ func TestCanonicalization_UnicodePayload(t *testing.T) {
 	d2 := computeDigest(p2)
 	// They produce different digests (no unicode normalization in protocol)
 	if d1 == d2 {
-		// This is fine if the protocol doesn't normalize
+		t.Errorf("unicode variants should produce different digests (no normalization)")
 	}
 }
 
@@ -1178,7 +1184,7 @@ func FuzzParseProof(f *testing.F) {
 		}
 		// If it parsed, validate basic invariants
 		if p.ProofVersion != "" && p.ProofVersion != ProofVersionV1 && p.ProofVersion != ProofVersionV2 {
-			// Unknown version — implementation should reject
+			t.Errorf("unknown proof version %q should be rejected by parser", p.ProofVersion)
 		}
 	})
 }
@@ -1288,28 +1294,28 @@ func TestSecurityInvariant_Anymutationbreaksproof(t *testing.T) {
 	orig := computeCommitmentDigestV2(p)
 
 	mutations := map[string]*V4Proof{
-		"execution.id":           p.clone(),
-		"execution.type":         p.clone(),
-		"execution.startedAt":    p.clone(),
-		"execution.completedAt":  p.clone(),
-		"project.name":           p.clone(),
-		"project.repository":     p.clone(),
-		"subject.commit":         p.clone(),
-		"subject.branch":         p.clone(),
-		"subject.repository":     p.clone(),
-		"evidence[0].id":         p.clone(),
-		"evidence[0].type":       p.clone(),
-		"evidence[0].payload":    p.clone(),
-		"evidence[0].digest":     p.clone(),
-		"relations[0].from":      p.clone(),
-		"relations[0].to":        p.clone(),
-		"relations[0].kind":      p.clone(),
-		"claims[0].type":         p.clone(),
-		"claims[0].statement":    p.clone(),
-		"claims[0].status":       p.clone(),
-		"claims[0].supportedBy":  p.clone(),
-		"binding.algorithm":      p.clone(),
-		"binding.root":           p.clone(),
+		"execution.id":          p.clone(),
+		"execution.type":        p.clone(),
+		"execution.startedAt":   p.clone(),
+		"execution.completedAt": p.clone(),
+		"project.name":          p.clone(),
+		"project.repository":    p.clone(),
+		"subject.commit":        p.clone(),
+		"subject.branch":        p.clone(),
+		"subject.repository":    p.clone(),
+		"evidence[0].id":        p.clone(),
+		"evidence[0].type":      p.clone(),
+		"evidence[0].payload":   p.clone(),
+		"evidence[0].digest":    p.clone(),
+		"relations[0].from":     p.clone(),
+		"relations[0].to":       p.clone(),
+		"relations[0].kind":     p.clone(),
+		"claims[0].type":        p.clone(),
+		"claims[0].statement":   p.clone(),
+		"claims[0].status":      p.clone(),
+		"claims[0].supportedBy": p.clone(),
+		"binding.algorithm":     p.clone(),
+		"binding.root":          p.clone(),
 	}
 
 	// Apply mutations

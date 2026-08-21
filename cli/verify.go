@@ -5,13 +5,9 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
-	"github.com/EslaM-X/proofx/config"
-	"github.com/EslaM-X/proofx/evidence"
 	"github.com/EslaM-X/proofx/model"
 	"github.com/EslaM-X/proofx/proof"
 	"github.com/EslaM-X/proofx/verifycore"
@@ -30,221 +26,6 @@ type VerifyResult struct {
 	Verified bool           `json:"verified"`
 	Checks   []Check        `json:"checks"`
 	Coverage model.Coverage `json:"coverage"`
-}
-
-// cmdVerify re-verifies a proof document against the current repository, or
-// in portable mode verifies a single artifact against a proof without any
-// git repository present:
-//
-//	proofx verify <proof.json> [dir]                  repo re-verification
-//	proofx verify --artifact <file> --proof <proof>   portable artifact check
-func (c *CLI) cmdVerify(args []string) int {
-	artifactFile := ""
-	proofFile := "proof.json"
-	rest := make([]string, 0, len(args))
-	for i := 0; i < len(args); i++ {
-		switch {
-		case args[i] == "--artifact" && i+1 < len(args):
-			artifactFile = args[i+1]
-			i++
-		case args[i] == "--proof" && i+1 < len(args):
-			proofFile = args[i+1]
-			i++
-		case args[i] == "--artifact" || args[i] == "--proof":
-			fmt.Fprintf(c.Stderr, "proofx: verify: missing value for %s\n", args[i])
-			return 2
-		default:
-			rest = append(rest, args[i])
-		}
-	}
-
-	if artifactFile != "" {
-		if len(rest) > 0 {
-			proofFile = rest[0]
-		}
-		return c.verifyArtifact(proofFile, artifactFile)
-	}
-
-	if len(rest) < 1 {
-		fmt.Fprintf(c.Stderr, "proofx: verify: usage: proofx verify <proof.json> [dir]\n")
-		return 2
-	}
-	proofFile = rest[0]
-	dir := "."
-	if len(rest) > 1 {
-		dir = rest[1]
-	}
-	b, err := os.ReadFile(proofFile)
-	if err != nil {
-		fmt.Fprintf(c.Stderr, "proofx: verify: %v\n", err)
-		return 1
-	}
-	p, err := proof.ParseProof(b)
-	if err != nil {
-		fmt.Fprintf(c.Stderr, "proofx: verify: %v\n", err)
-		return 1
-	}
-	res := verifyAgainst(p, dir, time.Now())
-	printVerify(c.Stdout, res)
-	if res.Verified {
-		return 0
-	}
-	return 1
-}
-
-// verifyArtifact implements portable artifact-only verification: it checks
-// the proof's own integrity (binding + signature) and that the given file's
-// sha256 matches the artifact evidence node. No git repository is required.
-func (c *CLI) verifyArtifact(proofFile, artifactFile string) int {
-	b, err := os.ReadFile(proofFile)
-	if err != nil {
-		fmt.Fprintf(c.Stderr, "proofx: verify: %v\n", err)
-		return 1
-	}
-	p, err := proof.ParseProof(b)
-	if err != nil {
-		fmt.Fprintf(c.Stderr, "proofx: verify: %v\n", err)
-		return 1
-	}
-	res := VerifyResult{ProofID: p.ID, Checks: []Check{}}
-
-	bindOK := checkBinding(p)
-	res.Checks = append(res.Checks, bindOK)
-	sigOK := Check{Name: "signature", Status: statusOf(proof.VerifySignature(p)), Detail: "ed25519 over binding root"}
-	res.Checks = append(res.Checks, sigOK)
-
-	// artifact digest check
-	fileDigest, err := evidence.HashFile(artifactFile)
-	if err != nil {
-		fmt.Fprintf(c.Stderr, "proofx: verify: %v\n", err)
-		return 1
-	}
-	artifactCheck := c.checkArtifactDigest(p, artifactFile, fileDigest)
-	res.Checks = append(res.Checks, artifactCheck)
-	if artifactCheck.Status == verifycore.StatusOK {
-		res.Checks = append(res.Checks, Check{Name: "binding", Status: verifycore.StatusOK, Detail: "evidence binding valid"})
-	}
-
-	verified := bindOK.Status == verifycore.StatusOK && sigOK.Status == verifycore.StatusOK && artifactCheck.Status == verifycore.StatusOK
-	res.Verified = verified
-	res.Coverage = model.Coverage{Total: 1, Verified: boolInt(verified), Score: boolInt(verified) * 100}
-
-	printVerify(c.Stdout, res)
-	if verified {
-		fmt.Fprintf(c.Stdout, "✓ artifact %s matches proof %s\n", artifactFile, p.ID)
-		return 0
-	}
-	return 1
-}
-
-// checkArtifactDigest matches a file's sha256 against the artifact evidence
-// node. It accepts either a single-file payload or a "files" map keyed by
-// name (matching the configured-artifact collector).
-func (c *CLI) checkArtifactDigest(p *model.Proof, artifactFile, fileDigest string) Check {
-	var art model.Evidence
-	found := false
-	for _, e := range p.Evidence {
-		if e.ID == model.TypeArtifact {
-			art = e
-			found = true
-			break
-		}
-	}
-	if !found {
-		return Check{Name: "artifact", Status: verifycore.StatusSkipped, Detail: "proof has no artifact evidence node"}
-	}
-	base := filepath.Base(artifactFile)
-	// structure: {"files": {"name": "sha256hex"}}
-	var env struct {
-		Files map[string]string `json:"files"`
-	}
-	if err := json.Unmarshal([]byte(art.Payload), &env); err == nil && len(env.Files) > 0 {
-		if want, ok := env.Files[base]; ok {
-			if want == fileDigest {
-				return Check{Name: "artifact", Status: verifycore.StatusOK, Detail: base + " sha256 matches"}
-			}
-			return Check{Name: "artifact", Status: verifycore.StatusFail, Detail: fmt.Sprintf("%s expected %s got %s", base, shortDigest(want), shortDigest(fileDigest))}
-		}
-		return Check{Name: "artifact", Status: verifycore.StatusFail, Detail: fmt.Sprintf("%s not declared in proof artifact digests", base)}
-	}
-	if art.Digest == fileDigest {
-		return Check{Name: "artifact", Status: verifycore.StatusOK, Detail: base + " sha256 matches artifact node"}
-	}
-	return Check{Name: "artifact", Status: verifycore.StatusFail, Detail: fmt.Sprintf("expected %s got %s", shortDigest(art.Digest), shortDigest(fileDigest))}
-}
-
-func boolInt(b bool) int {
-	if b {
-		return 1
-	}
-	return 0
-}
-
-// verifyAgainst re-collects current evidence and compares every digest.
-func verifyAgainst(p *model.Proof, dir string, now time.Time) VerifyResult {
-	res := VerifyResult{ProofID: p.ID, Checks: []Check{}}
-
-	// 1. structure
-	okStruct := checkBinding(p)
-	res.Checks = append(res.Checks, okStruct)
-
-	// 2. re-collect current evidence
-	current := collectCurrent(dir, now)
-
-	// 3. compare per evidence node
-	index := map[string]model.Evidence{}
-	for _, r := range current {
-		if r.Err == nil {
-			index[r.Evidence.ID] = r.Evidence
-		}
-	}
-	verified := 0
-	for _, e := range p.Evidence {
-		cur, ok := index[e.ID]
-		if !ok {
-			res.Checks = append(res.Checks, Check{Name: e.ID, Status: verifycore.StatusSkipped, Detail: "evidence source not present in current repo"})
-			continue
-		}
-		if cur.Digest == e.Digest {
-			verified++
-			res.Checks = append(res.Checks, Check{Name: e.ID, Status: verifycore.StatusOK, Detail: shortDigest(e.Digest)})
-		} else {
-			res.Checks = append(res.Checks, Check{Name: e.ID, Status: verifycore.StatusFail, Detail: fmt.Sprintf("expected %s got %s", shortDigest(e.Digest), shortDigest(cur.Digest))})
-		}
-	}
-
-	// 4. signature
-	res.Checks = append(res.Checks, Check{Name: "signature", Status: statusOf(proof.VerifySignature(p)), Detail: "ed25519 over binding root"})
-
-	// 5. coverage
-	total := len(p.Evidence)
-	score := 0
-	if total > 0 {
-		score = int(float64(verified) / float64(total) * 100)
-	}
-	res.Coverage = model.Coverage{Total: total, Verified: verified, Score: score}
-
-	allOK := okStruct.Status == verifycore.StatusOK
-	for _, ch := range res.Checks {
-		if ch.Status == verifycore.StatusFail {
-			allOK = false
-		}
-	}
-	res.Verified = allOK
-	return res
-}
-
-// collectCurrent re-collects evidence from the current repository state.
-func collectCurrent(dir string, now time.Time) []evidence.Result {
-	cfg, _ := config.Load(dir)
-	col := &evidence.Collectors{
-		Git:       evidence.GitCollector(dir),
-		Artifacts: evidence.ArtifactsCollector(dir, cfgArtifacts(cfg)),
-		Depends:   evidence.LockfilesCollector(dir, cfgLockfiles(cfg)),
-		Tests:     evidence.TestsCollector(dir, testsSummaryFile(dir)),
-		Env:       evidence.EnvCollector(dir),
-	}
-	return evidence.Collect(col, now)
 }
 
 func checkBinding(p *model.Proof) Check {
@@ -268,18 +49,45 @@ func shortDigest(d string) string {
 	return d[:12]
 }
 
-func cfgArtifacts(c *config.Config) []string {
-	if c == nil {
-		return nil
+func boolInt(b bool) int {
+	if b {
+		return 1
 	}
-	return c.Artifacts
+	return 0
 }
 
-func cfgLockfiles(c *config.Config) []string {
-	if c == nil {
-		return nil
+// checkArtifactDigest matches a file's sha256 against the artifact evidence
+// node. Used by the v0.3 legacy artifact verification path.
+func (c *CLI) checkArtifactDigest(p *model.Proof, artifactFile, fileDigest string) Check {
+	var art model.Evidence
+	found := false
+	for _, e := range p.Evidence {
+		if e.ID == model.TypeArtifact {
+			art = e
+			found = true
+			break
+		}
 	}
-	return c.Lockfiles
+	if !found {
+		return Check{Name: "artifact", Status: verifycore.StatusSkipped, Detail: "proof has no artifact evidence node"}
+	}
+	base := filepath.Base(artifactFile)
+	var env struct {
+		Files map[string]string `json:"files"`
+	}
+	if err := json.Unmarshal([]byte(art.Payload), &env); err == nil && len(env.Files) > 0 {
+		if want, ok := env.Files[base]; ok {
+			if want == fileDigest {
+				return Check{Name: "artifact", Status: verifycore.StatusOK, Detail: base + " sha256 matches"}
+			}
+			return Check{Name: "artifact", Status: verifycore.StatusFail, Detail: fmt.Sprintf("%s expected %s got %s", base, shortDigest(want), shortDigest(fileDigest))}
+		}
+		return Check{Name: "artifact", Status: verifycore.StatusFail, Detail: fmt.Sprintf("%s not declared in proof artifact digests", base)}
+	}
+	if art.Digest == fileDigest {
+		return Check{Name: "artifact", Status: verifycore.StatusOK, Detail: base + " sha256 matches artifact node"}
+	}
+	return Check{Name: "artifact", Status: verifycore.StatusFail, Detail: fmt.Sprintf("expected %s got %s", shortDigest(art.Digest), shortDigest(fileDigest))}
 }
 
 // printVerify renders the human-readable verification report.
