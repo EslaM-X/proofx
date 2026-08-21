@@ -83,7 +83,28 @@ func (c *CLI) cmdVerifyV4(args []string) int {
 	}
 
 	if wasV3 {
-		fmt.Fprintf(c.Stderr, "note: v0.3 proof detected, verifying with v0.4 rules\n")
+		fmt.Fprintf(c.Stderr, "note: v0.3 proof detected, verifying with v0.3 rules\n")
+		b, err := os.ReadFile(proofFile)
+		if err != nil {
+			fmt.Fprintf(c.Stderr, "proofx: verify: %v\n", err)
+			return 1
+		}
+		v3proof, err := proof.ParseProof(b)
+		if err != nil {
+			fmt.Fprintf(c.Stderr, "proofx: verify: %v\n", err)
+			return 1
+		}
+		res := verifycore.Verify(v3proof)
+		printVerify(c.Stdout, VerifyResult{
+			ProofID:  res.ProofID,
+			Verified: res.Valid,
+			Checks:   toChecks(res.Checks),
+			Coverage: res.Coverage,
+		})
+		if res.Valid {
+			return 0
+		}
+		return 1
 	}
 
 	res := verifycore.V4Verify(p)
@@ -423,6 +444,14 @@ func shortHash(h string) string {
 		return h[:12]
 	}
 	return h
+}
+
+func toChecks(vcs []verifycore.Check) []Check {
+	out := make([]Check, len(vcs))
+	for i, vc := range vcs {
+		out[i] = Check{Name: vc.Name, Status: vc.Status, Detail: vc.Detail}
+	}
+	return out
 }
 
 // cmdInspectGraph displays the evidence graph visually.
