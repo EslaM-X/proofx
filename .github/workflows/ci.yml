@@ -25,9 +25,9 @@ jobs:
         run: |
           test -z "$(gofmt -l .)" || { echo "gofmt needed on:"; gofmt -l .; exit 1; }
       - name: go vet
-        run: go vet $(go list ./... | grep -v proofx-wasm)
+        run: go vet $(go list ./... | grep -v proofx-wasm | grep -v v04test)
       - name: build
-        run: go build $(go list ./... | grep -v proofx-wasm)
+        run: go build $(go list ./... | grep -v proofx-wasm | grep -v v04test)
       - name: test
         run: go test -race -cover $(go list ./... | grep -v proofx-wasm)
 

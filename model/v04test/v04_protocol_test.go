@@ -1058,8 +1058,12 @@ func TestCanonicalization_Whitespace(t *testing.T) {
 	b := `{  "key":  "value"  }`
 
 	var objA, objB map[string]string
-	json.Unmarshal([]byte(a), &objA)
-	json.Unmarshal([]byte(b), &objB)
+	if err := json.Unmarshal([]byte(a), &objA); err != nil {
+		t.Fatalf("unmarshal a: %v", err)
+	}
+	if err := json.Unmarshal([]byte(b), &objB); err != nil {
+		t.Fatalf("unmarshal b: %v", err)
+	}
 
 	canonicalA := canonicalJSON(objA)
 	canonicalB := canonicalJSON(objB)
@@ -1160,7 +1164,9 @@ func TestProperty_10kMutationNoFalsePass(t *testing.T) {
 func (p *V4Proof) clone() *V4Proof {
 	b, _ := json.Marshal(p)
 	var c V4Proof
-	json.Unmarshal(b, &c)
+	if err := json.Unmarshal(b, &c); err != nil {
+		panic("clone unmarshal: " + err.Error())
+	}
 	return &c
 }
 
