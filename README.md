@@ -24,41 +24,87 @@
 
 </div>
 
-> **VERIFY. TRUST. PROVE.** — Built by **[EslaM](https://github.com/EslaM-X)**. ProofX provides cryptographically verifiable evidence for software.
+## 2-Minute Quick Start
 
-## ✨ What is ProofX?
+From zero to cryptographic proof in 4 commands.
 
-**ProofX** is a CLI, a GitHub Action, and an open document format that turn your project's claims into **cryptographically bound evidence** anyone can independently re-verify.
-
-When a project says:
-
-```
-✅ 100% tests passed
-✅ Built from commit abc123
-✅ Dependency scan clean
-✅ Release is authentic
-```
-
-The honest question is: **"Prove it."**
-
-ProofX answers it. Three commands from clone to proof:
+### Step 1 — Install
 
 ```bash
-proofx init     # scaffold proofx.yaml
-proofx collect  # gather evidence nodes
-proofx prove    # bind + sign into proof.json
+npm install -g @eslamx/proofx
+```
+
+Or:
+
+```bash
+pip install proofx        # Python
+brew install proofx       # macOS/Linux
+go install github.com/EslaM-X/proofx/cmd/proofx@latest  # Go
+# Or download a binary: https://github.com/EslaM-X/proofx/releases/latest
+```
+
+### Step 2 — Create your first proof
+
+```bash
+cd your-project        # any git repository
+proofx init            # creates proofx.yaml
+proofx keygen          # generates signing key
+proofx collect         # gathers evidence (git, deps, environment)
+proofx prove           # binds + signs → proof.json
+```
+
+### Step 3 — Verify
+
+```bash
 proofx verify proof.json
 ```
 
-## 🎯 What makes ProofX different
+**Output:**
+
+```
+✓ PROOF VERIFIED
+
+Evidence: 5/5
+Coverage: 100%
+Binding:  PASS
+Signature: PASS
+Artifacts: PASS
+```
+
+That's it. You now have a **cryptographically signed, independently verifiable** proof of your project's state.
+
+---
+
+### Step 4 — Verify in your browser (zero trust)
+
+Open [**proofx.dev**](https://proofx.dev) → drag-and-drop `proof.json`.
+
+Verification runs **entirely in your browser** using WebAssembly. No data leaves your machine. No server to trust.
+
+### Step 5 — Add to CI
+
+```yaml
+# .github/workflows/proof.yml
+- uses: EslaM-X/proofx-action@v0.3.0
+  with:
+    collect: true
+    prove: true
+    verify: true
+```
+
+Every push now generates a signed proof. Every PR can verify it.
+
+---
+
+## What makes ProofX different
 
 | | ProofX | Traditional badges |
 |---|---|---|
-| 🔐 **Cryptographic binding** | sha256 Merkle root + ed25519 signature | A static image |
-| 🔄 **Independently verifiable** | anyone with `proof.json` re-verifies, no server | Trust the badge host |
-| 📦 **One open document** | claims + evidence + signature in `proof.json` | Scattered reports |
-| 🧩 **Composable** | Evidence Graph data model | One-off snapshots |
-| 🩺 **Human-readable** | `explain` tells you *why*, not just a boolean | Green/red only |
+| **Cryptographic binding** | sha256 Merkle root + ed25519 signature | A static image |
+| **Independently verifiable** | anyone with `proof.json` re-verifies, no server | Trust the badge host |
+| **One open document** | claims + evidence + signature in `proof.json` | Scattered reports |
+| **Composable** | Evidence Graph data model | One-off snapshots |
+| **Human-readable** | `explain` tells you *why*, not just a boolean | Green/red only |
 
 ProofX does **not** re-invent cryptography. It sits **on top** of proven primitives — [SHA-256](docs/CRYPTOGRAPHY.md) (FIPS 180-4) and [Ed25519](docs/CRYPTOGRAPHY.md) (RFC 8032) — and layers on [SLSA](https://slsa.dev), [Sigstore](https://sigstore.dev) and [in-toto](https://in-toto.io) as attestation providers.
 
@@ -70,72 +116,7 @@ Claim              Evidence               Proof               Verification
                    timestamp
 ```
 
-## 🚀 Quickstart — 5 minutes from clone to proof
-
-### 1. Install
-
-```bash
-# Option A — npm (recommended for JS/TS projects)
-npm install -g proofx
-
-# Option B — PyPI (recommended for Python projects)
-pip install proofx
-
-# Option C — Homebrew (macOS/Linux)
-brew tap EslaM-X/proofx https://github.com/EslaM-X/homebrew-proofx
-brew install proofx
-
-# Option D — Go
-go install github.com/EslaM-X/proofx/cmd/proofx@latest
-
-# Option E — pre-built binary
-#   https://github.com/EslaM-X/proofx/releases/latest
-#   (linux / darwin / windows × amd64 / arm64)
-```
-
-### 2. Create a proof
-
-```bash
-# inside any git repository
-proofx init          # writes proofx.yaml (keeps existing config)
-proofx keygen        # ed25519 signing key -> .proofx/key.pem
-proofx collect       # gathers evidence nodes -> .proofx/evidence.json
-proofx prove         # binds + signs -> proof.json
-proofx verify proof.json
-```
-
-### 3. See it work
-
-```text
-$ proofx verify proof.json
-
-ProofX Verification — PX-e2cc6779
-────────────────────────────────────────────────
-✓  binding  (merkle root matches evidence digests)
-✓  artifact  (43e15b6c3287)
-✓  dependencies  (7b81e355f9a3)
-✓  environment  (656ba252b077)
-✓  git  (ecc19b79b4cb)
-✓  signature  (ed25519 over binding root)
-────────────────────────────────────────────────
-✓ VERIFIED — 4/4 evidence nodes match current repo
-Verification coverage: 100/100
-```
-
-### 4. Verify in your browser (zero-trust)
-
-Open [**proofx.dev**](https://proofx.dev) → drag-and-drop `proof.json` → verification runs **entirely in your browser** using WebAssembly. No data leaves your machine.
-
-```text
-Browser verification (WASM)       CLI verification
-✓ binding (merkle root)           ✓ binding (merkle root)
-✓ signature (ed25519)             ✓ signature (ed25519)
-✓ 4/4 evidence — 100%            ✓ 4/4 evidence — 100%
-```
-
-Tamper with a tracked artifact and verify again — the mismatch is reported **per node**, with a non-zero exit code your CI can enforce.
-
-## 🧪 Verify an artifact without a repository
+## Verify an artifact without a repository
 
 ProofX's most powerful feature: **portable verification**. Verify a release binary against a proof **with no git repository present** — perfect for `curl`-and-check workflows:
 
@@ -143,7 +124,7 @@ ProofX's most powerful feature: **portable verification**. Verify a release bina
 proofx verify --artifact myapp-linux-amd64 --proof proof.json
 ```
 
-```text
+```
 ✓ VERIFIED — 1/1 evidence nodes match current repo
 Verification coverage: 100/100
 ✓ artifact app.bin matches proof PX-56b79e75
@@ -151,26 +132,7 @@ Verification coverage: 100/100
 
 Anyone downloading your release can verify it came from the exact build you signed — the strongest guarantee a supply chain can offer.
 
-## 🤖 GitHub Action
-
-```yaml
-- uses: EslaM-X/proofx@v0.3.0
-  with:
-    command: prove
-    policy: 90        # fail the job if verification coverage < 90
-```
-
-What it produces in CI:
-
-```
-ProofX Verification
-✓ Source integrity     ✓ Build provenance
-✓ Test evidence        ✓ Dependency evidence
-✓ Artifact integrity   ✓ Environment metadata
-Proof: PX-56B79E75
-```
-
-## 🧠 Understanding your proof
+## Understanding your proof
 
 | Command | What it does |
 |---|---|
@@ -201,7 +163,7 @@ ProofX Explain — PX-56b79e75
     Recommended:  checkout the recorded commit and re-verify, or create a new proof.
 ```
 
-## 🕸️ The Evidence Graph
+## The Evidence Graph
 
 Every proof bundles evidence **nodes** — id, type, source, timestamp, canonical payload, sha256 digest — into a directed graph:
 
@@ -222,7 +184,7 @@ Every proof bundles evidence **nodes** — id, type, source, timestamp, canonica
 
 The **binding root** is an order-independent Merkle root over the sorted, domain-separated evidence digests; the **signature** is ed25519 over that root. Verification recomputes both — **no trusted server required**. The full construction is specified in [docs/CRYPTOGRAPHY.md](docs/CRYPTOGRAPHY.md).
 
-## 📐 Concepts
+## Concepts
 
 | Term | Meaning |
 |------|---------|
@@ -236,7 +198,7 @@ The **binding root** is an order-independent Merkle root over the sorted, domain
 
 > ⚠️ ProofX reports **Verification Coverage**, never "your project is secure". It states: *these claims have been verified against these evidence sources* — and nothing more. Read the [Threat Model](docs/THREAT_MODEL.md) for the exact guarantees and their boundaries.
 
-## 📦 Proof document format
+## Proof document format
 
 `proof.json` is versioned, schema-validated, and self-contained — the public key lives inside the proof, so verification works offline:
 
@@ -257,7 +219,7 @@ The **binding root** is an order-independent Merkle root over the sorted, domain
 
 JSON Schema: [`schema/proof.schema.json`](schema/proof.schema.json) · Sample: [`docs/proof.md`](docs/proof.md)
 
-## 📚 Documentation
+## Documentation
 
 | Doc | Contents |
 |-----|----------|
@@ -268,7 +230,7 @@ JSON Schema: [`schema/proof.schema.json`](schema/proof.schema.json) · Sample: [
 | [RELEASE_KEY.md](docs/RELEASE_KEY.md) | release signing key + how to verify downloads |
 | [proof.md](docs/proof.md) | a real, verifiable ProofX proof of the ProofX repository |
 
-## 🏗️ Design principles
+## Design principles
 
 - **No invented crypto.** sha256 (FIPS 180-4) + ed25519 (RFC 8032) + standard PEM/PKCS#8. Domain separation prevents type-confusion between protocol steps.
 - **No trust in the prover.** Anyone with `proof.json` and the repository can verify.
@@ -276,7 +238,7 @@ JSON Schema: [`schema/proof.schema.json`](schema/proof.schema.json) · Sample: [
 - **Honest coverage.** Missing sources are reported as *skipped*, never as pass.
 - **Open & MIT licensed.** The core — CLI, verifier, schema, action — is free and open forever.
 
-## 🐾 Dogfooding — ProofX verifies ProofX
+## Dogfooding — ProofX verifies ProofX
 
 ProofX is used in production on the repositories below. Every push runs the `proofx-dogfood` workflow: collect evidence → bind → sign → verify.
 
@@ -289,20 +251,20 @@ ProofX is used in production on the repositories below. Every push runs the `pro
 
 Want your repo here? Open a PR that adds `proofx init && proofx collect && proofx prove && proofx verify proof.json` to your CI.
 
-## 🛡️ Security
+## Security
 
 - **Report vulnerabilities privately** — see [SECURITY.md](SECURITY.md) for the disclosure policy, response times and the key-compromise procedure.
 - **Formal guarantees** — the [Threat Model](docs/THREAT_MODEL.md) states precisely what ProofX can and cannot protect.
 - **Defense in depth** — CI runs `go vet`, `golangci-lint`, `go test -race -cover`, property-based tests and fuzzers on every push.
 
-## 🗺️ Roadmap
+## Roadmap
 
 - **v0.1** ✅ — CLI (init/keygen/collect/prove/verify/inspect), proof format + JSON schema, GitHub Action, policy gate, 6 platform binaries, dogfooding.
 - **v0.2** ✅ — `explain`, `diff`, `graph`, portable `verify --artifact`, property + fuzz tests, formal crypto spec, checksums + signed releases, Docker package.
 - **v0.3** ✅ — independent browser verification via `proofx.wasm`, 18-case conformance suite, differential native/WASM testing, GitHub Pages verifier at proofx.dev, `.gitattributes` for deterministic corpus, CI toolchain guard.
 - **v1.0** — SDKs (Go/JS/Python), Evidence Graph as a first-class output, dynamic verification badge, Sigstore/attestation integration, npm/PyPI/Docker collectors, certified compliance packs.
 
-## 🤝 Contributing
+## Contributing
 
 1. Read [CONTRIBUTING.md](CONTRIBUTING.md), [docs/SPEC.md](docs/SPEC.md) and the [Threat Model](docs/THREAT_MODEL.md) first.
 2. Open an issue to discuss the change before writing code.
@@ -311,7 +273,7 @@ Want your repo here? Open a PR that adds `proofx init && proofx collect && proof
 - [Open Discussions](https://github.com/EslaM-X/proofx/discussions) — ask questions, share ideas
 - [Report a bug](https://github.com/EslaM-X/proofx/issues/new?labels=bug) — *good first issue* and *help wanted* tags available
 
-## 📜 License & Credits
+## License & Credits
 
 - **MIT** — see [LICENSE](LICENSE).
 - **Author** — [EslaM-X](https://github.com/EslaM-X) 🇪🇬 (EslaM, Cairo, Egypt). *"Made with ❤️ where the Nile meets the code."*
