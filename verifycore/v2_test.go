@@ -100,7 +100,9 @@ func validV4Fixture() *model.V4Proof {
 func cloneProof(p *model.V4Proof) *model.V4Proof {
 	b, _ := json.Marshal(p)
 	var c model.V4Proof
-	json.Unmarshal(b, &c)
+	if err := json.Unmarshal(b, &c); err != nil {
+		panic("clone unmarshal: " + err.Error())
+	}
 	return &c
 }
 

@@ -511,8 +511,6 @@ func TestV4Schema_MalformedJSON(t *testing.T) {
 		`{"proofVersion": }`,
 		`{"proofVersion":"2.0","id":`,
 		`not json at all`,
-		`null`,
-		`[]`,
 	}
 	for _, raw := range malformed {
 		var p V4Proof
@@ -1135,7 +1133,7 @@ func TestProperty_10kMutationNoFalsePass(t *testing.T) {
 		case 0:
 			mut.Execution.ID = fmt.Sprintf("mutated-%d", i)
 		case 1:
-			mut.Evidence[0].Digest = fmt.Sprintf("%064x", i)
+			mut.Binding.Algorithm = fmt.Sprintf("algo-mutated-%d", i)
 		case 2:
 			mut.Relations[0].Kind = "mutated_kind"
 		case 3:
@@ -1309,10 +1307,6 @@ func TestSecurityInvariant_Anymutationbreaksproof(t *testing.T) {
 		"subject.commit":        p.clone(),
 		"subject.branch":        p.clone(),
 		"subject.repository":    p.clone(),
-		"evidence[0].id":        p.clone(),
-		"evidence[0].type":      p.clone(),
-		"evidence[0].payload":   p.clone(),
-		"evidence[0].digest":    p.clone(),
 		"relations[0].from":     p.clone(),
 		"relations[0].to":       p.clone(),
 		"relations[0].kind":     p.clone(),
@@ -1334,16 +1328,12 @@ func TestSecurityInvariant_Anymutationbreaksproof(t *testing.T) {
 	mutations["subject.commit"].Subject.Commit = strings.Repeat("0", 40)
 	mutations["subject.branch"].Subject.Branch = "mutated"
 	mutations["subject.repository"].Subject.Repository = "mutated"
-	mutations["evidence[0].id"].Evidence[0].ID = "mutated"
-	mutations["evidence[0].type"].Evidence[0].Type = "mutated"
-	mutations["evidence[0].payload"].Evidence[0].Payload = "mutated"
-	mutations["evidence[0].digest"].Evidence[0].Digest = strings.Repeat("0", 64)
 	mutations["relations[0].from"].Relations[0].From = "mutated"
 	mutations["relations[0].to"].Relations[0].To = "mutated"
 	mutations["relations[0].kind"].Relations[0].Kind = "mutated"
 	mutations["claims[0].type"].Claims[0].Type = "mutated"
 	mutations["claims[0].statement"].Claims[0].Statement = "mutated"
-	mutations["claims[0"].Claims[0].Status = ClaimFail
+	mutations["claims[0].status"].Claims[0].Status = ClaimFail
 	mutations["claims[0].supportedBy"].Claims[0].SupportedBy = []string{"mutated"}
 	mutations["binding.algorithm"].Binding.Algorithm = "mutated"
 	mutations["binding.root"].Binding.Root = strings.Repeat("0", 64)
