@@ -1,0 +1,107 @@
+{
+  "proofVersion": "2.0",
+  "id": "v4-valid-sast",
+  "project": {
+    "name": "test",
+    "repository": "https://example.com/test"
+  },
+  "subject": {
+    "commit": "abc123",
+    "branch": "main",
+    "repository": "https://example.com/test"
+  },
+  "execution": {
+    "id": "exec-001",
+    "type": "ci-workflow",
+    "startedAt": "2026-08-21T02:00:00Z",
+    "completedAt": "2026-08-21T02:05:00Z",
+    "environment": {
+      "os": "ubuntu-24.04",
+      "arch": "amd64",
+      "runtime": "go1.26.5"
+    }
+  },
+  "evidence": [
+    {
+      "id": "sast",
+      "type": "sast",
+      "source": "semgrep",
+      "timestamp": "",
+      "payload": "{\"findings\":0,\"errors\":0,\"rules\":312}",
+      "digest": "393c1376bba4e2c2ad59e48d9faa48c2904e668e6897e1cd37c825df4f330adc"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "from": "exec-001",
+      "to": "sast",
+      "kind": "produces"
+    },
+    {
+      "id": "r2",
+      "from": "sast",
+      "to": "claim.sast",
+      "kind": "supports"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim.sast",
+      "type": "static_analysis",
+      "subject": "execution:exec-001",
+      "statement": "No critical findings",
+      "status": "pass",
+      "supportedBy": [
+        "sast"
+      ]
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "725416b4ebf2f82828c1bf9eaa33d4c8087f692fb9225b06916fea5a412e5d21",
+    "entries": [
+      {
+        "id": "claim:claim.sast",
+        "digest": "23584136ebc87c227d5e24207ff46803b9297ac25761028a17f0fc87c94505f1"
+      },
+      {
+        "id": "ev:sast",
+        "digest": "393c1376bba4e2c2ad59e48d9faa48c2904e668e6897e1cd37c825df4f330adc"
+      },
+      {
+        "id": "rel:r1",
+        "digest": "10d6a2b60f8780d5fd1f34b80ebfd5b77d81c64f80406e6397d183d8fa5a0ea5"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "51f3cb3d33742173c05d5042cfe3f24c25d876cf4b928fef41ad799ab7a78d04"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "iC0Oo7KGTnpYfz5pjOpEWZmDEuZV4F+l6LURnYuqyM0=",
+    "value": "X4kbvFtxnVgE6ztejMWEOc+t7zmi8BH9zvBuUT6DJ0oG3s1sVdztOYyIJN1EvxUxkRm+iNzlXf98bBGzqn2+Aw=="
+  },
+  "coverage": {
+    "evidence": {
+      "total": 1,
+      "verified": 1
+    },
+    "relations": {
+      "total": 2,
+      "verified": 2
+    },
+    "claims": {
+      "total": 1,
+      "verified": 1
+    },
+    "score": 100
+  },
+  "createdAt": "2026-08-21T02:05:00Z",
+  "builder": {
+    "name": "proofx",
+    "version": "0.4.0"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "proofId": "v4-valid-single-rel",
+  "valid": true,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    },
+    {
+      "name": "evidence",
+      "status": "ok"
+    },
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "commitment",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "ok"
+    },
+    {
+      "name": "claims",
+      "status": "ok"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 1,
+      "verified": 1
+    },
+    "relations": {
+      "total": 1,
+      "verified": 1
+    },
+    "claims": {
+      "total": 1,
+      "verified": 1
+    },
+    "score": 100
+  },
+  "claims": [
+    {
+      "id": "claim.min",
+      "type": "minimal_check",
+      "statement": "Minimal relation graph",
+      "status": "pass",
+      "supportedBy": [
+        "git"
+      ],
+      "valid": true
+    }
+  ]
+}

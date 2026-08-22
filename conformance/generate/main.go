@@ -134,6 +134,8 @@ func buildCasesV4() []CaseV4 {
 
 	cases = append(cases, v4ExtraValidCases()...)
 	cases = append(cases, v4ExtraInvalidCases()...)
+	cases = append(cases, v4ExtraValidCases2()...)
+	cases = append(cases, v4ExtraInvalidCases2()...)
 
 	return cases
 }

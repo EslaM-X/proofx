@@ -1,0 +1,107 @@
+{
+  "proofVersion": "2.0",
+  "id": "v4-valid-long-commit",
+  "project": {
+    "name": "test",
+    "repository": "https://example.com/test"
+  },
+  "subject": {
+    "commit": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0",
+    "branch": "main",
+    "repository": "https://example.com/test"
+  },
+  "execution": {
+    "id": "exec-001",
+    "type": "ci-workflow",
+    "startedAt": "2026-08-21T02:00:00Z",
+    "completedAt": "2026-08-21T02:05:00Z",
+    "environment": {
+      "os": "ubuntu-24.04",
+      "arch": "amd64",
+      "runtime": "go1.26.5"
+    }
+  },
+  "evidence": [
+    {
+      "id": "git",
+      "type": "git",
+      "source": "git",
+      "timestamp": "",
+      "payload": "{\"commit\":\"a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0\"}",
+      "digest": "8f2e7a5e399b9364ea061d842c25bdebb55430a4ae1fc2111d1b0cc5103d4b19"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "from": "exec-001",
+      "to": "git",
+      "kind": "produces"
+    },
+    {
+      "id": "r2",
+      "from": "git",
+      "to": "claim.longcommit",
+      "kind": "supports"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim.longcommit",
+      "type": "execution_bound",
+      "subject": "execution:exec-001",
+      "statement": "Bound to full sha1 commit",
+      "status": "pass",
+      "supportedBy": [
+        "git"
+      ]
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "49ad6363a0b53404959f2e3bc8a50c9f8282b5a22f9aa8473a95899307004eac",
+    "entries": [
+      {
+        "id": "claim:claim.longcommit",
+        "digest": "4ac7ea6c821d6c1a017e30fe2f236b8b447c7874cde95d4cacce1ebe8f2dee77"
+      },
+      {
+        "id": "ev:git",
+        "digest": "8f2e7a5e399b9364ea061d842c25bdebb55430a4ae1fc2111d1b0cc5103d4b19"
+      },
+      {
+        "id": "rel:r1",
+        "digest": "7020b93266132ac3b6590f794597019828ffc39c88dc34e16ce9605edf0fe59e"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "1c2531a85fe9839fb878e75f6ea7d6315cba99fc07228a54d82c723b584fba5d"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "C0eCPnEJXdWb54rCccV27zifh7ZFYasHz5pOvNAtIEE=",
+    "value": "tOMUfk+2a/CXhLUHeQ8tXZgTYYnh0XFOn4j02L8TV1PTLoZ2UmW6jtBybLHijs3NrJxbu0bHceVkYqBwL3sgBg=="
+  },
+  "coverage": {
+    "evidence": {
+      "total": 1,
+      "verified": 1
+    },
+    "relations": {
+      "total": 2,
+      "verified": 2
+    },
+    "claims": {
+      "total": 1,
+      "verified": 1
+    },
+    "score": 100
+  },
+  "createdAt": "2026-08-21T02:05:00Z",
+  "builder": {
+    "name": "proofx",
+    "version": "0.4.0"
+  }
+}

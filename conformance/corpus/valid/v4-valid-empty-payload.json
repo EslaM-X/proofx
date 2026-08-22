@@ -1,0 +1,107 @@
+{
+  "proofVersion": "2.0",
+  "id": "v4-valid-empty-payload",
+  "project": {
+    "name": "test",
+    "repository": "https://example.com/test"
+  },
+  "subject": {
+    "commit": "abc123",
+    "branch": "main",
+    "repository": "https://example.com/test"
+  },
+  "execution": {
+    "id": "exec-001",
+    "type": "ci-workflow",
+    "startedAt": "2026-08-21T02:00:00Z",
+    "completedAt": "2026-08-21T02:05:00Z",
+    "environment": {
+      "os": "ubuntu-24.04",
+      "arch": "amd64",
+      "runtime": "go1.26.5"
+    }
+  },
+  "evidence": [
+    {
+      "id": "void-evidence",
+      "type": "custom",
+      "source": "test",
+      "timestamp": "",
+      "payload": "",
+      "digest": "96d2327bd74efaf8ab04db170954cb6b0dc8873f82a9bab4bd55096897c9e541"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "from": "exec-001",
+      "to": "void-evidence",
+      "kind": "produces"
+    },
+    {
+      "id": "r2",
+      "from": "void-evidence",
+      "to": "claim.empty",
+      "kind": "supports"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim.empty",
+      "type": "custom_check",
+      "subject": "execution:exec-001",
+      "statement": "Empty payload accepted",
+      "status": "pass",
+      "supportedBy": [
+        "void-evidence"
+      ]
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "31eef664cb5c97286c70b0f6219ce89ef256869cab8a36660fb5a2a6df3104dd",
+    "entries": [
+      {
+        "id": "claim:claim.empty",
+        "digest": "d1d0d9f86c60fd06cdb29742da010efdcdfced3bed7c318d8c2ef7b88801f2f4"
+      },
+      {
+        "id": "ev:void-evidence",
+        "digest": "96d2327bd74efaf8ab04db170954cb6b0dc8873f82a9bab4bd55096897c9e541"
+      },
+      {
+        "id": "rel:r1",
+        "digest": "b18b9b71074959de120c3b19972ad828c0f8b9b4616813ad64523a4646b5a8b7"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "43945f10b6b606bc3d4529e69b9bd44fb1705d73a3a5a4996aad834f093e4ada"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "bI0UsEdZPXEX3ERZV9i91ncsMD0GQpf9yOMpkn03C9o=",
+    "value": "LETWSePHfx64fpFk3umwGkTiAU1HFXFM35l07knuDIH/C+QKfC5TayzC98Oy/dJRS9GKgIA07dwHUrJzzqe2Ag=="
+  },
+  "coverage": {
+    "evidence": {
+      "total": 1,
+      "verified": 1
+    },
+    "relations": {
+      "total": 2,
+      "verified": 2
+    },
+    "claims": {
+      "total": 1,
+      "verified": 1
+    },
+    "score": 100
+  },
+  "createdAt": "2026-08-21T02:05:00Z",
+  "builder": {
+    "name": "proofx",
+    "version": "0.4.0"
+  }
+}

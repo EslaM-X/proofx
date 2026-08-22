@@ -1,0 +1,87 @@
+{
+  "proofId": "v4-valid-many-rels",
+  "valid": true,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    },
+    {
+      "name": "evidence",
+      "status": "ok"
+    },
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "commitment",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "ok"
+    },
+    {
+      "name": "claims",
+      "status": "ok"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 4,
+      "verified": 4
+    },
+    "relations": {
+      "total": 10,
+      "verified": 10
+    },
+    "claims": {
+      "total": 4,
+      "verified": 4
+    },
+    "score": 100
+  },
+  "claims": [
+    {
+      "id": "c1",
+      "type": "build_passed",
+      "statement": "Source committed",
+      "status": "pass",
+      "supportedBy": [
+        "src"
+      ],
+      "valid": true
+    },
+    {
+      "id": "c2",
+      "type": "tests_passed",
+      "statement": "Unit tests passed",
+      "status": "pass",
+      "supportedBy": [
+        "unit"
+      ],
+      "valid": true
+    },
+    {
+      "id": "c3",
+      "type": "deps_locked",
+      "statement": "Dependencies locked",
+      "status": "pass",
+      "supportedBy": [
+        "libs"
+      ],
+      "valid": true
+    },
+    {
+      "id": "c4",
+      "type": "sbom_generated",
+      "statement": "SBOM generated",
+      "status": "pass",
+      "supportedBy": [
+        "manifest"
+      ],
+      "valid": true
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "proofId": "v4-valid-overlapping-supports",
+  "valid": true,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    },
+    {
+      "name": "evidence",
+      "status": "ok"
+    },
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "commitment",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "ok"
+    },
+    {
+      "name": "claims",
+      "status": "ok"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 2,
+      "verified": 2
+    },
+    "relations": {
+      "total": 4,
+      "verified": 4
+    },
+    "claims": {
+      "total": 1,
+      "verified": 1
+    },
+    "score": 100
+  },
+  "claims": [
+    {
+      "id": "claim.release",
+      "type": "release_ready",
+      "statement": "Release verified by two evidence nodes",
+      "status": "pass",
+      "supportedBy": [
+        "git",
+        "tests"
+      ],
+      "valid": true
+    }
+  ]
+}

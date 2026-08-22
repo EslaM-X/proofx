@@ -1,0 +1,131 @@
+{
+  "proofVersion": "2.0",
+  "id": "v4-valid-all-fail-claims",
+  "project": {
+    "name": "test",
+    "repository": "https://example.com/test"
+  },
+  "subject": {
+    "commit": "abc123",
+    "branch": "main",
+    "repository": "https://example.com/test"
+  },
+  "execution": {
+    "id": "exec-001",
+    "type": "ci-workflow",
+    "startedAt": "2026-08-21T02:00:00Z",
+    "completedAt": "2026-08-21T02:05:00Z",
+    "environment": {
+      "os": "ubuntu-24.04",
+      "arch": "amd64",
+      "runtime": "go1.26.5"
+    }
+  },
+  "evidence": [
+    {
+      "id": "scan",
+      "type": "sast",
+      "source": "semgrep",
+      "timestamp": "",
+      "payload": "{\"findings\":3}",
+      "digest": "caa7e875380e304cc05d8a7b1422ee2dd9c395d0e0f6dbf4c6f6fd089d7ee969"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "from": "exec-001",
+      "to": "scan",
+      "kind": "produces"
+    },
+    {
+      "id": "r2",
+      "from": "scan",
+      "to": "c1",
+      "kind": "supports"
+    },
+    {
+      "id": "r3",
+      "from": "scan",
+      "to": "c2",
+      "kind": "supports"
+    }
+  ],
+  "claims": [
+    {
+      "id": "c1",
+      "type": "security_scan",
+      "subject": "execution:exec-001",
+      "statement": "Scan found issues",
+      "status": "fail",
+      "supportedBy": [
+        "scan"
+      ]
+    },
+    {
+      "id": "c2",
+      "type": "license_check",
+      "subject": "execution:exec-001",
+      "statement": "License violation detected",
+      "status": "fail",
+      "supportedBy": [
+        "scan"
+      ]
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "ea3c28a5680cf402ec975b74a89bf0da23f8778cd775fdbbf91564baa533fc6a",
+    "entries": [
+      {
+        "id": "claim:c1",
+        "digest": "3fdadec681ecd5d3ea1b1b0b23375383f2022eb8566289b904f16d5f9ed2bf0c"
+      },
+      {
+        "id": "claim:c2",
+        "digest": "6caf5e162d36f33dfa5e1bc3db39aa1916813c68399d5c96a5056bbc3fe0ef50"
+      },
+      {
+        "id": "ev:scan",
+        "digest": "caa7e875380e304cc05d8a7b1422ee2dd9c395d0e0f6dbf4c6f6fd089d7ee969"
+      },
+      {
+        "id": "rel:r1",
+        "digest": "6180b7f00ce8c8734fdbfe80d61976404aa2610d97935ce6b6e10fac859a9197"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "075538f33542b51ede2e7f5e03db06a7ecb08aab1abf01f0c3bb7a7a7adf225b"
+      },
+      {
+        "id": "rel:r3",
+        "digest": "1b0013173481a5a7a7ccc0aabb2325f203291f5c66217518051a9f1599897a71"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "rcFAEfgtHFbZVqpPnXPYhYNhpgYEhSXg0Ixjjcdd2Mc=",
+    "value": "ryS0UXC0SSIvD31jhd+XTjS4D3jOknxwHz2QH5Uke//xU0y6bmA+M7D6ll/hSrLmyWXM63ww2fZxs9pCiOHxBQ=="
+  },
+  "coverage": {
+    "evidence": {
+      "total": 1,
+      "verified": 1
+    },
+    "relations": {
+      "total": 3,
+      "verified": 3
+    },
+    "claims": {
+      "total": 2,
+      "verified": 2
+    },
+    "score": 100
+  },
+  "createdAt": "2026-08-21T02:05:00Z",
+  "builder": {
+    "name": "proofx",
+    "version": "0.4.0"
+  }
+}
