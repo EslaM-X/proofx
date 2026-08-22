@@ -106,7 +106,7 @@ Verification runs **entirely in your browser** using WebAssembly. No data leaves
 
 ```yaml
 # .github/workflows/proof.yml
-- uses: EslaM-X/proofx-action@v0.3.0
+- uses: EslaM-X/proofx-action@v0.4.0
   with:
     collect: true
     prove: true
@@ -178,7 +178,7 @@ v0.4 introduces **relations** — the missing link between evidence and claims.
 - **Relations are part of the signature.** Mutating a relation breaks the proof.
 - **Coverage is 3-dimensional.** Evidence coverage, relation coverage, claim coverage — each measured independently.
 
-**Backward compatible:** v0.4 verifier reads v0.3 proofs. v0.3 CLI reads v0.4 proofs. No breaking changes.
+**Backward compatible:** v0.4 verifier reads v0.3 proofs via compatibility layer. v0.3 verifiers reject v0.4 proofs (new fields, new protocol version).
 
 ## Verify an artifact without a repository
 
@@ -261,8 +261,8 @@ This prevents the "100% coverage with unused evidence" problem. Every evidence n
 | **Proof** | a signed document: execution + evidence + relations + claims + signature |
 | **Verification** | recomputing every digest and checking every relation |
 | **Coverage** | 3-dimensional: evidence verified, relations valid, claims evidenced |
-| **Binding root** | order-independent sha256 Merkle root over evidence + relations |
-| **Signature** | ed25519 over the binding root, key embedded in the proof |
+| **Binding root** | order-independent sha256 Merkle root over evidence + relations + claims |
+| **Signature** | ed25519 over a commitment digest (execution + binding root + claims), key embedded in the proof |
 
 > ProofX reports **Verification Coverage**, never "your project is secure". It states: *these claims have been verified against these evidence sources* — and nothing more. Read the [Threat Model](docs/THREAT_MODEL.md) for the exact guarantees and their boundaries.
 

@@ -4,6 +4,40 @@ All notable changes to ProofX are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.4.0] - Execution Proof Model
+
+### Added
+
+- **Protocol v2** (`proofVersion: "2.0"`). New execution proof model with
+  Execution, Relations, and Claims as first-class objects.
+- **Merkle v2 binding**. Binding root now commits over evidence, relations,
+  and claims using `/v2/` domain labels.
+- **Extended commitment digest**. Signature covers execution context,
+  binding root, and claims.
+- **3-dimensional coverage**. Evidence, relations, and claims each measured
+  independently.
+- **CLI v4 commands**. `proofx verify` (v4 pipeline), `proofx inspect`
+  (evidence graph), `proofx claims` (structured claims), `proofx explain`
+  (verification diagnostics), `proofx diff` (proof comparison).
+- **Backward compatibility**. v0.4 verifier reads v0.3 proofs via
+  `V3ToV4()` compatibility layer.
+- **Golden vectors**. 5 deterministic protocol fixtures (valid, tampered-sig,
+  tampered-claim, missing-relation, wrong-version) as protocol contract.
+- **RC gates**. 6-gate release qualification: CLI/WASM differential, real
+  v0.4 self-proof, cross-version interop, golden vectors, clean-install
+  matrix, release artifact validation.
+- **ProofX GitHub Action** generates v0.4 proofs natively.
+
+### Changed
+
+- Evidence digests now use `EvidenceDigest(id, payload)` format.
+- Signature is now over an extended commitment digest (not just binding root).
+- Coverage is 3-dimensional (evidence × relations × claims).
+
+### Fixed
+
+- npm postinstall: corrected `https` module import for Windows compatibility.
+
 ## [0.3.0] - Independent Verification
 
 ### Added

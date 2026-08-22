@@ -8,8 +8,9 @@ so this policy matters. Please report any suspected vulnerability.
 
 | Version | Supported          |
 |---------|--------------------|
-| v0.1.x  | ✅ Active          |
-| < v0.1  | ❌ Not supported   |
+| v0.4.x  | ✅ Active          |
+| v0.3.x  | ⚠️ Maintenance     |
+| < v0.3  | ❌ Not supported   |
 
 Only the latest minor release receives security fixes. Please upgrade to the
 latest release before reporting.
@@ -71,12 +72,14 @@ procedure applies to this repository, and this file will document it.
 
 ## Proof format security considerations
 
-- `proof.json` is versioned (`proofVersion: "1.0"`). Older versions remain
-  parseable but unsupported versions are rejected.
-- The **binding root** is a domain-separated SHA-256 Merkle root over the
-  sorted evidence digests. Domain separation labels mean a digest produced
-  in one protocol step can never be reused in another.
-- Signatures are **ed25519** (RFC 8032) over the binding root. Verify
+- `proof.json` is versioned (`proofVersion: "2.0"` for v0.4). The v0.4
+  verifier also accepts `"1.0"` proofs via a compatibility layer. Older
+  verifiers reject `"2.0"` proofs.
+- The **binding root** is a domain-separated SHA-256 Merkle root over
+  evidence, relations, and claims. Domain separation labels mean a digest
+  produced in one protocol step can never be reused in another.
+- Signatures are **ed25519** (RFC 8032) over a commitment digest that
+  includes the execution context, binding root, and claims. Verify
   signatures before trusting any content.
 - Evidence **digests are not secrets**: they are commitments. Anyone can
   recompute them from the canonical payload — that is the point.
@@ -119,9 +122,10 @@ Security fixes take priority over feature work.
 
 In scope:
 
-- The `proofx` CLI (`cmd/proofx`, `cli/`, `proof/`, `evidence/`, `model/`).
+- The `proofx` CLI (`cmd/proofx`, `cli/`, `proof/`, `evidence/`, `model/`, `verifycore/`, `config/`).
 - The proof format and JSON schema.
 - The GitHub Action (`action.yml`).
+- The conformance test vectors (`conformance/`).
 
 Out of scope (third-party responsibility):
 
