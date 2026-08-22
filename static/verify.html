@@ -364,7 +364,7 @@
 
   <div class="footer">
     Verification runs entirely in your browser via WebAssembly. No data is sent to any server.
-    · <a href="https://github.com/EslaM-X/proofx">ProofX</a> v0.3.0
+    · <a href="https://github.com/EslaM-X/proofx">ProofX</a> v0.4.0
   </div>
 
   <script src="wasm_exec.js"></script>
@@ -452,11 +452,18 @@
         const statusText = valid ? 'PROOF VERIFIED' : 'VERIFICATION FAILED';
         const statusClass = valid ? 'pass' : 'fail';
 
-        // Coverage
+        // Coverage — v0.4 format (evidence/relations/claims sub-objects)
         const cov = res.coverage || {};
         const covScore = cov.score || 0;
-        const covVerified = cov.verified || 0;
-        const covTotal = cov.total || 0;
+        const covEv = cov.evidence || {};
+        const covRel = cov.relations || {};
+        const covCl = cov.claims || {};
+        const covEvTotal = covEv.total || 0;
+        const covEvVerified = covEv.verified || 0;
+        const covRelTotal = covRel.total || 0;
+        const covRelVerified = covRel.verified || 0;
+        const covClTotal = covCl.total || 0;
+        const covClVerified = covCl.verified || 0;
         const covClass = covScore === 100 ? 'full' : covScore > 0 ? 'partial' : 'none';
 
         // Evidence checks
@@ -515,14 +522,19 @@
               checksHtml +
             '</div>' +
 
-            // Coverage bar
+            // Coverage bar (3 dimensions)
             '<div class="coverage-section">' +
               '<div class="coverage-header">' +
                 '<span class="coverage-label">Verification Coverage</span>' +
-                '<span class="coverage-value">' + covVerified + '/' + covTotal + ' (' + covScore + '%)</span>' +
+                '<span class="coverage-value">' + covScore + '%</span>' +
               '</div>' +
               '<div class="coverage-bar">' +
                 '<div class="coverage-fill ' + covClass + '" style="width: ' + covScore + '%"></div>' +
+              '</div>' +
+              '<div style="display:flex;gap:1.5rem;margin-top:0.75rem;">' +
+                '<div class="trust-item"><span style="color:var(--text-muted);font-size:0.75rem;">Evidence:</span> <span style="font-size:0.85rem;">' + covEvVerified + '/' + covEvTotal + '</span></div>' +
+                '<div class="trust-item"><span style="color:var(--text-muted);font-size:0.75rem;">Relations:</span> <span style="font-size:0.85rem;">' + covRelVerified + '/' + covRelTotal + '</span></div>' +
+                '<div class="trust-item"><span style="color:var(--text-muted);font-size:0.75rem;">Claims:</span> <span style="font-size:0.85rem;">' + covClVerified + '/' + covClTotal + '</span></div>' +
               '</div>' +
             '</div>' +
 

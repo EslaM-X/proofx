@@ -130,7 +130,7 @@
     <div id="result"></div>
   </main>
   <footer>
-    ProofX v0.3.0 — <a href="https://github.com/EslaM-X/proofx">GitHub</a> —
+    ProofX v0.4.0 — <a href="https://github.com/EslaM-X/proofx">GitHub</a> —
     Verification runs entirely in your browser. No data is sent to any server.
   </footer>
   <script src="wasm_exec.js"></script>
@@ -179,7 +179,11 @@
         checksHtml += '<li class="check-item"><span class="check-icon ' + iconClass + '">' + icon + '</span><span>' + escapeHtml(ch.name) + '</span>' + detail + '</li>';
       }
       const coverage = res.coverage || {};
-      const covText = 'Coverage: ' + (coverage.verified || 0) + '/' + (coverage.total || 0) + ' (' + (coverage.score || 0) + '%)';
+      const covScore = coverage.score || 0;
+      const covEv = coverage.evidence || {};
+      const covRel = coverage.relations || {};
+      const covCl = coverage.claims || {};
+      const covText = 'Coverage: ' + covScore + '% (Evidence: ' + (covEv.verified||0) + '/' + (covEv.total||0) + ', Relations: ' + (covRel.verified||0) + '/' + (covRel.total||0) + ', Claims: ' + (covCl.verified||0) + '/' + (covCl.total||0) + ')';
       resultDiv.innerHTML =
         '<div class="result-card">' +
           '<div class="result-header">' +

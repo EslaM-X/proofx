@@ -1,0 +1,280 @@
+{
+  "proofVersion": "2.0",
+  "id": "PX-abd7032a",
+  "project": {
+    "name": "EslaM-X/proofx",
+    "repository": "EslaM-X/proofx"
+  },
+  "subject": {
+    "commit": "37e0710a4019400bdb6763a5e3fee6e76510adeb",
+    "branch": "main",
+    "repository": "EslaM-X/proofx"
+  },
+  "execution": {
+    "id": "PX-abd7032a",
+    "type": "ci-workflow",
+    "startedAt": "2026-08-22T00:04:22Z",
+    "completedAt": "2026-08-22T00:04:22Z",
+    "environment": {
+      "os": "",
+      "arch": "",
+      "runtime": ""
+    }
+  },
+  "evidence": [
+    {
+      "id": "artifact",
+      "type": "artifact",
+      "source": "sha256 of configured artifacts",
+      "timestamp": "2026-08-22T00:00:40Z",
+      "payload": "{\"files\":{\"LICENSE\":\"f9bcdc63d55f375ac9f0c7069ede5b29286dda63c1da66761bbc7cfd6cc35016\",\"README.md\":\"5280913c3ac563c544fb67aea1747e2b94c02db6491f8154bc70bf18838467d1\",\"schema/proof.schema.json\":\"11a62e6a2017464f0bf84374283a3d4eb5c0ac75214bec965c59078dfe32d959\"}}",
+      "digest": "468dc8064c053b80497d03244b77ef7abc060f7358c56e280cbb96f8d7c8a839"
+    },
+    {
+      "id": "dependencies",
+      "type": "dependencies",
+      "source": "dependency lockfile digest",
+      "timestamp": "2026-08-22T00:00:40Z",
+      "payload": "{\"lockfiles\":{\"go.sum\":\"e42794fa9b56301ad073de55cac1dea683b320ed951454d8709ffc7156088dd2\"}}",
+      "digest": "ee0a404ebee9a40789add9139296508d70db23319e4107e27fbc78824e0d718c"
+    },
+    {
+      "id": "environment",
+      "type": "environment",
+      "source": "build toolchain + os",
+      "timestamp": "2026-08-22T00:00:40Z",
+      "payload": "{\"go_version\":\"go version go1.26.5 windows/amd64\",\"node_version\":\"v24.18.0\",\"os\":\"windows\"}",
+      "digest": "f80badcf585012ca046c417c2c452a9516cb38e54f8fe55c23f02eef05a9f25a"
+    },
+    {
+      "id": "git",
+      "type": "git",
+      "source": "git: https://github.com/EslaM-X/proofx.git",
+      "timestamp": "2026-08-22T00:00:40Z",
+      "payload": "{\"branch\":\"main\",\"commit\":\"37e0710a4019400bdb6763a5e3fee6e76510adeb\",\"commit_time\":\"2026-08-21T16:00:03+03:00\",\"dirty\":true,\"repository\":\"https://github.com/EslaM-X/proofx.git\"}",
+      "digest": "1687e264da508d1644e9f4543c8bb33804a12d74259a2d2878e9178009369a62"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "from": "artifact",
+      "to": "c1",
+      "kind": "supports"
+    },
+    {
+      "id": "r2",
+      "from": "artifact",
+      "to": "c2",
+      "kind": "supports"
+    },
+    {
+      "id": "r3",
+      "from": "artifact",
+      "to": "c3",
+      "kind": "supports"
+    },
+    {
+      "id": "r4",
+      "from": "dependencies",
+      "to": "c1",
+      "kind": "supports"
+    },
+    {
+      "id": "r5",
+      "from": "dependencies",
+      "to": "c2",
+      "kind": "supports"
+    },
+    {
+      "id": "r6",
+      "from": "dependencies",
+      "to": "c3",
+      "kind": "supports"
+    },
+    {
+      "id": "r7",
+      "from": "environment",
+      "to": "c1",
+      "kind": "supports"
+    },
+    {
+      "id": "r8",
+      "from": "environment",
+      "to": "c2",
+      "kind": "supports"
+    },
+    {
+      "id": "r9",
+      "from": "environment",
+      "to": "c3",
+      "kind": "supports"
+    },
+    {
+      "id": "r10",
+      "from": "git",
+      "to": "c1",
+      "kind": "supports"
+    },
+    {
+      "id": "r11",
+      "from": "git",
+      "to": "c2",
+      "kind": "supports"
+    },
+    {
+      "id": "r12",
+      "from": "git",
+      "to": "c3",
+      "kind": "supports"
+    }
+  ],
+  "claims": [
+    {
+      "id": "c1",
+      "type": "assertion",
+      "subject": "proof:self",
+      "statement": "Built from the recorded git commit",
+      "status": "pass",
+      "supportedBy": [
+        "artifact",
+        "dependencies",
+        "environment",
+        "git"
+      ]
+    },
+    {
+      "id": "c2",
+      "type": "assertion",
+      "subject": "proof:self",
+      "statement": "Artifacts have known sha256 digests",
+      "status": "pass",
+      "supportedBy": [
+        "artifact",
+        "dependencies",
+        "environment",
+        "git"
+      ]
+    },
+    {
+      "id": "c3",
+      "type": "assertion",
+      "subject": "proof:self",
+      "statement": "Dependency lockfile is committed",
+      "status": "pass",
+      "supportedBy": [
+        "artifact",
+        "dependencies",
+        "environment",
+        "git"
+      ]
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "31b485eac9fe3b715bd1c8d5779e1c20b6c2a260acb3a332a5b992758d4f8d2b",
+    "entries": [
+      {
+        "id": "claim:c1",
+        "digest": "28141b7fb082f10aa56ca0ce540a977b9790ddfb19c4d5046a65686e4118a5fd"
+      },
+      {
+        "id": "claim:c2",
+        "digest": "f92d2d5478ad08c325f2eb077d03f77430856aace0dc5c1c2757f2fcdb98dd71"
+      },
+      {
+        "id": "claim:c3",
+        "digest": "53a1a2db9a272c7490a3a619132ef3a9851bbfcc29b9b0da6defd876c814abb1"
+      },
+      {
+        "id": "ev:artifact",
+        "digest": "468dc8064c053b80497d03244b77ef7abc060f7358c56e280cbb96f8d7c8a839"
+      },
+      {
+        "id": "ev:dependencies",
+        "digest": "ee0a404ebee9a40789add9139296508d70db23319e4107e27fbc78824e0d718c"
+      },
+      {
+        "id": "ev:environment",
+        "digest": "f80badcf585012ca046c417c2c452a9516cb38e54f8fe55c23f02eef05a9f25a"
+      },
+      {
+        "id": "ev:git",
+        "digest": "1687e264da508d1644e9f4543c8bb33804a12d74259a2d2878e9178009369a62"
+      },
+      {
+        "id": "rel:r1",
+        "digest": "9561a4403039f84807ebbeb651ad5b369484e1feb466e719f9cb9cd6b862c984"
+      },
+      {
+        "id": "rel:r10",
+        "digest": "db5a6186c7f471a8f7597d7b4a3dd625773658cbb4da05786e868a8190c26298"
+      },
+      {
+        "id": "rel:r11",
+        "digest": "1884748ba29cd4a5228971098af16491cca79766eec054276a46fea6d3b0b295"
+      },
+      {
+        "id": "rel:r12",
+        "digest": "33b7734c144414a047945438eacfa3c9904ac19285c1562443aa5bc336812134"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "a04dd9f2046f686aefd9e3325634346c92dc8043ca68d71fb8d14be0799e15bb"
+      },
+      {
+        "id": "rel:r3",
+        "digest": "2d731314479ff6d6d4e2b532e220b37ced7bf2b4bd1cd485655fef7a5b99761b"
+      },
+      {
+        "id": "rel:r4",
+        "digest": "3283b176c78d2f2cadcae1f773757b60f427d1a1b99ed1684fe65f91d04eca72"
+      },
+      {
+        "id": "rel:r5",
+        "digest": "89a55b063b25c7896fd778115a33a969585526409f54398b81891a52093b0fbd"
+      },
+      {
+        "id": "rel:r6",
+        "digest": "789610cdd9fdfecb3708ef3e64df068a5f24392418af72927fbe90f991f35c10"
+      },
+      {
+        "id": "rel:r7",
+        "digest": "7927f099d00b689c17a100a54f2b488fee9b011d2ce77bfae3efacf82a667786"
+      },
+      {
+        "id": "rel:r8",
+        "digest": "1bb020861e05e85c5f483fa74267c46ff2525668deaf6d15b18863e37db160aa"
+      },
+      {
+        "id": "rel:r9",
+        "digest": "38c8d6059af9753ea78102bbda4c522c1959cfbb2211430d292e4219f889a9be"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "j+YO5Ixgg8FS9gx7fuYyrzEIv5BqTuCDMFdTAdKkJSc=",
+    "value": "lGX2cJEKJpg1IsBKtd9W+VDjnsbLE9yPxL+lHoYiOUJqujPKDPKjLfe5KJVbosSEEGD7b+s7OLz9NLEo/DR7AQ=="
+  },
+  "coverage": {
+    "evidence": {
+      "total": 4,
+      "verified": 4
+    },
+    "relations": {
+      "total": 12,
+      "verified": 12
+    },
+    "claims": {
+      "total": 3,
+      "verified": 3
+    },
+    "score": 100
+  },
+  "createdAt": "2026-08-22T00:04:22Z",
+  "builder": {
+    "name": "proofx",
+    "version": "0.3.0"
+  }
+}

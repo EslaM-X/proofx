@@ -98,7 +98,27 @@ func Sign(p *model.Proof, priv ed25519.PrivateKey) error {
 	return nil
 }
 
+// SignV4 signs a v0.4 proof using the v0.4 commitment digest.
+func SignV4(p *model.V4Proof, priv ed25519.PrivateKey) error {
+	payload := model.V4SigningPayload(p)
+	sig, err := SignBytes(payload, priv)
+	if err != nil {
+		return err
+	}
+	p.Signature = model.Signature{
+		Algorithm: SigningAlgorithm,
+		PublicKey: EncodePublicKey(PublicKeyOf(priv)),
+		Value:     sig,
+	}
+	return nil
+}
+
 func MarshalProof(p *model.Proof) ([]byte, error) {
+	return json.MarshalIndent(p, "", "  ")
+}
+
+// MarshalV4Proof serializes a v0.4 proof to indented JSON.
+func MarshalV4Proof(p *model.V4Proof) ([]byte, error) {
 	return json.MarshalIndent(p, "", "  ")
 }
 

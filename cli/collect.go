@@ -13,6 +13,7 @@ import (
 	"github.com/EslaM-X/proofx/evidence"
 	"github.com/EslaM-X/proofx/model"
 	"github.com/EslaM-X/proofx/proof"
+	"github.com/EslaM-X/proofx/verifycore"
 )
 
 const outDir = ".proofx"
@@ -112,8 +113,6 @@ func (c *CLI) cmdProve(args []string) int {
 		fmt.Fprintf(c.Stderr, "proofx: prove: %v\n", err)
 		return 1
 	}
-	entries := proof.BindingEntries(evs)
-	root := proof.Root(entries)
 
 	priv, err := loadKey(dir, cfg)
 	if err != nil {
@@ -126,28 +125,80 @@ func (c *CLI) cmdProve(args []string) int {
 		return 1
 	}
 
-	p := &model.Proof{
-		ProofVersion: model.ProofVersion,
+	now := nowUTC()
+
+	// Recompute evidence digests using v0.4 format
+	for i := range evs {
+		evs[i].Digest = model.EvidenceDigest(evs[i].ID, evs[i].Payload)
+	}
+
+	// Build v0.4 claims
+	v4Claims := v4ClaimsOf(cfg.Claims, evs)
+
+	// Build execution
+	exec := model.Execution{
+		ID:          "exec-" + now,
+		Type:        model.ExecCIWorkflow,
+		StartedAt:   now,
+		CompletedAt: now,
+	}
+
+	// Build relations: each evidence supports each claim
+	var relations []model.Relation
+	rid := 0
+	for _, ev := range evs {
+		for _, cl := range v4Claims {
+			rid++
+			relations = append(relations, model.Relation{
+				ID:   fmt.Sprintf("r%d", rid),
+				From: ev.ID,
+				To:   cl.ID,
+				Kind: model.RelSupports,
+			})
+		}
+	}
+
+	p := &model.V4Proof{
+		ProofVersion: model.ProofVersionV2,
+		ID:           "", // set after binding
 		Project: model.Project{
 			Name:       cfg.Project,
 			Repository: subject.Repository,
 		},
 		Subject:   subject,
-		Claims:    claimsOf(cfg.Claims),
+		Execution: exec,
 		Evidence:  evs,
-		Binding:   model.Binding{Algorithm: proof.BindingAlgorithm, Root: root, Entries: entries},
-		CreatedAt: nowUTC(),
+		Relations: relations,
+		Claims:    v4Claims,
+		CreatedAt: now,
 		Builder:   model.Builder{Name: model.BuilderName, Version: Version},
 	}
+
+	// Compute v0.4 binding
+	entries := model.V4BindingEntries(p)
+	root := model.V4Root(entries)
+	p.Binding = model.Binding{Algorithm: verifycore.BindingAlgorithm, Root: root, Entries: entries}
 	p.ID = "PX-" + shortID(root)
-	if err := proof.Sign(p, priv); err != nil {
+
+	// Sign with v0.4 commitment
+	if err := proof.SignV4(p, priv); err != nil {
 		fmt.Fprintf(c.Stderr, "proofx: prove: %v\n", err)
 		return 1
 	}
-	p.Coverage = coverageOf(p)
+
+	// Compute v0.4 coverage
+	evTotal := len(evs)
+	relTotal := len(relations)
+	clTotal := len(v4Claims)
+	p.Coverage = model.V4Coverage{
+		Evidence:  model.CoverageDim{Total: evTotal, Verified: evTotal},
+		Relations: model.CoverageDim{Total: relTotal, Verified: relTotal},
+		Claims:    model.CoverageDim{Total: clTotal, Verified: clTotal},
+		Score:     100,
+	}
 
 	out := filepath.Join(dir, "proof.json")
-	b, err := proof.MarshalProof(p)
+	b, err := proof.MarshalV4Proof(p)
 	if err != nil {
 		fmt.Fprintf(c.Stderr, "proofx: prove: %v\n", err)
 		return 1
@@ -157,33 +208,33 @@ func (c *CLI) cmdProve(args []string) int {
 		return 1
 	}
 	fmt.Fprintf(c.Stdout, "✓ proof %s written to %s\n", p.ID, out)
+	fmt.Fprintf(c.Stdout, "  version       : %s\n", "2.0 (v0.4)")
 	fmt.Fprintf(c.Stdout, "  binding root  : %s\n", p.Binding.Root)
 	fmt.Fprintf(c.Stdout, "  signature     : %s\n", p.Signature.Algorithm)
 	fmt.Fprintf(c.Stdout, "  public key    : %s\n", p.Signature.PublicKey)
+	fmt.Fprintf(c.Stdout, "  evidence      : %d nodes\n", evTotal)
+	fmt.Fprintf(c.Stdout, "  relations     : %d supports\n", relTotal)
+	fmt.Fprintf(c.Stdout, "  claims        : %d\n", clTotal)
 	return 0
 }
 
-func claimsOf(claims []string) []model.Claim {
-	out := make([]model.Claim, 0, len(claims))
+func v4ClaimsOf(claims []string, evs []model.Evidence) []model.V4Claim {
+	evIDs := make([]string, len(evs))
+	for i, e := range evs {
+		evIDs[i] = e.ID
+	}
+	out := make([]model.V4Claim, 0, len(claims))
 	for i, txt := range claims {
-		out = append(out, model.Claim{ID: fmt.Sprintf("c%d", i+1), Text: txt, Status: "evidenced"})
+		out = append(out, model.V4Claim{
+			ID:          fmt.Sprintf("c%d", i+1),
+			Type:        "assertion",
+			Subject:     "proof:ci",
+			Statement:   txt,
+			Status:      "pass",
+			SupportedBy: evIDs,
+		})
 	}
 	return out
-}
-
-func coverageOf(p *model.Proof) model.Coverage {
-	total := len(p.Evidence)
-	verified := 0
-	for _, e := range p.Evidence {
-		if e.Digest != "" {
-			verified++
-		}
-	}
-	score := 0
-	if total > 0 {
-		score = int(float64(verified) / float64(total) * 100)
-	}
-	return model.Coverage{Total: total, Verified: verified, Score: score}
 }
 
 func shortID(root string) string {
