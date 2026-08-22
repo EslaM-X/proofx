@@ -11,6 +11,7 @@ package verifycore
 import (
 	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -30,6 +31,45 @@ func signProof(p *model.V4Proof, priv ed25519.PrivateKey) {
 		PublicKey: base64.StdEncoding.EncodeToString(pub),
 		Value:     base64.StdEncoding.EncodeToString(ed25519.Sign(priv, model.V4SigningPayload(p))),
 	}
+}
+
+// signV3Proof signs a v0.3 proof with the v0.3 commitment payload.
+func signV3Proof(p *model.Proof, priv ed25519.PrivateKey) {
+	pub := priv.Public().(ed25519.PublicKey)
+	p.Signature = model.Signature{
+		Algorithm: "ed25519",
+		PublicKey: base64.StdEncoding.EncodeToString(pub),
+		Value:     base64.StdEncoding.EncodeToString(ed25519.Sign(priv, v3SigningPayload(p))),
+	}
+}
+
+// v3SigningPayload mirrors the proof.signingPayload for v0.3 proofs.
+func v3SigningPayload(p *model.Proof) []byte {
+	h := sha256.New()
+	h.Write([]byte(p.ProofVersion))
+	h.Write([]byte{0})
+	h.Write([]byte(p.Project.Name))
+	h.Write([]byte{0})
+	h.Write([]byte(p.Project.Repository))
+	h.Write([]byte{0})
+	h.Write([]byte(p.Subject.Commit))
+	h.Write([]byte{0})
+	h.Write([]byte(p.Subject.Branch))
+	h.Write([]byte{0})
+	h.Write([]byte(p.Subject.Repository))
+	h.Write([]byte{0})
+	for _, c := range p.Claims {
+		h.Write([]byte(c.ID))
+		h.Write([]byte{0})
+		h.Write([]byte(c.Text))
+		h.Write([]byte{0})
+		h.Write([]byte(c.Status))
+		h.Write([]byte{0})
+	}
+	h.Write([]byte(p.Binding.Algorithm))
+	h.Write([]byte{0})
+	h.Write([]byte(p.Binding.Root))
+	return []byte(DomainSign + hex.EncodeToString(h.Sum(nil)))
 }
 
 func validV4Fixture() *model.V4Proof {
@@ -603,5 +643,95 @@ func TestV4Verify_AcceptsLongStatements(t *testing.T) {
 	res := V4Verify(p)
 	if !res.Valid {
 		t.Errorf("valid proof with long claim statement rejected: %v", res.Checks)
+	}
+}
+
+// ============================================================================
+// CROSS-VERSION INTEROP TESTS
+// ============================================================================
+
+// TestCrossVersion_V3AcceptedByV4Verifier
+// A valid v0.3 proof, converted via V3ToV4 and re-signed, must pass V4Verify.
+func TestCrossVersion_V3AcceptedByV4Verifier(t *testing.T) {
+	_, priv, _ := ed25519.GenerateKey(rand.Reader)
+
+	ev := model.Evidence{
+		ID:      "git",
+		Type:    "git",
+		Payload: `{"commit":"abc123def456789012345678901234567890abcd","branch":"main"}`,
+		Digest:  model.EvidenceDigest("git", `{"commit":"abc123def456789012345678901234567890abcd","branch":"main"}`),
+	}
+
+	v3 := &model.Proof{
+		ProofVersion: model.ProofVersion,
+		ID:           "PX-cross0001",
+		Project:      model.Project{Name: "cross-test", Repository: "https://github.com/test/repo"},
+		Subject: model.Subject{
+			Commit:     "abc123def456789012345678901234567890abcd",
+			Branch:     "main",
+			Repository: "https://github.com/test/repo",
+		},
+		Claims:   []model.Claim{{ID: "c1", Text: "tests passed", Status: "evidenced"}},
+		Evidence: []model.Evidence{ev},
+		Builder:  model.Builder{Name: "proofx", Version: "0.3.0-test"},
+	}
+
+	v3Entries := BindingEntries(v3.Evidence)
+	v3.Binding = model.Binding{Algorithm: BindingAlgorithm, Root: Root(v3Entries), Entries: v3Entries}
+
+	signV3Proof(v3, priv)
+
+	// Verify as v0.3 first
+	v3Res := Verify(v3)
+	if !v3Res.Valid {
+		t.Fatalf("v0.3 proof should verify as v0.3: %v", v3Res.Checks)
+	}
+
+	// Convert to v0.4 via JSON round-trip (V3ToV4 takes []byte)
+	b, _ := json.Marshal(v3)
+	v4, err := model.V3ToV4(b)
+	if err != nil {
+		t.Fatalf("V3ToV4: %v", err)
+	}
+
+	// Recompute v0.4 binding (V3ToV4 preserves v0.3 root; v0.4 needs execution+relations+claims root)
+	v4Entries := model.V4BindingEntries(v4)
+	v4.Binding = model.Binding{Algorithm: BindingAlgorithm, Root: model.V4Root(v4Entries), Entries: v4Entries}
+
+	// Re-sign with v0.4 commitment
+	signProof(v4, priv)
+
+	// Verify as v0.4 — MUST pass
+	v4Res := V4Verify(v4)
+	if !v4Res.Valid {
+		t.Errorf("v0.3 proof converted to v0.4 MUST pass V4Verify")
+		for _, ch := range v4Res.Checks {
+			if ch.Status != "ok" {
+				t.Errorf("  failed check: %s — %s", ch.Name, ch.Detail)
+			}
+		}
+	}
+
+	t.Logf("v0.3→v0.4 cross-version: PASS (proof %s)", v4.ID)
+}
+
+// TestCrossVersion_V4RejectedByV3Verifier
+// A valid v0.4 proof MUST be rejected by the v0.3 Verify function.
+func TestCrossVersion_V4RejectedByV3Verifier(t *testing.T) {
+	v4 := validV4Fixture()
+	entries := model.V4BindingEntries(v4)
+	v4.Binding.Entries = entries
+	v4.Binding.Root = model.V4Root(entries)
+
+	_, priv, _ := ed25519.GenerateKey(rand.Reader)
+	signProof(v4, priv)
+
+	// Marshal v0.4 to JSON, try to parse as v0.3
+	b, _ := json.Marshal(v4)
+	_, err := ParseProof(b)
+	if err == nil {
+		t.Error("ParseProof (v0.3) must reject v0.4 proof JSON")
+	} else {
+		t.Logf("v0.4 JSON rejected by v0.3 ParseProof: %v", err)
 	}
 }
