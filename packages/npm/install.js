@@ -6,7 +6,7 @@
 
 "use strict";
 
-const { https } = require("https");
+const https = require("https");
 const { createWriteStream, chmodSync, mkdirSync, existsSync } = require("fs");
 const { join } = require("path");
 const { execSync } = require("child_process");
