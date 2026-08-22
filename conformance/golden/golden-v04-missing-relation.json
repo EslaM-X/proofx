@@ -1,0 +1,143 @@
+{
+  "proofVersion": "2.0",
+  "id": "PX-golden0001",
+  "project": {
+    "name": "proofx",
+    "repository": "https://github.com/EslaM-X/proofx"
+  },
+  "subject": {
+    "commit": "deadbeef00000000000000000000000000000000",
+    "branch": "main",
+    "repository": "https://github.com/EslaM-X/proofx"
+  },
+  "execution": {
+    "id": "exec-golden",
+    "type": "ci-workflow",
+    "startedAt": "",
+    "completedAt": "",
+    "environment": {
+      "os": "",
+      "arch": "",
+      "runtime": ""
+    }
+  },
+  "evidence": [
+    {
+      "id": "git",
+      "type": "git",
+      "source": "",
+      "timestamp": "",
+      "payload": "{\"commit\":\"deadbeef\",\"branch\":\"main\"}",
+      "digest": "6924d07139ba10def7496de5e48f4f3c2f198db7fc30e3a2fc456b4bb0c06373"
+    },
+    {
+      "id": "tests",
+      "type": "tests",
+      "source": "",
+      "timestamp": "",
+      "payload": "{\"passed\":42,\"failed\":0}",
+      "digest": "bd275ac0002206d2aa3c14cffaf1c928d18c81e01c6daf2739236a63a2c556df"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "from": "git",
+      "to": "c1",
+      "kind": "supports"
+    },
+    {
+      "id": "r2",
+      "from": "tests",
+      "to": "c1",
+      "kind": "supports"
+    }
+  ],
+  "claims": [
+    {
+      "id": "c1",
+      "type": "assertion",
+      "subject": "proof:ci",
+      "statement": "commit is correct",
+      "status": "pass",
+      "supportedBy": [
+        "git",
+        "tests"
+      ]
+    },
+    {
+      "id": "c2",
+      "type": "assertion",
+      "subject": "proof:ci",
+      "statement": "tests passed",
+      "status": "pass",
+      "supportedBy": [
+        "git",
+        "tests"
+      ]
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "828d94f036f53015c7f9e128a931bce5c7d9d84107e8e7f53ae04a31bc4acbf3",
+    "entries": [
+      {
+        "id": "claim:c1",
+        "digest": "3647efb7cf6daafc1cf82d4199baed5ad04f6fb32943f055aa08ca704fcc0a5d"
+      },
+      {
+        "id": "claim:c2",
+        "digest": "383d699549ef393938853a5f7eb67d5a32613cb9f1c99aeb62c8d27208aac8a9"
+      },
+      {
+        "id": "ev:git",
+        "digest": "6924d07139ba10def7496de5e48f4f3c2f198db7fc30e3a2fc456b4bb0c06373"
+      },
+      {
+        "id": "ev:tests",
+        "digest": "bd275ac0002206d2aa3c14cffaf1c928d18c81e01c6daf2739236a63a2c556df"
+      },
+      {
+        "id": "rel:r1",
+        "digest": "db5a6186c7f471a8f7597d7b4a3dd625773658cbb4da05786e868a8190c26298"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "e054db3f2b4f36060ce1448a3df57c64ea0e184e9bcb9b4b8b706f52e9117016"
+      },
+      {
+        "id": "rel:r3",
+        "digest": "1884748ba29cd4a5228971098af16491cca79766eec054276a46fea6d3b0b295"
+      },
+      {
+        "id": "rel:r4",
+        "digest": "ba78afa83ea030b6e18937102f2f0af20d4a67b1c39cbc69d4d066b15f6c96d2"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "Id7kQ9jGdZuwADQ0HmWXkWQn8/FIndeXSk4M8/OuJgE=",
+    "value": "T0Rnj21Aw7ZQ4MKmCX8pxG8QKTcNUKDhb/ywGcH9m2losfq53TrM+WiGtv490Kx7NLCG8JFWtHPHuz+41xukAg=="
+  },
+  "coverage": {
+    "evidence": {
+      "total": 2,
+      "verified": 2
+    },
+    "relations": {
+      "total": 4,
+      "verified": 4
+    },
+    "claims": {
+      "total": 2,
+      "verified": 2
+    },
+    "score": 100
+  },
+  "createdAt": "",
+  "builder": {
+    "name": "proofx",
+    "version": "0.4.0-golden"
+  }
+}

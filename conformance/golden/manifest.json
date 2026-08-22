@@ -1,0 +1,31 @@
+{
+  "fixtures": [
+    {
+      "expect": "pass",
+      "file": "golden-v04-valid.json"
+    },
+    {
+      "expect": "fail",
+      "failing_check": "signature",
+      "file": "golden-v04-tampered-sig.json"
+    },
+    {
+      "expect": "fail",
+      "failing_check": "binding",
+      "file": "golden-v04-tampered-claim.json"
+    },
+    {
+      "expect": "fail",
+      "failing_check": "schema",
+      "file": "golden-v04-missing-relation.json"
+    },
+    {
+      "expect": "fail",
+      "failing_check": "schema",
+      "file": "golden-v04-wrong-version.json"
+    }
+  ],
+  "generated": "by TestGoldenVectors — do not edit manually",
+  "protocol": "proofx/v0.4",
+  "version": "1.0"
+}
