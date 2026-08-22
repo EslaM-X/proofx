@@ -311,7 +311,7 @@ Want your repo here? Open a PR that adds `proofx init && proofx collect && proof
 - **v0.1** ✅ — CLI (init/keygen/collect/prove/verify/inspect), proof format + JSON schema, GitHub Action, policy gate, 6 platform binaries, dogfooding.
 - **v0.2** ✅ — `explain`, `diff`, `graph`, portable `verify --artifact`, property + fuzz tests, formal crypto spec, checksums + signed releases, Docker package.
 - **v0.3** ✅ — independent browser verification via `proofx.wasm`, 18-case conformance suite, differential native/WASM testing, GitHub Pages verifier at proofx.dev, `.gitattributes` for deterministic corpus, CI toolchain guard.
-- **v0.4** ✅ — Execution Proof Model: `supports` relations, 3-dimensional coverage, v0.4 proof format, backward-compatible verifier, 46-case conformance suite, 0-difference native↔WASM.
+- **v0.4** ✅ — Execution Proof Model: `supports` relations, 3-dimensional coverage, v0.4 proof format, backward-compatible verifier, 102-case conformance suite, cross-language verification (Go/WASM/Rust), 0-difference native↔WASM.
 - **v1.0** — SDKs (Go/JS/Python), Evidence Graph as a first-class output, dynamic verification badge, Sigstore/attestation integration, npm/PyPI/Docker collectors, certified compliance packs.
 
 ## Contributing

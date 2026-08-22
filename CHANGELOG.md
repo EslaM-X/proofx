@@ -26,6 +26,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 - **RC gates**. 6-gate release qualification: CLI/WASM differential, real
   v0.4 self-proof, cross-version interop, golden vectors, clean-install
   matrix, release artifact validation.
+- **102-case conformance suite**. Cross-language corpus covering valid proofs
+  (41), invalid proofs (46), and malformed bytes (15) — verified identically
+  by Go, WASM, and Rust implementations.
+- **Independent Rust verifier** (`verifier-rs/`). Standalone v0.4 verifier
+  in Rust, verifying Go-produced proofs with identical semantics.
+- **Attack lab** (`verifycore/v2_attack_test.go`). 14 adversarial test
+  scenarios covering cross-key forgery, evidence swap, version downgrade,
+  domain label confusion, and more.
 - **ProofX GitHub Action** generates v0.4 proofs natively.
 
 ### Changed
@@ -37,6 +45,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/).
 ### Fixed
 
 - npm postinstall: corrected `https` module import for Windows compatibility.
+
+### Security
+
+- Attack lab with 14 adversarial test scenarios covering key forgery, evidence
+  swap, version downgrade, signature truncation, domain label confusion, and
+  more. Each scenario documents the threat, expected invariant, mechanism, and
+  result. Coverage of attack scenarios is not a claim of complete security.
 
 ## [0.3.0] - Independent Verification
 
