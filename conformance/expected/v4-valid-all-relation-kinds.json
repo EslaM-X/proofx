@@ -1,0 +1,67 @@
+{
+  "proofId": "v4-valid-all-relation-kinds",
+  "valid": true,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    },
+    {
+      "name": "evidence",
+      "status": "ok"
+    },
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "commitment",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "ok"
+    },
+    {
+      "name": "claims",
+      "status": "ok"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 2,
+      "verified": 2
+    },
+    "relations": {
+      "total": 5,
+      "verified": 5
+    },
+    "claims": {
+      "total": 2,
+      "verified": 2
+    },
+    "score": 100
+  },
+  "claims": [
+    {
+      "id": "claim.build",
+      "type": "build_passed",
+      "statement": "Build passed",
+      "status": "pass",
+      "supportedBy": [
+        "git"
+      ],
+      "valid": true
+    },
+    {
+      "id": "claim.deps",
+      "type": "deps_locked",
+      "statement": "Dependencies locked",
+      "status": "pass",
+      "supportedBy": [
+        "deps"
+      ],
+      "valid": true
+    }
+  ]
+}

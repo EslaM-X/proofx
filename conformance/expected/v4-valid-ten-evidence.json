@@ -1,0 +1,66 @@
+{
+  "proofId": "v4-valid-ten-evidence",
+  "valid": true,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    },
+    {
+      "name": "evidence",
+      "status": "ok"
+    },
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "commitment",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "ok"
+    },
+    {
+      "name": "claims",
+      "status": "ok"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 10,
+      "verified": 10
+    },
+    "relations": {
+      "total": 11,
+      "verified": 11
+    },
+    "claims": {
+      "total": 1,
+      "verified": 1
+    },
+    "score": 100
+  },
+  "claims": [
+    {
+      "id": "claim.all",
+      "type": "all_verified",
+      "statement": "All evidence present",
+      "status": "pass",
+      "supportedBy": [
+        "ev-0",
+        "ev-1",
+        "ev-2",
+        "ev-3",
+        "ev-4",
+        "ev-5",
+        "ev-6",
+        "ev-7",
+        "ev-8",
+        "ev-9"
+      ],
+      "valid": true
+    }
+  ]
+}

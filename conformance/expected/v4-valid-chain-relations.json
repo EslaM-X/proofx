@@ -1,0 +1,77 @@
+{
+  "proofId": "v4-valid-chain-relations",
+  "valid": true,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    },
+    {
+      "name": "evidence",
+      "status": "ok"
+    },
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "commitment",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "ok"
+    },
+    {
+      "name": "claims",
+      "status": "ok"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 3,
+      "verified": 3
+    },
+    "relations": {
+      "total": 8,
+      "verified": 8
+    },
+    "claims": {
+      "total": 3,
+      "verified": 3
+    },
+    "score": 100
+  },
+  "claims": [
+    {
+      "id": "c1",
+      "type": "build_passed",
+      "statement": "Source committed",
+      "status": "pass",
+      "supportedBy": [
+        "src"
+      ],
+      "valid": true
+    },
+    {
+      "id": "c2",
+      "type": "build_passed",
+      "statement": "Build artifact produced",
+      "status": "pass",
+      "supportedBy": [
+        "build"
+      ],
+      "valid": true
+    },
+    {
+      "id": "c3",
+      "type": "tests_passed",
+      "statement": "Tests passed",
+      "status": "pass",
+      "supportedBy": [
+        "test"
+      ],
+      "valid": true
+    }
+  ]
+}

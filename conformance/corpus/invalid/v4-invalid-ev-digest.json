@@ -1,6 +1,6 @@
 {
   "proofVersion": "2.0",
-  "id": "v4-invalid-tampered-sig",
+  "id": "v4-invalid-ev-digest",
   "project": {
     "name": "test",
     "repository": "https://example.com/test"
@@ -28,7 +28,7 @@
       "source": "git",
       "timestamp": "",
       "payload": "{\"commit\":\"abc123\"}",
-      "digest": "a3a060aa0fe8708e7a279cd42e085f0f9bc0d9e2f73e32f23f0f56cf3f6c0981"
+      "digest": "0000000000000000000000000000000000000000000000000000000000000000"
     }
   ],
   "relations": [
@@ -41,7 +41,7 @@
   ],
   "claims": [
     {
-      "id": "claim.build",
+      "id": "c1",
       "type": "build_passed",
       "subject": "execution:exec-001",
       "statement": "Build passed",
@@ -53,15 +53,15 @@
   ],
   "binding": {
     "algorithm": "sha256",
-    "root": "e3fc1dc80638c68b19669685282e9b51f80ca8072593d15c2c8907f391c9994b",
+    "root": "d02239b0367cd766f2acebda081d50da3cebe9b14ce07ec0c17a6340218bf49c",
     "entries": [
       {
-        "id": "claim:claim.build",
+        "id": "claim:c1",
         "digest": "f547bfbd297835038dedd2bfd6fe879eb52489134ffa77302a51c3d6a4558c90"
       },
       {
         "id": "ev:git",
-        "digest": "a3a060aa0fe8708e7a279cd42e085f0f9bc0d9e2f73e32f23f0f56cf3f6c0981"
+        "digest": "0000000000000000000000000000000000000000000000000000000000000000"
       },
       {
         "id": "rel:r1",
@@ -71,8 +71,8 @@
   },
   "signature": {
     "algorithm": "ed25519",
-    "publicKey": "C0eCPnEJXdWb54rCccV27zifh7ZFYasHz5pOvNAtIEE=",
-    "value": "deadbeef"
+    "publicKey": "AgvUJ0RrcjQk2A0srTUro982SdDvj6rgyn6yVEOUGyk=",
+    "value": "o18y2I+4HdklgS2YilG4zpaxR9ua3UL8IdOwtXhBsvpGyE7V4WjD2Vn/xEzR4rOHc/JJILSN/8y4gg5DcBXnCA=="
   },
   "coverage": {
     "evidence": {

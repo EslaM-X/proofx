@@ -1,0 +1,25 @@
+{
+  "proofId": "v4-invalid-empty-ev",
+  "valid": false,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 0,
+      "verified": 0
+    },
+    "relations": {
+      "total": 0,
+      "verified": 0
+    },
+    "claims": {
+      "total": 0,
+      "verified": 0
+    },
+    "score": 0
+  }
+}

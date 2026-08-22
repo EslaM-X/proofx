@@ -1,0 +1,97 @@
+{
+  "proofId": "v4-valid-five-claims",
+  "valid": true,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    },
+    {
+      "name": "evidence",
+      "status": "ok"
+    },
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "commitment",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "ok"
+    },
+    {
+      "name": "claims",
+      "status": "ok"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 3,
+      "verified": 3
+    },
+    "relations": {
+      "total": 8,
+      "verified": 8
+    },
+    "claims": {
+      "total": 5,
+      "verified": 5
+    },
+    "score": 100
+  },
+  "claims": [
+    {
+      "id": "c1",
+      "type": "build_passed",
+      "statement": "Build passed",
+      "status": "pass",
+      "supportedBy": [
+        "git"
+      ],
+      "valid": true
+    },
+    {
+      "id": "c2",
+      "type": "tests_passed",
+      "statement": "Tests passed",
+      "status": "pass",
+      "supportedBy": [
+        "tests"
+      ],
+      "valid": true
+    },
+    {
+      "id": "c3",
+      "type": "lint_clean",
+      "statement": "Lint clean",
+      "status": "pass",
+      "supportedBy": [
+        "lint"
+      ],
+      "valid": true
+    },
+    {
+      "id": "c4",
+      "type": "execution_bound",
+      "statement": "Bound to commit",
+      "status": "pass",
+      "supportedBy": [
+        "git"
+      ],
+      "valid": true
+    },
+    {
+      "id": "c5",
+      "type": "security_scan",
+      "statement": "No vulnerabilities",
+      "status": "pass",
+      "supportedBy": [
+        "git"
+      ],
+      "valid": true
+    }
+  ]
+}

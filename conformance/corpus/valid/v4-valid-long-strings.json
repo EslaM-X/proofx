@@ -1,0 +1,107 @@
+{
+  "proofVersion": "2.0",
+  "id": "v4-valid-long-strings",
+  "project": {
+    "name": "test",
+    "repository": "https://example.com/test"
+  },
+  "subject": {
+    "commit": "abc123",
+    "branch": "main",
+    "repository": "https://example.com/test"
+  },
+  "execution": {
+    "id": "exec-001",
+    "type": "ci-workflow",
+    "startedAt": "2026-08-21T02:00:00Z",
+    "completedAt": "2026-08-21T02:05:00Z",
+    "environment": {
+      "os": "ubuntu-24.04",
+      "arch": "amd64",
+      "runtime": "go1.26.5"
+    }
+  },
+  "evidence": [
+    {
+      "id": "ev-long",
+      "type": "custom",
+      "source": "test",
+      "timestamp": "",
+      "payload": "{\"data\":\"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"}",
+      "digest": "334b1c15db9fd56f0d4f236f74f06c34cbaa0a8e884501dd92b989b623f27a8c"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "from": "exec-001",
+      "to": "ev-long",
+      "kind": "produces"
+    },
+    {
+      "id": "r2",
+      "from": "ev-long",
+      "to": "claim.long",
+      "kind": "supports"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim.long",
+      "type": "custom_check",
+      "subject": "execution:exec-001",
+      "statement": "Long payload handled",
+      "status": "pass",
+      "supportedBy": [
+        "ev-long"
+      ]
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "c1bb6b522c360f14f9e9b8a784020783930219176ff628fbf9cf428476e00774",
+    "entries": [
+      {
+        "id": "claim:claim.long",
+        "digest": "65a6a389bad71c3681d3d4d7ffa8de1cc57b43fdcc3cccd9317eaa7c1cc77e72"
+      },
+      {
+        "id": "ev:ev-long",
+        "digest": "334b1c15db9fd56f0d4f236f74f06c34cbaa0a8e884501dd92b989b623f27a8c"
+      },
+      {
+        "id": "rel:r1",
+        "digest": "fd02c3fefaefb8abb03ad9fa36f99462d2b80632b754ef8c56207257a78a73f4"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "c7c53fddf2abf2ca82af351815156ed506f15180f02a074461a4bb78c4f96ef9"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "AgvUJ0RrcjQk2A0srTUro982SdDvj6rgyn6yVEOUGyk=",
+    "value": "ulNXt8E+u+i5CBEleDdQhREMwfJRuFfVtiqvaMbUwx1gJhe7zWIZlWuOBc98WMb/4Yt/ws6QvTv9mi5XLS7qCQ=="
+  },
+  "coverage": {
+    "evidence": {
+      "total": 1,
+      "verified": 1
+    },
+    "relations": {
+      "total": 2,
+      "verified": 2
+    },
+    "claims": {
+      "total": 1,
+      "verified": 1
+    },
+    "score": 100
+  },
+  "createdAt": "2026-08-21T02:05:00Z",
+  "builder": {
+    "name": "proofx",
+    "version": "0.4.0"
+  }
+}

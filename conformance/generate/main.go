@@ -100,6 +100,16 @@ func buildCasesV4() []CaseV4 {
 	cases = append(cases, v4ValidMultiEvidence())
 	cases = append(cases, v4ValidWithRelations())
 	cases = append(cases, v4ValidEmptyBranch())
+	cases = append(cases, v4ValidUnicodeProject())
+	cases = append(cases, v4ValidPendingClaims())
+	cases = append(cases, v4ValidCustomExecType())
+	cases = append(cases, v4ValidTenEvidence())
+	cases = append(cases, v4ValidFiveClaims())
+	cases = append(cases, v4ValidSpecialChars())
+	cases = append(cases, v4ValidLongStrings())
+	cases = append(cases, v4ValidAllRelationKinds())
+	cases = append(cases, v4ValidEmptyEnvironment())
+	cases = append(cases, v4ValidNotApplicableClaims())
 
 	cases = append(cases, v4InvalidTamperedRoot())
 	cases = append(cases, v4InvalidTamperedSignature())
@@ -107,6 +117,23 @@ func buildCasesV4() []CaseV4 {
 	cases = append(cases, v4InvalidMissingSignature())
 	cases = append(cases, v4InvalidModifiedExecution())
 	cases = append(cases, v4InvalidModifiedRelation())
+	cases = append(cases, v4InvalidEvidenceDigestMismatch())
+	cases = append(cases, v4InvalidEvidencePayloadTamper())
+	cases = append(cases, v4InvalidRelationFromTamper())
+	cases = append(cases, v4InvalidRelationToTamper())
+	cases = append(cases, v4InvalidClaimSupportedByMissing())
+	cases = append(cases, v4InvalidClaimStatusTamper())
+	cases = append(cases, v4InvalidClaimTypeTamper())
+	cases = append(cases, v4InvalidBindingAlgorithm())
+	cases = append(cases, v4InvalidSignatureAlgorithm())
+	cases = append(cases, v4InvalidProjectNameTamper())
+	cases = append(cases, v4InvalidSubjectCommitTamper())
+	cases = append(cases, v4InvalidSubjectBranchTamper())
+	cases = append(cases, v4InvalidEmptyEvidenceArray())
+	cases = append(cases, v4InvalidWrongBindingRoot())
+
+	cases = append(cases, v4ExtraValidCases()...)
+	cases = append(cases, v4ExtraInvalidCases()...)
 
 	return cases
 }
@@ -643,6 +670,52 @@ func v4MakeProof(id string, ev []model.Evidence, rels []model.Relation, claims [
 		Project:      model.Project{Name: "test", Repository: "https://example.com/test"},
 		Subject:      model.Subject{Commit: "abc123", Branch: "main", Repository: "https://example.com/test"},
 		Execution:    model.Execution{ID: "exec-001", Type: model.ExecCIWorkflow, StartedAt: "2026-08-21T02:00:00Z", CompletedAt: "2026-08-21T02:05:00Z", Environment: model.Environment{OS: "ubuntu-24.04", Arch: "amd64", Runtime: "go1.26.5"}},
+		Evidence:     ev,
+		Relations:    rels,
+		Claims:       claims,
+		Coverage:     model.V4Coverage{Evidence: model.CoverageDim{Total: len(ev), Verified: len(ev)}, Relations: model.CoverageDim{Total: len(rels), Verified: len(rels)}, Claims: model.CoverageDim{Total: len(claims), Verified: len(claims)}, Score: 100},
+		CreatedAt:    "2026-08-21T02:05:00Z",
+		Builder:      model.Builder{Name: "proofx", Version: "0.4.0"},
+	}
+	entries := model.V4BindingEntries(p)
+	p.Binding = model.Binding{Algorithm: "sha256", Root: model.V4Root(entries), Entries: entries}
+	sigPayload := model.V4SigningPayload(p)
+	sig, _ := proof.SignBytes(sigPayload, priv)
+	pub := proof.PublicKeyOf(priv)
+	p.Signature = model.Signature{Algorithm: "ed25519", PublicKey: proof.EncodePublicKey(pub), Value: sig}
+	return p
+}
+
+func v4MakeProofWithProject(id, projectName string, ev []model.Evidence, rels []model.Relation, claims []model.V4Claim, priv ed25519.PrivateKey) *model.V4Proof {
+	p := &model.V4Proof{
+		ProofVersion: model.ProofVersionV2,
+		ID:           id,
+		Project:      model.Project{Name: projectName, Repository: "https://example.com/test"},
+		Subject:      model.Subject{Commit: "abc123", Branch: "main", Repository: "https://example.com/test"},
+		Execution:    model.Execution{ID: "exec-001", Type: model.ExecCIWorkflow, StartedAt: "2026-08-21T02:00:00Z", CompletedAt: "2026-08-21T02:05:00Z", Environment: model.Environment{OS: "ubuntu-24.04", Arch: "amd64", Runtime: "go1.26.5"}},
+		Evidence:     ev,
+		Relations:    rels,
+		Claims:       claims,
+		Coverage:     model.V4Coverage{Evidence: model.CoverageDim{Total: len(ev), Verified: len(ev)}, Relations: model.CoverageDim{Total: len(rels), Verified: len(rels)}, Claims: model.CoverageDim{Total: len(claims), Verified: len(claims)}, Score: 100},
+		CreatedAt:    "2026-08-21T02:05:00Z",
+		Builder:      model.Builder{Name: "proofx", Version: "0.4.0"},
+	}
+	entries := model.V4BindingEntries(p)
+	p.Binding = model.Binding{Algorithm: "sha256", Root: model.V4Root(entries), Entries: entries}
+	sigPayload := model.V4SigningPayload(p)
+	sig, _ := proof.SignBytes(sigPayload, priv)
+	pub := proof.PublicKeyOf(priv)
+	p.Signature = model.Signature{Algorithm: "ed25519", PublicKey: proof.EncodePublicKey(pub), Value: sig}
+	return p
+}
+
+func v4MakeProofWithType(id, execType string, ev []model.Evidence, rels []model.Relation, claims []model.V4Claim, priv ed25519.PrivateKey) *model.V4Proof {
+	p := &model.V4Proof{
+		ProofVersion: model.ProofVersionV2,
+		ID:           id,
+		Project:      model.Project{Name: "test", Repository: "https://example.com/test"},
+		Subject:      model.Subject{Commit: "abc123", Branch: "main", Repository: "https://example.com/test"},
+		Execution:    model.Execution{ID: "exec-001", Type: execType, StartedAt: "2026-08-21T02:00:00Z", CompletedAt: "2026-08-21T02:05:00Z", Environment: model.Environment{OS: "ubuntu-24.04", Arch: "amd64", Runtime: "go1.26.5"}},
 		Evidence:     ev,
 		Relations:    rels,
 		Claims:       claims,

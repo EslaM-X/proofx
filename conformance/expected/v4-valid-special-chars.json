@@ -1,0 +1,57 @@
+{
+  "proofId": "v4-valid-special-chars",
+  "valid": true,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    },
+    {
+      "name": "evidence",
+      "status": "ok"
+    },
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "commitment",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "ok"
+    },
+    {
+      "name": "claims",
+      "status": "ok"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 1,
+      "verified": 1
+    },
+    "relations": {
+      "total": 2,
+      "verified": 2
+    },
+    "claims": {
+      "total": 1,
+      "verified": 1
+    },
+    "score": 100
+  },
+  "claims": [
+    {
+      "id": "claim.special",
+      "type": "custom_check",
+      "statement": "Special chars handled",
+      "status": "pass",
+      "supportedBy": [
+        "ev-special"
+      ],
+      "valid": true
+    }
+  ]
+}

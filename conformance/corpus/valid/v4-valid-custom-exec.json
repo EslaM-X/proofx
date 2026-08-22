@@ -1,6 +1,6 @@
 {
   "proofVersion": "2.0",
-  "id": "v4-invalid-tampered-sig",
+  "id": "v4-valid-custom-exec",
   "project": {
     "name": "test",
     "repository": "https://example.com/test"
@@ -12,7 +12,7 @@
   },
   "execution": {
     "id": "exec-001",
-    "type": "ci-workflow",
+    "type": "local-build",
     "startedAt": "2026-08-21T02:00:00Z",
     "completedAt": "2026-08-21T02:05:00Z",
     "environment": {
@@ -37,6 +37,12 @@
       "from": "exec-001",
       "to": "git",
       "kind": "produces"
+    },
+    {
+      "id": "r2",
+      "from": "git",
+      "to": "claim.build",
+      "kind": "supports"
     }
   ],
   "claims": [
@@ -44,7 +50,7 @@
       "id": "claim.build",
       "type": "build_passed",
       "subject": "execution:exec-001",
-      "statement": "Build passed",
+      "statement": "Local build passed",
       "status": "pass",
       "supportedBy": [
         "git"
@@ -53,11 +59,11 @@
   ],
   "binding": {
     "algorithm": "sha256",
-    "root": "e3fc1dc80638c68b19669685282e9b51f80ca8072593d15c2c8907f391c9994b",
+    "root": "4b50faa3acc7325f2a85e71a8de8bae698272a8af5cab0e78310938ddbd6eb14",
     "entries": [
       {
         "id": "claim:claim.build",
-        "digest": "f547bfbd297835038dedd2bfd6fe879eb52489134ffa77302a51c3d6a4558c90"
+        "digest": "fcb382bc717d15ecbd9c7bbfcd9d054e8ba0f3c36c34afe37d81fa5ae335d425"
       },
       {
         "id": "ev:git",
@@ -66,13 +72,17 @@
       {
         "id": "rel:r1",
         "digest": "7020b93266132ac3b6590f794597019828ffc39c88dc34e16ce9605edf0fe59e"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "653e39afb2f647e437efc8bdcfd964e8571e55982b9af80c30f309f6ada99b02"
       }
     ]
   },
   "signature": {
     "algorithm": "ed25519",
-    "publicKey": "C0eCPnEJXdWb54rCccV27zifh7ZFYasHz5pOvNAtIEE=",
-    "value": "deadbeef"
+    "publicKey": "ebVWLo/mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ=",
+    "value": "pxjaDPY7ikw5Wuik2uw2oV9PlMikdMgUNIV3qj8tnQkOiY2AQl0mYwvQ1pi2UDEoEI61QeM/vco/opByLfIVDg=="
   },
   "coverage": {
     "evidence": {
@@ -80,8 +90,8 @@
       "verified": 1
     },
     "relations": {
-      "total": 1,
-      "verified": 1
+      "total": 2,
+      "verified": 2
     },
     "claims": {
       "total": 1,

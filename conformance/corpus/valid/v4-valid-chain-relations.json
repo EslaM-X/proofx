@@ -1,0 +1,219 @@
+{
+  "proofVersion": "2.0",
+  "id": "v4-valid-chain-relations",
+  "project": {
+    "name": "test",
+    "repository": "https://example.com/test"
+  },
+  "subject": {
+    "commit": "abc123",
+    "branch": "main",
+    "repository": "https://example.com/test"
+  },
+  "execution": {
+    "id": "exec-001",
+    "type": "ci-workflow",
+    "startedAt": "2026-08-21T02:00:00Z",
+    "completedAt": "2026-08-21T02:05:00Z",
+    "environment": {
+      "os": "ubuntu-24.04",
+      "arch": "amd64",
+      "runtime": "go1.26.5"
+    }
+  },
+  "evidence": [
+    {
+      "id": "src",
+      "type": "git",
+      "source": "git",
+      "timestamp": "",
+      "payload": "{\"commit\":\"abc123\"}",
+      "digest": "a874681cd2c17f6fbf0a7e84da360b4190a52631c512eea71c372c2db76ef8cd"
+    },
+    {
+      "id": "build",
+      "type": "build",
+      "source": "go",
+      "timestamp": "",
+      "payload": "{\"binary\":\"sha256:deadbeef\"}",
+      "digest": "af4e2c1afbc407787f5613c2854e7ee725d5573eb79f43191ca56b464da5699d"
+    },
+    {
+      "id": "test",
+      "type": "tests",
+      "source": "go test",
+      "timestamp": "",
+      "payload": "{\"passed\":10}",
+      "digest": "eb65507738132604d7a65894129de0e26fd2532e158b1fea5919867a9d68b45e"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "from": "exec-001",
+      "to": "src",
+      "kind": "produces"
+    },
+    {
+      "id": "r2",
+      "from": "exec-001",
+      "to": "build",
+      "kind": "produces"
+    },
+    {
+      "id": "r3",
+      "from": "exec-001",
+      "to": "test",
+      "kind": "produces"
+    },
+    {
+      "id": "r4",
+      "from": "src",
+      "to": "build",
+      "kind": "depends_on"
+    },
+    {
+      "id": "r5",
+      "from": "build",
+      "to": "test",
+      "kind": "depends_on"
+    },
+    {
+      "id": "r6",
+      "from": "src",
+      "to": "c1",
+      "kind": "supports"
+    },
+    {
+      "id": "r7",
+      "from": "build",
+      "to": "c2",
+      "kind": "supports"
+    },
+    {
+      "id": "r8",
+      "from": "test",
+      "to": "c3",
+      "kind": "supports"
+    }
+  ],
+  "claims": [
+    {
+      "id": "c1",
+      "type": "build_passed",
+      "subject": "execution:exec-001",
+      "statement": "Source committed",
+      "status": "pass",
+      "supportedBy": [
+        "src"
+      ]
+    },
+    {
+      "id": "c2",
+      "type": "build_passed",
+      "subject": "execution:exec-001",
+      "statement": "Build artifact produced",
+      "status": "pass",
+      "supportedBy": [
+        "build"
+      ]
+    },
+    {
+      "id": "c3",
+      "type": "tests_passed",
+      "subject": "execution:exec-001",
+      "statement": "Tests passed",
+      "status": "pass",
+      "supportedBy": [
+        "test"
+      ]
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "f5bd10774af0eb493f88dc71e7173bf88b4e0e02daf3ab69bd5da911c704a9f3",
+    "entries": [
+      {
+        "id": "claim:c1",
+        "digest": "8b4f6bb7558b20368796b47becbe4bca7dbf725b68c3881be12ddb154bc86906"
+      },
+      {
+        "id": "claim:c2",
+        "digest": "efeb3698539450555b1b99d8bab9fd385f8a877e466e5a3491178bd17828825b"
+      },
+      {
+        "id": "claim:c3",
+        "digest": "100e62387a877534d7766d4d50c6974c2807d3cf27d70fe3a51b477e4c145253"
+      },
+      {
+        "id": "ev:build",
+        "digest": "af4e2c1afbc407787f5613c2854e7ee725d5573eb79f43191ca56b464da5699d"
+      },
+      {
+        "id": "ev:src",
+        "digest": "a874681cd2c17f6fbf0a7e84da360b4190a52631c512eea71c372c2db76ef8cd"
+      },
+      {
+        "id": "ev:test",
+        "digest": "eb65507738132604d7a65894129de0e26fd2532e158b1fea5919867a9d68b45e"
+      },
+      {
+        "id": "rel:r1",
+        "digest": "50e4b5614c8c1b23cc3071a2d58f29b87851b39865872f569401446dc7104b36"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "00f979eea442ce681358313e9e4ab5c43192a2081ad2b080ea24177b5dd6241c"
+      },
+      {
+        "id": "rel:r3",
+        "digest": "bd87e8fabce5ec1ac49a8faae30ab2536b82d42031f661717a679cf10d4a1d81"
+      },
+      {
+        "id": "rel:r4",
+        "digest": "6a185554da28f0f1da0dc424ba6d8bb53655afab5e11ca1065a0c080cdacfa29"
+      },
+      {
+        "id": "rel:r5",
+        "digest": "11af0b65d1e6af1898b758804233e665f8650a5064148dbb13228c7a5ad45c2b"
+      },
+      {
+        "id": "rel:r6",
+        "digest": "ef32b64227138bedcc459536d8120fb8d368342a649bed15527f341a1f85a6b0"
+      },
+      {
+        "id": "rel:r7",
+        "digest": "d647f1f0dee43f966081870810ffa28e85d4d8d5e7e50672144fee1d33b41051"
+      },
+      {
+        "id": "rel:r8",
+        "digest": "0779f2392808aa2bb05ce327525b07c9c9ab1391a238a2d8963fcb18b8e7ca2b"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "5/FioQvsVZr+oZXk3OhLaVaNXSywlj60RsBoXisX8vA=",
+    "value": "siqq4CN6yD5794XCvteDP/ijXqlxxjXuHJM5aETjkvndSM18NHnA08Lj9QMhAAJl7uLKavQpyqw128FT5vjlDQ=="
+  },
+  "coverage": {
+    "evidence": {
+      "total": 3,
+      "verified": 3
+    },
+    "relations": {
+      "total": 8,
+      "verified": 8
+    },
+    "claims": {
+      "total": 3,
+      "verified": 3
+    },
+    "score": 100
+  },
+  "createdAt": "2026-08-21T02:05:00Z",
+  "builder": {
+    "name": "proofx",
+    "version": "0.4.0"
+  }
+}

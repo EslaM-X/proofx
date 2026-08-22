@@ -1,6 +1,6 @@
 {
   "proofVersion": "2.0",
-  "id": "v4-invalid-tampered-sig",
+  "id": "v4-valid-na-claims",
   "project": {
     "name": "test",
     "repository": "https://example.com/test"
@@ -37,6 +37,18 @@
       "from": "exec-001",
       "to": "git",
       "kind": "produces"
+    },
+    {
+      "id": "r2",
+      "from": "git",
+      "to": "claim.build",
+      "kind": "supports"
+    },
+    {
+      "id": "r3",
+      "from": "git",
+      "to": "claim.na",
+      "kind": "supports"
     }
   ],
   "claims": [
@@ -49,15 +61,29 @@
       "supportedBy": [
         "git"
       ]
+    },
+    {
+      "id": "claim.na",
+      "type": "security_scan",
+      "subject": "execution:exec-001",
+      "statement": "Not applicable",
+      "status": "not_applicable",
+      "supportedBy": [
+        "git"
+      ]
     }
   ],
   "binding": {
     "algorithm": "sha256",
-    "root": "e3fc1dc80638c68b19669685282e9b51f80ca8072593d15c2c8907f391c9994b",
+    "root": "877e7faf668ae8d583027536fde4ce5b5b95c244b40bdc99a3a6caf31d5823ea",
     "entries": [
       {
         "id": "claim:claim.build",
         "digest": "f547bfbd297835038dedd2bfd6fe879eb52489134ffa77302a51c3d6a4558c90"
+      },
+      {
+        "id": "claim:claim.na",
+        "digest": "e35a751fc0ee73f1900ea03c3ebb79345647f3fed6a896fdb25531fb2eccb053"
       },
       {
         "id": "ev:git",
@@ -66,13 +92,21 @@
       {
         "id": "rel:r1",
         "digest": "7020b93266132ac3b6590f794597019828ffc39c88dc34e16ce9605edf0fe59e"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "653e39afb2f647e437efc8bdcfd964e8571e55982b9af80c30f309f6ada99b02"
+      },
+      {
+        "id": "rel:r3",
+        "digest": "943d8157e34d0b9f00eb1cdcc592e17bb6eea8ccc4cfb1d31a74e0bd629efc02"
       }
     ]
   },
   "signature": {
     "algorithm": "ed25519",
-    "publicKey": "C0eCPnEJXdWb54rCccV27zifh7ZFYasHz5pOvNAtIEE=",
-    "value": "deadbeef"
+    "publicKey": "bI0UsEdZPXEX3ERZV9i91ncsMD0GQpf9yOMpkn03C9o=",
+    "value": "meR7aZJGCJqstijWLMZDPFEhNmNrgj4LUw/q6XKzLmLwrd8RhnpRYU9CkUp2YAGzFcn3i1jipbn5X8HU1+8/Cg=="
   },
   "coverage": {
     "evidence": {
@@ -80,12 +114,12 @@
       "verified": 1
     },
     "relations": {
-      "total": 1,
-      "verified": 1
+      "total": 3,
+      "verified": 3
     },
     "claims": {
-      "total": 1,
-      "verified": 1
+      "total": 2,
+      "verified": 2
     },
     "score": 100
   },

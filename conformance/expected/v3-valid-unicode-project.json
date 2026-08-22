@@ -1,0 +1,21 @@
+{
+  "proofId": "v3-valid-unicode-project",
+  "valid": true,
+  "checks": [
+    {
+      "name": "binding",
+      "status": "ok",
+      "detail": "merkle root matches evidence digests"
+    },
+    {
+      "name": "signature",
+      "status": "ok",
+      "detail": "ed25519 over full commitment"
+    }
+  ],
+  "coverage": {
+    "total": 1,
+    "verified": 1,
+    "score": 100
+  }
+}

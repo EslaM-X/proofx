@@ -1,0 +1,163 @@
+{
+  "proofVersion": "2.0",
+  "id": "v4-valid-all-relation-kinds",
+  "project": {
+    "name": "test",
+    "repository": "https://example.com/test"
+  },
+  "subject": {
+    "commit": "abc123",
+    "branch": "main",
+    "repository": "https://example.com/test"
+  },
+  "execution": {
+    "id": "exec-001",
+    "type": "ci-workflow",
+    "startedAt": "2026-08-21T02:00:00Z",
+    "completedAt": "2026-08-21T02:05:00Z",
+    "environment": {
+      "os": "ubuntu-24.04",
+      "arch": "amd64",
+      "runtime": "go1.26.5"
+    }
+  },
+  "evidence": [
+    {
+      "id": "git",
+      "type": "git",
+      "source": "git",
+      "timestamp": "",
+      "payload": "{\"commit\":\"abc123\"}",
+      "digest": "a3a060aa0fe8708e7a279cd42e085f0f9bc0d9e2f73e32f23f0f56cf3f6c0981"
+    },
+    {
+      "id": "deps",
+      "type": "deps",
+      "source": "npm",
+      "timestamp": "",
+      "payload": "{\"lockfile\":\"sha256:abcd\"}",
+      "digest": "9a93f564c5ecae75a5e9912fea749abbc3e9a63aa0e63260828bee141033073b"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "from": "exec-001",
+      "to": "git",
+      "kind": "produces"
+    },
+    {
+      "id": "r2",
+      "from": "exec-001",
+      "to": "deps",
+      "kind": "produces"
+    },
+    {
+      "id": "r3",
+      "from": "git",
+      "to": "deps",
+      "kind": "depends_on"
+    },
+    {
+      "id": "r4",
+      "from": "git",
+      "to": "claim.build",
+      "kind": "supports"
+    },
+    {
+      "id": "r5",
+      "from": "deps",
+      "to": "claim.deps",
+      "kind": "supports"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim.build",
+      "type": "build_passed",
+      "subject": "execution:exec-001",
+      "statement": "Build passed",
+      "status": "pass",
+      "supportedBy": [
+        "git"
+      ]
+    },
+    {
+      "id": "claim.deps",
+      "type": "deps_locked",
+      "subject": "execution:exec-001",
+      "statement": "Dependencies locked",
+      "status": "pass",
+      "supportedBy": [
+        "deps"
+      ]
+    }
+  ],
+  "binding": {
+    "algorithm": "sha256",
+    "root": "3018aa9e273f4fd7595a1de7856e4e459ffb55b6f3d42e4069ebd320198c1e26",
+    "entries": [
+      {
+        "id": "claim:claim.build",
+        "digest": "f547bfbd297835038dedd2bfd6fe879eb52489134ffa77302a51c3d6a4558c90"
+      },
+      {
+        "id": "claim:claim.deps",
+        "digest": "8daef67a67d3933f7fa199c1c01623ef1233b3921fdbda302d5df3c8351d83b4"
+      },
+      {
+        "id": "ev:deps",
+        "digest": "9a93f564c5ecae75a5e9912fea749abbc3e9a63aa0e63260828bee141033073b"
+      },
+      {
+        "id": "ev:git",
+        "digest": "a3a060aa0fe8708e7a279cd42e085f0f9bc0d9e2f73e32f23f0f56cf3f6c0981"
+      },
+      {
+        "id": "rel:r1",
+        "digest": "7020b93266132ac3b6590f794597019828ffc39c88dc34e16ce9605edf0fe59e"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "85b9a25a4103c16a71b298ef9bca713785aa8f5671f889a08071a9fff13640e7"
+      },
+      {
+        "id": "rel:r3",
+        "digest": "4a6bfb8482527ee3fa7bc9c627f274b0558c7a57769f867814a1b4a82c4aaa1a"
+      },
+      {
+        "id": "rel:r4",
+        "digest": "653e39afb2f647e437efc8bdcfd964e8571e55982b9af80c30f309f6ada99b02"
+      },
+      {
+        "id": "rel:r5",
+        "digest": "90273beffb675d6bd445e7a43ffca49e79234ac2cce4206ea5f6076ee1472674"
+      }
+    ]
+  },
+  "signature": {
+    "algorithm": "ed25519",
+    "publicKey": "C0eCPnEJXdWb54rCccV27zifh7ZFYasHz5pOvNAtIEE=",
+    "value": "Qp9nJnX3qpEVGuTGdvmtSRrnWJ5iVzg/ueP6Wyt2tPAFBZ8RhOcklhkgmXiEgpBTGK+pKteXJy/wLCGp3AAxAA=="
+  },
+  "coverage": {
+    "evidence": {
+      "total": 2,
+      "verified": 2
+    },
+    "relations": {
+      "total": 5,
+      "verified": 5
+    },
+    "claims": {
+      "total": 2,
+      "verified": 2
+    },
+    "score": 100
+  },
+  "createdAt": "2026-08-21T02:05:00Z",
+  "builder": {
+    "name": "proofx",
+    "version": "0.4.0"
+  }
+}

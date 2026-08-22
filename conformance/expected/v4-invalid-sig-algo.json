@@ -1,0 +1,41 @@
+{
+  "proofId": "v4-invalid-sig-algo",
+  "valid": false,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    },
+    {
+      "name": "evidence",
+      "status": "ok"
+    },
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "commitment",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "ok"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 1,
+      "verified": 0
+    },
+    "relations": {
+      "total": 0,
+      "verified": 0
+    },
+    "claims": {
+      "total": 0,
+      "verified": 0
+    },
+    "score": 0
+  }
+}

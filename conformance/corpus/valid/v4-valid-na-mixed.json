@@ -1,6 +1,6 @@
 {
   "proofVersion": "2.0",
-  "id": "v4-invalid-tampered-sig",
+  "id": "v4-valid-na-mixed",
   "project": {
     "name": "test",
     "repository": "https://example.com/test"
@@ -37,11 +37,29 @@
       "from": "exec-001",
       "to": "git",
       "kind": "produces"
+    },
+    {
+      "id": "r2",
+      "from": "git",
+      "to": "c1",
+      "kind": "supports"
+    },
+    {
+      "id": "r3",
+      "from": "git",
+      "to": "c2",
+      "kind": "supports"
+    },
+    {
+      "id": "r4",
+      "from": "git",
+      "to": "c3",
+      "kind": "supports"
     }
   ],
   "claims": [
     {
-      "id": "claim.build",
+      "id": "c1",
       "type": "build_passed",
       "subject": "execution:exec-001",
       "statement": "Build passed",
@@ -49,15 +67,43 @@
       "supportedBy": [
         "git"
       ]
+    },
+    {
+      "id": "c2",
+      "type": "tests_passed",
+      "subject": "execution:exec-001",
+      "statement": "Skipped",
+      "status": "not_applicable",
+      "supportedBy": [
+        "git"
+      ]
+    },
+    {
+      "id": "c3",
+      "type": "security_scan",
+      "subject": "execution:exec-001",
+      "statement": "Pending review",
+      "status": "pending",
+      "supportedBy": [
+        "git"
+      ]
     }
   ],
   "binding": {
     "algorithm": "sha256",
-    "root": "e3fc1dc80638c68b19669685282e9b51f80ca8072593d15c2c8907f391c9994b",
+    "root": "62bd62b9b69c36bf735d73f86337a850aa93f67a14c84d483fedaa407bea9803",
     "entries": [
       {
-        "id": "claim:claim.build",
+        "id": "claim:c1",
         "digest": "f547bfbd297835038dedd2bfd6fe879eb52489134ffa77302a51c3d6a4558c90"
+      },
+      {
+        "id": "claim:c2",
+        "digest": "27c3491c2fc98adbcd8c7419e2816e77949b9b7117b6341db61144aa154a72c4"
+      },
+      {
+        "id": "claim:c3",
+        "digest": "511d94f2cc58bb0e07fc0e56c958da1e5180b39c62c1479360de0828f84f4c79"
       },
       {
         "id": "ev:git",
@@ -66,13 +112,25 @@
       {
         "id": "rel:r1",
         "digest": "7020b93266132ac3b6590f794597019828ffc39c88dc34e16ce9605edf0fe59e"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "db5a6186c7f471a8f7597d7b4a3dd625773658cbb4da05786e868a8190c26298"
+      },
+      {
+        "id": "rel:r3",
+        "digest": "1884748ba29cd4a5228971098af16491cca79766eec054276a46fea6d3b0b295"
+      },
+      {
+        "id": "rel:r4",
+        "digest": "33b7734c144414a047945438eacfa3c9904ac19285c1562443aa5bc336812134"
       }
     ]
   },
   "signature": {
     "algorithm": "ed25519",
-    "publicKey": "C0eCPnEJXdWb54rCccV27zifh7ZFYasHz5pOvNAtIEE=",
-    "value": "deadbeef"
+    "publicKey": "iC0Oo7KGTnpYfz5pjOpEWZmDEuZV4F+l6LURnYuqyM0=",
+    "value": "ntFBUlYOLuoBtVcH3gc+wKUft3ToUW+tBsTAyweo2waKCzADpufrAGOIMZoBQLruOOaSoD35bvYNeT12ySRGAg=="
   },
   "coverage": {
     "evidence": {
@@ -80,12 +138,12 @@
       "verified": 1
     },
     "relations": {
-      "total": 1,
-      "verified": 1
+      "total": 4,
+      "verified": 4
     },
     "claims": {
-      "total": 1,
-      "verified": 1
+      "total": 3,
+      "verified": 3
     },
     "score": 100
   },

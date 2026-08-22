@@ -1,6 +1,6 @@
 {
   "proofVersion": "2.0",
-  "id": "v4-invalid-tampered-sig",
+  "id": "v4-valid-fail-claim",
   "project": {
     "name": "test",
     "repository": "https://example.com/test"
@@ -37,11 +37,23 @@
       "from": "exec-001",
       "to": "git",
       "kind": "produces"
+    },
+    {
+      "id": "r2",
+      "from": "git",
+      "to": "c1",
+      "kind": "supports"
+    },
+    {
+      "id": "r3",
+      "from": "git",
+      "to": "c2",
+      "kind": "supports"
     }
   ],
   "claims": [
     {
-      "id": "claim.build",
+      "id": "c1",
       "type": "build_passed",
       "subject": "execution:exec-001",
       "statement": "Build passed",
@@ -49,15 +61,29 @@
       "supportedBy": [
         "git"
       ]
+    },
+    {
+      "id": "c2",
+      "type": "security_scan",
+      "subject": "execution:exec-001",
+      "statement": "Scan failed",
+      "status": "fail",
+      "supportedBy": [
+        "git"
+      ]
     }
   ],
   "binding": {
     "algorithm": "sha256",
-    "root": "e3fc1dc80638c68b19669685282e9b51f80ca8072593d15c2c8907f391c9994b",
+    "root": "03c7831da6a5aba9edbc61314cdcb8a601cd2c3dc2ff13ad3835e25ec991d776",
     "entries": [
       {
-        "id": "claim:claim.build",
+        "id": "claim:c1",
         "digest": "f547bfbd297835038dedd2bfd6fe879eb52489134ffa77302a51c3d6a4558c90"
+      },
+      {
+        "id": "claim:c2",
+        "digest": "2ee03300107393bb29841a804d842e6a5ef6bf56c74916de4d440719e3822d99"
       },
       {
         "id": "ev:git",
@@ -66,13 +92,21 @@
       {
         "id": "rel:r1",
         "digest": "7020b93266132ac3b6590f794597019828ffc39c88dc34e16ce9605edf0fe59e"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "db5a6186c7f471a8f7597d7b4a3dd625773658cbb4da05786e868a8190c26298"
+      },
+      {
+        "id": "rel:r3",
+        "digest": "1884748ba29cd4a5228971098af16491cca79766eec054276a46fea6d3b0b295"
       }
     ]
   },
   "signature": {
     "algorithm": "ed25519",
-    "publicKey": "C0eCPnEJXdWb54rCccV27zifh7ZFYasHz5pOvNAtIEE=",
-    "value": "deadbeef"
+    "publicKey": "rcFAEfgtHFbZVqpPnXPYhYNhpgYEhSXg0Ixjjcdd2Mc=",
+    "value": "YC0C9a1xIICrmHaCWyUpW2aB5hI0AXpRX5WwNZi0tMYkZqiQOU3rpfBQgPVClWpn7r7MeZKGjoDael9xuhlXAQ=="
   },
   "coverage": {
     "evidence": {
@@ -80,12 +114,12 @@
       "verified": 1
     },
     "relations": {
-      "total": 1,
-      "verified": 1
+      "total": 3,
+      "verified": 3
     },
     "claims": {
-      "total": 1,
-      "verified": 1
+      "total": 2,
+      "verified": 2
     },
     "score": 100
   },

@@ -1,0 +1,67 @@
+{
+  "proofId": "v4-valid-na-claims",
+  "valid": true,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    },
+    {
+      "name": "evidence",
+      "status": "ok"
+    },
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "commitment",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "ok"
+    },
+    {
+      "name": "claims",
+      "status": "ok"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 1,
+      "verified": 1
+    },
+    "relations": {
+      "total": 3,
+      "verified": 3
+    },
+    "claims": {
+      "total": 2,
+      "verified": 2
+    },
+    "score": 100
+  },
+  "claims": [
+    {
+      "id": "claim.build",
+      "type": "build_passed",
+      "statement": "Build passed",
+      "status": "pass",
+      "supportedBy": [
+        "git"
+      ],
+      "valid": true
+    },
+    {
+      "id": "claim.na",
+      "type": "security_scan",
+      "statement": "Not applicable",
+      "status": "not_applicable",
+      "supportedBy": [
+        "git"
+      ],
+      "valid": true
+    }
+  ]
+}

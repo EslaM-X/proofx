@@ -1,0 +1,57 @@
+{
+  "proofId": "v4-valid-empty-env",
+  "valid": true,
+  "checks": [
+    {
+      "name": "version",
+      "status": "ok"
+    },
+    {
+      "name": "evidence",
+      "status": "ok"
+    },
+    {
+      "name": "binding",
+      "status": "ok"
+    },
+    {
+      "name": "commitment",
+      "status": "ok"
+    },
+    {
+      "name": "signature",
+      "status": "ok"
+    },
+    {
+      "name": "claims",
+      "status": "ok"
+    }
+  ],
+  "coverage": {
+    "evidence": {
+      "total": 1,
+      "verified": 1
+    },
+    "relations": {
+      "total": 2,
+      "verified": 2
+    },
+    "claims": {
+      "total": 1,
+      "verified": 1
+    },
+    "score": 100
+  },
+  "claims": [
+    {
+      "id": "claim.build",
+      "type": "build_passed",
+      "statement": "Build passed",
+      "status": "pass",
+      "supportedBy": [
+        "git"
+      ],
+      "valid": true
+    }
+  ]
+}

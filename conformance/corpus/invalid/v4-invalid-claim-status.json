@@ -1,6 +1,6 @@
 {
   "proofVersion": "2.0",
-  "id": "v4-invalid-tampered-sig",
+  "id": "v4-invalid-claim-status",
   "project": {
     "name": "test",
     "repository": "https://example.com/test"
@@ -37,15 +37,21 @@
       "from": "exec-001",
       "to": "git",
       "kind": "produces"
+    },
+    {
+      "id": "r2",
+      "from": "git",
+      "to": "c1",
+      "kind": "supports"
     }
   ],
   "claims": [
     {
-      "id": "claim.build",
+      "id": "c1",
       "type": "build_passed",
       "subject": "execution:exec-001",
       "statement": "Build passed",
-      "status": "pass",
+      "status": "fail",
       "supportedBy": [
         "git"
       ]
@@ -53,10 +59,10 @@
   ],
   "binding": {
     "algorithm": "sha256",
-    "root": "e3fc1dc80638c68b19669685282e9b51f80ca8072593d15c2c8907f391c9994b",
+    "root": "bbcad276ddcbd681b15d9bbcc6030f0a127e6d5df6166c867a0e6ebdfab45610",
     "entries": [
       {
-        "id": "claim:claim.build",
+        "id": "claim:c1",
         "digest": "f547bfbd297835038dedd2bfd6fe879eb52489134ffa77302a51c3d6a4558c90"
       },
       {
@@ -66,13 +72,17 @@
       {
         "id": "rel:r1",
         "digest": "7020b93266132ac3b6590f794597019828ffc39c88dc34e16ce9605edf0fe59e"
+      },
+      {
+        "id": "rel:r2",
+        "digest": "db5a6186c7f471a8f7597d7b4a3dd625773658cbb4da05786e868a8190c26298"
       }
     ]
   },
   "signature": {
     "algorithm": "ed25519",
-    "publicKey": "C0eCPnEJXdWb54rCccV27zifh7ZFYasHz5pOvNAtIEE=",
-    "value": "deadbeef"
+    "publicKey": "5/FioQvsVZr+oZXk3OhLaVaNXSywlj60RsBoXisX8vA=",
+    "value": "0d7n3C7c/yhhw6h6xk3mesJtFZQ4OxN4av+CDMOYxxkpMe7sB2dLjeVcAJ9uv6yn9+1Cw+bciOCX8WX96i58Bg=="
   },
   "coverage": {
     "evidence": {
@@ -80,8 +90,8 @@
       "verified": 1
     },
     "relations": {
-      "total": 1,
-      "verified": 1
+      "total": 2,
+      "verified": 2
     },
     "claims": {
       "total": 1,

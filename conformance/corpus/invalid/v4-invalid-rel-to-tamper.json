@@ -1,6 +1,6 @@
 {
   "proofVersion": "2.0",
-  "id": "v4-invalid-tampered-sig",
+  "id": "v4-invalid-rel-to-tamper",
   "project": {
     "name": "test",
     "repository": "https://example.com/test"
@@ -35,13 +35,13 @@
     {
       "id": "r1",
       "from": "exec-001",
-      "to": "git",
+      "to": "git-EVIL",
       "kind": "produces"
     }
   ],
   "claims": [
     {
-      "id": "claim.build",
+      "id": "c1",
       "type": "build_passed",
       "subject": "execution:exec-001",
       "statement": "Build passed",
@@ -53,10 +53,10 @@
   ],
   "binding": {
     "algorithm": "sha256",
-    "root": "e3fc1dc80638c68b19669685282e9b51f80ca8072593d15c2c8907f391c9994b",
+    "root": "728ed694eeb5f32763cb9043823ffb6b0ea0fb7eee6cf255711a24c18bab4d07",
     "entries": [
       {
-        "id": "claim:claim.build",
+        "id": "claim:c1",
         "digest": "f547bfbd297835038dedd2bfd6fe879eb52489134ffa77302a51c3d6a4558c90"
       },
       {
@@ -71,8 +71,8 @@
   },
   "signature": {
     "algorithm": "ed25519",
-    "publicKey": "C0eCPnEJXdWb54rCccV27zifh7ZFYasHz5pOvNAtIEE=",
-    "value": "deadbeef"
+    "publicKey": "bI0UsEdZPXEX3ERZV9i91ncsMD0GQpf9yOMpkn03C9o=",
+    "value": "LrkLTFWxEC4N1qX0gabZbuzWzRqDe2mTTr+EA4NuIvf3hGMraOzamJoYqZSS4bGF0nwM3aGO1VLuxyCs5aN0CA=="
   },
   "coverage": {
     "evidence": {
