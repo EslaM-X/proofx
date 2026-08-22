@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 // Copyright (c) 2026 EslaM-X <eslam.kora60@gmail.com>
 //
 // Package verifycore - adversarial attack PoC tests for v0.4 protocol.
@@ -28,8 +28,8 @@ func TestAttack_CrossKeySignature(t *testing.T) {
 	_, attackerPriv, _ := ed25519.GenerateKey(rand.Reader)
 	p.Signature = model.Signature{
 		Algorithm: "ed25519",
-		PublicKey:  victimPub,
-		Value:      base64.StdEncoding.EncodeToString(ed25519.Sign(attackerPriv, model.V4SigningPayload(p))),
+		PublicKey: victimPub,
+		Value:     base64.StdEncoding.EncodeToString(ed25519.Sign(attackerPriv, model.V4SigningPayload(p))),
 	}
 	res := V4Verify(p)
 	if res.Valid {
