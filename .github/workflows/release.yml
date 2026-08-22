@@ -70,31 +70,32 @@ jobs:
         run: |
           set -euo pipefail
           cat > /tmp/release-notes.md <<'NOTES'
-          # ProofX v0.3.0 — Independent Verification
+          # ProofX v0.4.0-rc1 — Execution Proof Model
 
           ## What's new
 
-          - **Independent verification core** (`verifycore/`). Standalone
-            verification engine with zero external dependencies.
-          - **Browser-native WASM verifier**. `proofx.wasm` runs in any
-            modern browser — no server, no network, no upload.
-          - **18-case conformance suite**. Valid, invalid, and malformed
-            proofs with deterministic corpus.
-          - **Native/WASM differential verification**. Every conformance
-            case produces identical results on native Go and WASM.
-          - **Zero-trust local browser verification**. Drop a proof file
-            on the verifier page — verification happens entirely in your
-            browser. No data leaves your machine.
-          - **ProofX self-verification**. ProofX verifies its own proofs.
-          - **GitHub Pages verifier** at proofx.dev.
-          - **`.gitattributes`** for cross-platform deterministic corpus.
-          - **CI toolchain guard**. wasm_exec.js must match the Go
-            installation (diff-based check).
+          - **v0.4 Execution Proof Model**. Every proof carries Execution,
+            Relations, and Claims — making proof structure explicit and
+            machine-readable.
+          - **3D Coverage**. Evidence, Relations, and Claims are tracked
+            independently. Score is computed across all three dimensions.
+          - **Graph-based verification**. Claims are verified via the
+            relation graph (supports), not just signature.
+          - **Native v0.4 prove**. `proofx prove` now generates v0.4 proofs
+            with Execution, Relations, and V4Claims.
+          - **v0.3 backward compatibility**. v0.4 verifier accepts v0.3
+            proofs via automatic conversion.
+          - **46-case conformance suite**. Valid, invalid, and malformed
+            proofs across v0.3 and v0.4 formats.
+          - **Golden vectors**. 5 immutable protocol fixtures defining
+            the verification contract.
+          - **Cross-version interop**. v0.3→v0.4 = PASS,
+            v0.4→v0.3 = REJECT.
 
-          ## Pipeline
+          ## Verification pipeline
 
-          Evidence → Claims → Merkle → Commitment → Ed25519 → Proof
-          → verifycore → CLI + WASM → Browser → proofx.dev
+          Parse → Schema → Evidence Digests → Binding (Merkle v2) →
+          Commitment → Signature → Claims (via Relations)
 
           ## Verify the download
 

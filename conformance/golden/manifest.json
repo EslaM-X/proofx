@@ -25,7 +25,7 @@
       "file": "golden-v04-wrong-version.json"
     }
   ],
-  "generated": "by TestGoldenVectors — do not edit manually",
+  "generated": "by TestGoldenVectors_Generate — do not edit manually",
   "protocol": "proofx/v0.4",
   "version": "1.0"
 }

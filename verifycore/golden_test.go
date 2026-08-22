@@ -13,50 +13,18 @@ import (
 // TestGoldenVectors verifies all golden vector fixtures against expected outcomes.
 // Run with: go test ./verifycore/... -run TestGoldenVectors -v
 func TestGoldenVectors(t *testing.T) {
+	// Use repo root relative path — tests run from repo root via `go test`
 	dir := filepath.Join("conformance", "golden")
-
-	// Generate golden vectors using deterministic key
-	priv := goldenPrivKey()
-	vectors := generateGoldenVectors(priv)
-
-	// Write vectors to disk (for consumption by native/wasm runners)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		t.Fatalf("mkdir %s: %v", dir, err)
-	}
-	for name, p := range vectors {
-		b, _ := json.MarshalIndent(p, "", "  ")
-		path := filepath.Join(dir, name+".json")
-		if err := os.WriteFile(path, b, 0o644); err != nil {
-			t.Fatalf("write %s: %v", name, err)
-		}
-		t.Logf("wrote %s (%d bytes)", name+".json", len(b))
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		t.Skip("golden vectors directory not found, skipping")
 	}
 
-	// Write manifest
-	manifest := map[string]interface{}{
-		"version":   "1.0",
-		"protocol":  "proofx/v0.4",
-		"generated": "by TestGoldenVectors — do not edit manually",
-		"fixtures": []map[string]interface{}{
-			{"file": "golden-v04-valid.json", "expect": "pass"},
-			{"file": "golden-v04-tampered-sig.json", "expect": "fail", "failing_check": "signature"},
-			{"file": "golden-v04-tampered-claim.json", "expect": "fail", "failing_check": "binding"},
-			{"file": "golden-v04-missing-relation.json", "expect": "fail", "failing_check": "schema"},
-			{"file": "golden-v04-wrong-version.json", "expect": "fail", "failing_check": "schema"},
-		},
-	}
-	manifestB, _ := json.MarshalIndent(manifest, "", "  ")
-	if err := os.WriteFile(filepath.Join(dir, "manifest.json"), manifestB, 0o644); err != nil {
-		t.Fatalf("write manifest: %v", err)
-	}
-
-	// --- Verify each vector ---
-
+	// Read and verify each golden vector
 	tests := []struct {
 		name     string
 		file     string
 		expectOK bool
-		failChk  string // expected failing check name (empty = all pass)
+		failChk  string
 	}{
 		{"valid", "golden-v04-valid.json", true, ""},
 		{"tampered-sig", "golden-v04-tampered-sig.json", false, "signature"},
@@ -101,7 +69,49 @@ func TestGoldenVectors(t *testing.T) {
 					t.Errorf("expected failing check %q, got checks: %v", tc.failChk, res.Checks)
 				}
 			}
+
+			t.Logf("%s: valid=%v version=%s", tc.name, res.Valid, p.ProofVersion)
 		})
+	}
+}
+
+// TestGoldenVectors_Generate generates the golden vector fixtures.
+// Run once to create/update fixtures, then commit.
+// Run with: go test ./verifycore/... -run TestGoldenVectors_Generate -v
+func TestGoldenVectors_Generate(t *testing.T) {
+	dir := filepath.Join("conformance", "golden")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatalf("mkdir %s: %v", dir, err)
+	}
+
+	priv := goldenPrivKey()
+	vectors := generateGoldenVectors(priv)
+
+	for name, p := range vectors {
+		b, _ := json.MarshalIndent(p, "", "  ")
+		path := filepath.Join(dir, name+".json")
+		if err := os.WriteFile(path, b, 0o644); err != nil {
+			t.Fatalf("write %s: %v", name, err)
+		}
+		t.Logf("wrote %s (%d bytes)", name+".json", len(b))
+	}
+
+	// Write manifest
+	manifest := map[string]interface{}{
+		"version":   "1.0",
+		"protocol":  "proofx/v0.4",
+		"generated": "by TestGoldenVectors_Generate — do not edit manually",
+		"fixtures": []map[string]interface{}{
+			{"file": "golden-v04-valid.json", "expect": "pass"},
+			{"file": "golden-v04-tampered-sig.json", "expect": "fail", "failing_check": "signature"},
+			{"file": "golden-v04-tampered-claim.json", "expect": "fail", "failing_check": "binding"},
+			{"file": "golden-v04-missing-relation.json", "expect": "fail", "failing_check": "schema"},
+			{"file": "golden-v04-wrong-version.json", "expect": "fail", "failing_check": "schema"},
+		},
+	}
+	manifestB, _ := json.MarshalIndent(manifest, "", "  ")
+	if err := os.WriteFile(filepath.Join(dir, "manifest.json"), manifestB, 0o644); err != nil {
+		t.Fatalf("write manifest: %v", err)
 	}
 }
 
@@ -114,7 +124,7 @@ func goldenPrivKey() ed25519.PrivateKey {
 func cloneGoldenV4(src *model.V4Proof) *model.V4Proof {
 	b, _ := json.Marshal(src)
 	var dst model.V4Proof
-	_ = json.Unmarshal(b, &dst)
+	json.Unmarshal(b, &dst) //nolint:errcheck
 	return &dst
 }
 
@@ -157,22 +167,18 @@ func generateGoldenVectors(priv ed25519.PrivateKey) map[string]*model.V4Proof {
 	result := make(map[string]*model.V4Proof)
 	result["golden-v04-valid"] = v4
 
-	// tampered sig
 	bad1 := cloneGoldenV4(v4)
 	bad1.Signature.Value = " tampered " + bad1.Signature.Value
 	result["golden-v04-tampered-sig"] = bad1
 
-	// tampered claim
 	bad2 := cloneGoldenV4(v4)
 	bad2.Claims[0].Statement = "TAMPERED"
 	result["golden-v04-tampered-claim"] = bad2
 
-	// missing relation
 	bad3 := cloneGoldenV4(v4)
 	bad3.Relations = bad3.Relations[:2]
 	result["golden-v04-missing-relation"] = bad3
 
-	// wrong version
 	bad4 := cloneGoldenV4(v4)
 	bad4.ProofVersion = "3.0"
 	result["golden-v04-wrong-version"] = bad4

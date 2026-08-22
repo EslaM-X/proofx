@@ -5,9 +5,9 @@
 # https://github.com/EslaM-X/proofx
 
 class Proofx < Formula
-  desc "Evidence Infrastructure for Software — CLI + GitHub Action + public verification"
+  desc "Turns software execution into proof that anyone can verify"
   homepage "https://github.com/EslaM-X/proofx"
-  version "0.3.0"
+  version "0.4.0-rc1"
   license "MIT"
   on_macos do
     on_intel do

@@ -69,7 +69,7 @@ func (c *CLI) run(args []string) int {
 }
 
 // Version is the CLI release version (overridden at build time).
-var Version = "0.3.0"
+var Version = "0.4.0-rc1"
 
 func usage(w io.Writer) {
 	fmt.Fprintf(w, `proofx %s — Evidence Infrastructure for Software
